@@ -5,6 +5,7 @@ import asyncio
 import pyperclip
 from pynput import keyboard
 import time
+import os
 from ollama_client import OllamaClient
 
 # Windows 2000 / Classic Style Palette
@@ -88,6 +89,10 @@ class DesktopAssistantUI:
         
         # Warm up the model
         asyncio.run_coroutine_threadsafe(self.warm_up(), self.loop)
+        
+        # Start Hard-Trigger Signaling Polling
+        self.signal_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".summon_signal")
+        self.check_summon_signal()
 
     async def warm_up(self):
         self.set_status("Loading kernel components...")
@@ -112,6 +117,19 @@ class DesktopAssistantUI:
 
     def set_status(self, status):
         self.root.after(0, lambda: self.status_var.set(status))
+
+    def check_summon_signal(self):
+        """Polls for the existence of a signal file to force-show the UI."""
+        if os.path.exists(self.signal_file):
+            try:
+                os.remove(self.signal_file)
+                print(f"[{time.strftime('%H:%M:%S')}] >>> SIGNAL DETECTED: Summoning Interface")
+                self.on_hotkey() # Reuse hotkey logic for deiconify/focus
+            except Exception as e:
+                print(f"Error handling signal file: {e}")
+        
+        # Poll every 500ms
+        self.root.after(500, self.check_summon_signal)
 
     def on_hotkey(self):
         print(f"[{time.strftime('%H:%M:%S')}] >>> HOTKEY TRIGGERED (Alt+Shift+Q)")
