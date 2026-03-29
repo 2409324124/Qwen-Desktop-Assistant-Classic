@@ -92,6 +92,7 @@ class DesktopAssistantUI:
         
         # Start Hard-Trigger Signaling Polling
         self.signal_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".summon_signal")
+        print(f"[{time.strftime('%H:%M:%S')}] >>> KERNEL INITIALIZED: Polling for signals at {self.signal_file}")
         self.check_summon_signal()
 
     async def warm_up(self):
@@ -119,54 +120,60 @@ class DesktopAssistantUI:
         self.root.after(0, lambda: self.status_var.set(status))
 
     def check_summon_signal(self):
-        """Polls for the existence of a signal file to force-show the UI."""
-        if os.path.exists(self.signal_file):
-            try:
+        """Polls every 500ms for a signal file. Only shows window, no clipboard."""
+        try:
+            if os.path.exists(self.signal_file):
                 os.remove(self.signal_file)
                 print(f"[{time.strftime('%H:%M:%S')}] >>> SIGNAL DETECTED: Summoning Interface")
-                self.on_hotkey() # Reuse hotkey logic for deiconify/focus
-            except Exception as e:
-                print(f"Error handling signal file: {e}")
-        
-        # Poll every 500ms
+                self.show_window()
+        except Exception as e:
+            print(f"[{time.strftime('%H:%M:%S')}] Signal error: {e}")
         self.root.after(500, self.check_summon_signal)
 
-    def on_hotkey(self):
-        print(f"[{time.strftime('%H:%M:%S')}] >>> HOTKEY TRIGGERED (Alt+Shift+Q)")
-        
-        # Show and bring to front
+    def show_window(self):
+        """Pure UI action: show the window and focus the input field."""
         self.root.after(0, self.root.deiconify)
         self.root.after(0, self.root.lift)
         self.root.after(0, self.root.focus_force)
         self.root.after(100, lambda: self.input_field.focus_set())
+
+    def on_hotkey(self):
+        print(f"[{time.strftime('%H:%M:%S')}] >>> HOTKEY TRIGGERED (Alt+Shift+Q)")
         
-        self.set_status("Querying intelligence database...")
+        # Step 1: Show the window immediately
+        self.show_window()
+        self.set_status("Reading clipboard...")
         
-        # Simulate Ctrl+C
-        print(f"[{time.strftime('%H:%M:%S')}] Simulating Ctrl+C...")
-        kb_controller = keyboard.Controller()
-        with kb_controller.pressed(keyboard.Key.ctrl):
+        # Step 2: CRITICAL - wait for Alt+Shift to be FULLY RELEASED by the OS
+        # before simulating Ctrl+C, otherwise we send Ctrl+Alt+Shift+C instead.
+        def _do_clipboard_query():
+            time.sleep(0.3)  # wait for hotkey keys to release
+            
+            print(f"[{time.strftime('%H:%M:%S')}] Simulating Ctrl+C...")
+            kb_controller = keyboard.Controller()
+            kb_controller.press(keyboard.Key.ctrl)
             kb_controller.press('c')
             kb_controller.release('c')
-        
-        # Wait for clipboard update
-        time.sleep(0.5) 
-        
-        try:
-            original_clipboard = pyperclip.paste()
-            print(f"[{time.strftime('%H:%M:%S')}] Clipboard captured ({len(original_clipboard)} chars)")
-        except Exception as e:
-            print(f"[{time.strftime('%H:%M:%S')}] Clipboard Error: {e}")
-            original_clipboard = ""
-        
-        if not original_clipboard or original_clipboard.strip() == "":
-            self.set_status("Buffer empty or clipboard inaccessible")
-            self.update_text("C:\\> Error 0x800401D3: Data stream missing from kernel space.\n\nTips:\n1. Select text first.\n2. Ensure your app allows copying.", clear=True)
-            return
+            kb_controller.release(keyboard.Key.ctrl)
+            
+            time.sleep(0.3)  # wait for clipboard to update
+            
+            try:
+                original_clipboard = pyperclip.paste()
+                print(f"[{time.strftime('%H:%M:%S')}] Clipboard captured ({len(original_clipboard)} chars)")
+            except Exception as e:
+                print(f"[{time.strftime('%H:%M:%S')}] Clipboard Error: {e}")
+                original_clipboard = ""
+            
+            if not original_clipboard or original_clipboard.strip() == "":
+                self.set_status("No selection found - type manually below")
+                self.update_text("No text selected.\n\nTip: Select text before pressing Alt+Shift+Q,\nor just type your question in the box below.", clear=True)
+                return
 
-        self.update_text(f"--- [KERNEL INPUT] ---\n{original_clipboard}\n\n--- [AI RESPONSE] ---\n", clear=True)
+            self.update_text(f"--- [SELECTED TEXT] ---\n{original_clipboard}\n\n--- [AI RESPONSE] ---\n", clear=True)
+            asyncio.run_coroutine_threadsafe(self.process_request(original_clipboard), self.loop)
         
-        asyncio.run_coroutine_threadsafe(self.process_request(original_clipboard), self.loop)
+        threading.Thread(target=_do_clipboard_query, daemon=True).start()
 
     def on_manual_submit(self, event=None):
         text = self.input_field.get().strip()
