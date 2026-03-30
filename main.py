@@ -19,9 +19,9 @@ FONT_BOLD = ("Tahoma", 10, "bold")
 class DesktopAssistantUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("Qwen Desktop Assistant - Classic v1.0")
+        self.root.title("Qwen Desktop Assistant - Classic v1.1")
         self.root.attributes("-topmost", True)
-        self.root.geometry("420x350")
+        self.root.geometry("440x380")
         self.root.configure(bg=WIN_GRAY)
         
         # Withdraw on start (hide from desktop)
@@ -38,8 +38,21 @@ class DesktopAssistantUI:
         self.label_frame = tk.Frame(main_frame, bg=WIN_GRAY, relief="sunken", borderwidth=1)
         self.label_frame.pack(fill=tk.X, padx=5, pady=5)
 
-        self.label = tk.Label(self.label_frame, text="Waiting for Alt+Q...", font=FONT_CLASSIC, bg=WIN_GRAY)
-        self.label.pack(pady=2)
+        self.label = tk.Label(self.label_frame, text="Waiting for Alt+Shift+Q...", font=FONT_CLASSIC, bg=WIN_GRAY)
+        self.label.pack(side=tk.LEFT, padx=10, pady=2)
+        
+        # Help Button (Win2000 Style)
+        btn_help = tk.Button(
+            self.label_frame, 
+            text="?", 
+            width=2, 
+            font=FONT_BOLD, 
+            bg=WIN_GRAY, 
+            command=self.show_help,
+            relief="raised",
+            borderwidth=2
+        )
+        btn_help.pack(side=tk.RIGHT, padx=5)
         
         # Output Area with Sunken Border
         self.text_area = scrolledtext.ScrolledText(
@@ -118,6 +131,20 @@ class DesktopAssistantUI:
 
     def set_status(self, status):
         self.root.after(0, lambda: self.status_var.set(status))
+
+    def show_help(self):
+        """Displays a simple help dialog using the Windows 2000 theme."""
+        import tkinter.messagebox as messagebox
+        help_text = (
+            "--- Assistant Instructions ---\n\n"
+            "1. GLOBAL CALL: Alt + Shift + Q\n"
+            "   (Highlight text first to capture it)\n\n"
+            "2. MANUAL ENTRY: Type in the box below\n"
+            "   and press ENTER to process.\n\n"
+            "3. EMERGENCY: Run show.py to force-call.\n\n"
+            "Kernel: Qwen 2.5 @ Ollama"
+        )
+        messagebox.showinfo("System Help", help_text)
 
     def check_summon_signal(self):
         """Polls every 500ms for a signal file. Only shows window, no clipboard."""

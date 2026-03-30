@@ -27,7 +27,7 @@ A lightweight, local AI desktop assistant that bridges **Ollama** and your Windo
 
 1. Clone the repository:
    ```bash
-   git clone git@github.com:YourUsername/Qwen-Desktop-Assistant-Classic.git
+   git clone git@github.com:2409324124/Qwen-Desktop-Assistant-Classic.git
    cd Qwen-Desktop-Assistant-Classic
    ```
 2. Set up your environment (recommended via Conda):
