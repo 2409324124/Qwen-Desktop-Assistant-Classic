@@ -1,0 +1,129 @@
+[
+  {
+    "name": "Coulomb's Law",
+    "category": "physics",
+    "standard_latex": "F = k_e \\frac{q_1 q_2}{R^2}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\nk_e \\frac{q_1 q_2}{R^2}\n~~^ | raw: Exception: I expected something else here\nF = k_e \\frac{q_1 q_2}{R^2}\n~~~~~~^ | normalized: Exception: I expected something else here\nF = k_e \\frac{q_1 q_2}{R^2}\n~~~~~~^"
+  },
+  {
+    "name": "RNN Hidden State Update",
+    "category": "stats_ml",
+    "standard_latex": "\\mathbf{h}_{k} = \\tanh(\\mathbf{W}\\mathbf{x}_{k} + \\mathbf{U}\\mathbf{h}_{k-1} + \\mathbf{b})",
+    "sympy_expr": "Eq(h_k, tanh(U*h_{k-1} + W*x_k + b))"
+  },
+  {
+    "name": "Hessian Matrix",
+    "category": "matrix",
+    "standard_latex": "H(f) = \\begin{bmatrix} \\frac{\\partial^2 f}{\\partial \\gamma_1^2} & \\frac{\\partial^2 f}{\\partial \\gamma_1 \\partial \\gamma_2} \\\\ \\frac{\\partial^2 f}{\\partial \\gamma_2 \\partial \\gamma_1} & \\frac{\\partial^2 f}{\\partial \\gamma_2^2} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: Unrecognized symbol | raw: Exception: Unrecognized symbol | normalized: Exception: Unrecognized symbol"
+  },
+  {
+    "name": "Complex Conjugate Product",
+    "category": "algebra_trig",
+    "standard_latex": "(a + bi)(a - bi) = a^2 + b^2",
+    "sympy_expr": "Eq((a - b*i)*(a + b*i), a**2 + b**2)"
+  },
+  {
+    "name": "Characteristic Equation",
+    "category": "matrix",
+    "standard_latex": "\\det(A - \\lambda I) = 0",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: AttributeError: 'Add' object has no attribute 'det' | raw: AttributeError: 'Add' object has no attribute 'det' | normalized: AttributeError: 'Add' object has no attribute 'det'"
+  },
+  {
+    "name": "RNN Hidden State Update",
+    "category": "stats_ml",
+    "standard_latex": "\\mathbf{h}_{T} = \\tanh(\\mathbf{W}\\mathbf{x}_{T} + \\mathbf{U}\\mathbf{h}_{T-1} + \\mathbf{b})",
+    "sympy_expr": "Eq(h_T, tanh(U*h_{T-1} + W*x_T + b))"
+  },
+  {
+    "name": "Fundamental Theorem of Calculus",
+    "category": "calculus",
+    "standard_latex": "\\int_{a}^{b} f(\\theta) d\\theta = F(b) - F(a)",
+    "sympy_expr": "Eq(Integral(f(theta), (theta, a, b)), -F(a) + F(b))"
+  },
+  {
+    "name": "Taylor Series",
+    "category": "calculus",
+    "standard_latex": "f(\\gamma) = \\sum_{k=0}^{\\infty} \\frac{f^{(k)}(a)}{k!} (\\gamma - a)^{k}",
+    "sympy_expr": "Eq(f(gamma), Sum((-a + gamma)**k*f(a)**k/factorial(k), (k, 0, oo)))"
+  },
+  {
+    "name": "Cross-Entropy Loss",
+    "category": "stats_ml",
+    "standard_latex": "\\mathcal{L} = -\\frac{1}{N} \\sum_{m=1}^{N} \\xi_{m} \\log(\\hat{\\xi}_{m}) + (1 - \\xi_{m}) \\log(1 - \\hat{\\xi}_{m})",
+    "sympy_expr": "Eq(L, (1 - xi_m)*log(1 - \\hat{\\xi}_m, 10) - 1*1*Sum(xi_m*log(\\hat{\\xi}_m, 10), (m, 1, N))/N)"
+  },
+  {
+    "name": "Softmax Function",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Softmax}(\\theta_{T}) = \\frac{\\exp(\\theta_{T})}{\\sum_j \\exp(\\theta_j)}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\frac{\\exp(\\theta_{T})}{\\sum_j \\exp(\\theta_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\n\\text{Softmax}(\\theta_{T}) = \\frac{\\exp(\\theta_{T})}{\\sum_j \\exp(\\theta_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nSoftmax(\\theta_{T}) = \\frac{\\exp(\\theta_{T})}{\\sum_j \\exp(\\theta_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Mean Squared Error",
+    "category": "stats_ml",
+    "standard_latex": "L = \\frac{1}{N} \\sum_{T=1}^{N} (\\theta_{T} - \\hat{\\theta}_{T})^2",
+    "sympy_expr": "Eq(L, 1*Sum((-\\hat{\\theta}_T + theta_T)**2, (T, 1, N))/N)"
+  },
+  {
+    "name": "Jacobian Matrix",
+    "category": "matrix",
+    "standard_latex": "J = \\begin{bmatrix} \\frac{\\partial f_1}{\\partial y_1} & \\frac{\\partial f_1}{\\partial y_2} \\\\ \\frac{\\partial f_2}{\\partial y_1} & \\frac{\\partial f_2}{\\partial y_2} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: Unrecognized symbol | raw: Exception: Unrecognized symbol | normalized: Exception: Unrecognized symbol"
+  },
+  {
+    "name": "Ampere-Maxwell Law",
+    "category": "physics",
+    "standard_latex": "\\nabla \\times \\mathbf{B} = \\mu_0 \\mathbf{J} + \\mu_0 \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial T}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\mu_0 J + \\mu_0 \\varepsilon_0 \\frac{\\partial E}{\\partial T}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\n\\nabla \\times \\mathbf{B} = \\mu_0 \\mathbf{J} + \\mu_0 \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial T}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\n\\nabla \\times B = \\mu_0 J + \\mu_0 \\varepsilon_0 \\frac{\\partial E}{\\partial T}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Law of Sines",
+    "category": "algebra_trig",
+    "standard_latex": "\\frac{\\sin A}{a} = \\frac{\\sin B}{b} = \\frac{\\sin C}{c}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: SympifyError: SympifyError: [Eq(C, pi - asin(c*sin(B)/b)), Eq(C, asin(c*sin(B)/b)), Eq(b, c*sin(B)/sin(C)), Eq(B, pi - asin(b*sin(C)/c)), Eq(B, asin(b*sin(C)/c)), Eq(c, b*sin(C)/sin(B))] | raw: AttributeError: 'list' object has no attribute 'is_Symbol' | normalized: AttributeError: 'list' object has no attribute 'is_Symbol'"
+  },
+  {
+    "name": "Double Angle Formula",
+    "category": "algebra_trig",
+    "standard_latex": "\\cos(2 \\omega) = \\cos^2 \\omega - \\sin^2 \\omega",
+    "sympy_expr": "Eq(cos(2*omega), -sin(omega)**2 + cos(omega)**2)"
+  },
+  {
+    "name": "Pythagorean Identity",
+    "category": "algebra_trig",
+    "standard_latex": "\\sin^2 \\alpha + \\cos^2 \\alpha = 1",
+    "sympy_expr": "Eq(sin(alpha)**2 + cos(alpha)**2, 1)"
+  },
+  {
+    "name": "Chain Rule",
+    "category": "calculus",
+    "standard_latex": "\\frac{d}{dz} [f(g(z))] = f'(g(z)) g'(z)",
+    "sympy_expr": "Eq(Derivative(f*g(z), z), z*g(z)*transpose(f)*transpose(g))"
+  },
+  {
+    "name": "Gaussian Integral",
+    "category": "calculus",
+    "standard_latex": "\\int_{-\\infty}^{\\infty} e^{-\\theta^2} d\\theta = \\sqrt{\\pi}",
+    "sympy_expr": "Eq(Integral(exp(-theta**2), (theta, -oo, oo)), sqrt(pi))"
+  },
+  {
+    "name": "Quotient Rule",
+    "category": "calculus",
+    "standard_latex": "\\left(\\frac{x}{\\phi}\\right)' = \\frac{x'\\phi - x\\phi'}{\\phi^2}",
+    "sympy_expr": "Eq(transpose(x)/transpose(phi), (phi*transpose(x) - x*transpose(phi))/(phi**2))"
+  },
+  {
+    "name": "Mean Squared Error",
+    "category": "stats_ml",
+    "standard_latex": "L = \\frac{1}{N} \\sum_{T=1}^{N} (\\gamma_{T} - \\hat{\\gamma}_{T})^2",
+    "sympy_expr": "Eq(L, 1*Sum((-\\hat{\\gamma}_T + gamma_T)**2, (T, 1, N))/N)"
+  }
+]
