@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Pythagorean Theorem",
+    "standard_latex": "a^2 + b^2 = c^2",
+    "sympy_expr": "Eq(a**2 + b**2, c**2)"
+  },
+  {
+    "name": "Quadratic Formula",
+    "standard_latex": "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}",
+    "sympy_expr": "Eq(x, (-b + sqrt(b**2 - 4*a*c))/(2*a))"
+  },
+  {
+    "name": "Euler's Identity",
+    "standard_latex": "e^{i\\pi} + 1 = 0",
+    "sympy_expr": "Eq(exp(I*pi) + 1, 0)"
+  },
+  {
+    "name": "Mass-Energy Equivalence",
+    "standard_latex": "E = mc^2",
+    "sympy_expr": "Eq(E, m*c**2)"
+  },
+  {
+    "name": "Area of Circle",
+    "standard_latex": "A = \\pi r^2",
+    "sympy_expr": "Eq(A, pi*r**2)"
+  }
+]

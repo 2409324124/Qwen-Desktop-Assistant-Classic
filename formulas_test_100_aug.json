@@ -1,0 +1,502 @@
+[
+  {
+    "name": "Rotation Matrix",
+    "standard_latex": "R_(\\xi) = \\begin{bmatrix} \\cos \\xi & -\\sin \\xi \\\\ \\sin \\xi & \\cos \\xi \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Fundamental Theorem of Calculus",
+    "standard_latex": "\\int_{a}^{b} f(y) dy = F(b) - F(a)",
+    "category": "calculus"
+  },
+  {
+    "name": "Schrödinger Equation",
+    "standard_latex": "i \\hbar \\frac{\\partial}{\\partial t} \\Psi = \\hat{H} \\Psi",
+    "category": "physics"
+  },
+  {
+    "name": "Geometric Series Sum",
+    "standard_latex": "S_n = \\frac{a_1(1 - r^n)}{1 - r}",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Rotation Matrix",
+    "standard_latex": "R_(\\alpha) = \\begin{bmatrix} \\cos \\alpha & -\\sin \\alpha \\\\ \\sin \\alpha & \\cos \\alpha \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Laplace Transform",
+    "standard_latex": "\\mathcal{L}\\{f(t) \\}(s) = \\int_{0}^{\\infty} f(t) e^{-st} dt",
+    "category": "calculus"
+  },
+  {
+    "name": "Coulomb's Law",
+    "standard_latex": "\\mathbf{F} = k_e \\frac{Q_1 Q_2}{d^2}",
+    "category": "physics"
+  },
+  {
+    "name": "Bayes' Theorem",
+    "standard_latex": "P(A|B) = \\frac{P(B|A)P(A)}{P(B)}",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Second Law of Thermodynamics",
+    "standard_latex": "\\Delta S \\ge 0",
+    "category": "physics"
+  },
+  {
+    "name": "Fourier Transform",
+    "standard_latex": "\\mathcal{F}\\{f(\\tau) \\}(\\omega) = \\int_{-\\infty}^{\\infty} f(\\tau) e^{-i\\omega \\tau} d\\tau",
+    "category": "calculus"
+  },
+  {
+    "name": "Jacobian Matrix",
+    "standard_latex": "J = \\begin{bmatrix} \\frac{\\partial u}{\\partial x_1} & \\frac{\\partial u}{\\partial y} \\\\ \\frac{\\partial v}{\\partial x_1} & \\frac{\\partial v}{\\partial y} \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Euler's Formula",
+    "standard_latex": "e^{i \\psi} = \\cos \\psi + i \\sin \\psi",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Quadratic Formula",
+    "standard_latex": "\\beta = \\frac{-b \\pm \\sqrt{b^2 - 4ac_3}}{2a}",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Product Rule",
+    "standard_latex": "(fv)' = f'v + fv'",
+    "category": "calculus"
+  },
+  {
+    "name": "Sample Mean",
+    "standard_latex": "\\rho = \\frac{1}{M} \\sum_{k=1}^{M} \\alpha_k",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Sample Mean",
+    "standard_latex": "\\rho = \\frac{1}{N} \\sum_{n=1}^{N} z_n",
+    "category": "stats_ml"
+  },
+  {
+    "name": "RNN Hidden State Update",
+    "standard_latex": "\\mathbf{h}_i = \\tanh(\\mathbf{W}\\mathbf{x}_i + \\mathbf{U}\\mathbf{h}_{i-1} + \\mathbf{b})",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Gauss's Law",
+    "standard_latex": "\\oint \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{enc}}{\\varepsilon_0}",
+    "category": "physics"
+  },
+  {
+    "name": "Eigenvalue Equation",
+    "standard_latex": "A \\mathbf{v} = \\lambda \\mathbf{v}",
+    "category": "matrix"
+  },
+  {
+    "name": "Geometric Series Sum",
+    "standard_latex": "S_m = \\frac{a_1(1 - r^m)}{1 - r}",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Geometric Series Sum",
+    "standard_latex": "S_k = \\frac{a_1(1 - r^k)}{1 - r}",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Euler's Identity",
+    "standard_latex": "e^{i \\pi} + 1 = 0",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Quotient Rule",
+    "standard_latex": "\\left(\\frac{u}{g}\\right)' = \\frac{u'g - ug'}{g^2}",
+    "category": "calculus"
+  },
+  {
+    "name": "Jacobian Matrix",
+    "standard_latex": "J = \\begin{bmatrix} \\frac{\\partial f_1}{\\partial x} & \\frac{\\partial f_1}{\\partial x_2} \\\\ \\frac{\\partial v}{\\partial x} & \\frac{\\partial v}{\\partial x_2} \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Law of Cosines",
+    "standard_latex": "c^2 = c_1^2 + B^2 - 2c_1B \\cos \\psi",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Fourier Transform",
+    "standard_latex": "\\mathcal{F}\\{f(t) \\}(\\omega) = \\int_{-\\infty}^{\\infty} f(t) e^{-i\\omega t} dt",
+    "category": "calculus"
+  },
+  {
+    "name": "Softmax Function",
+    "standard_latex": "\\text{Softmax}(\\gamma_k) = \\frac{e^{\\gamma_k}}{\\sum_{j=1}^C e^{\\gamma_j}}",
+    "category": "stats_ml"
+  },
+  {
+    "name": "ReLU Activation Function",
+    "standard_latex": "\\text{ReLU}(\\theta) = \\max(0, \\theta)",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Eigenvalue Equation",
+    "standard_latex": "A \\mathbf{v} = c \\mathbf{v}",
+    "category": "matrix"
+  },
+  {
+    "name": "Limit Definition of Derivative",
+    "standard_latex": "f'(y) = \\lim_{h \\to 0} \\frac{f(y + h) - f(y)}{h}",
+    "category": "calculus"
+  },
+  {
+    "name": "De Broglie Wavelength",
+    "standard_latex": "\\lambda = \\frac{h}{p}",
+    "category": "physics"
+  },
+  {
+    "name": "Fundamental Theorem of Calculus",
+    "standard_latex": "\\int_{a}^{b} f(u) du = F(b) - F(a)",
+    "category": "calculus"
+  },
+  {
+    "name": "Law of Sines",
+    "standard_latex": "\\frac{\\sin A}{a} = \\frac{\\sin B}{b} = \\frac{\\sin C}{c}",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Arithmetic Series Sum",
+    "standard_latex": "S_k = \\frac{k}{2}(a_1 + a_k)",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Hessian Matrix",
+    "standard_latex": "H(f) = \\begin{bmatrix} \\frac{\\partial^2 f}{\\partial x_1^2} & \\frac{\\partial^2 f}{\\partial x_1 \\partial y} \\\\ \\frac{\\partial^2 f}{\\partial y \\partial x_1} & \\frac{\\partial^2 f}{\\partial y^2} \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Fourier Transform",
+    "standard_latex": "\\mathcal{F}\\{f(T) \\}(\\omega) = \\int_{-\\infty}^{\\infty} f(T) e^{-i\\omega T} dT",
+    "category": "calculus"
+  },
+  {
+    "name": "Normal Distribution PDF",
+    "standard_latex": "f(\\theta) = \\frac{1}{s \\sqrt{2\\pi}} e^{-\\frac{1}{2}\\left(\\frac{\\theta-\\mu}{s}\\right)^2}",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Euler's Formula",
+    "standard_latex": "e^{i \\alpha} = \\cos \\alpha + i \\sin \\alpha",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Pythagorean Theorem",
+    "standard_latex": "a^2 + B^2 = C^2",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Fundamental Theorem of Calculus",
+    "standard_latex": "\\int_{a}^{b} f(x) dx = F(b) - F(a)",
+    "category": "calculus"
+  },
+  {
+    "name": "Covariance Matrix",
+    "standard_latex": "\\Sigma = \\begin{bmatrix} \\sigma_{\\alpha}^2 & \\rho\\sigma_\\alpha\\sigma_\\beta \\\\ \\rho\\sigma_\\alpha\\sigma_\\beta & \\sigma_{\\beta}^2 \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Covariance Matrix",
+    "standard_latex": "\\Sigma = \\begin{bmatrix} \\sigma_{X}^2 & \\rho\\sigma_X\\sigma_Y \\\\ \\rho\\sigma_X\\sigma_Y & \\sigma_{Y}^2 \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Covariance Matrix",
+    "standard_latex": "\\Sigma = \\begin{bmatrix} \\sigma_{1}^2 & \\rho\\sigma_1\\sigma_y \\\\ \\rho\\sigma_1\\sigma_y & \\sigma_{y}^2 \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Product Rule",
+    "standard_latex": "(fg)' = f'g + fg'",
+    "category": "calculus"
+  },
+  {
+    "name": "Quadratic Formula",
+    "standard_latex": "\\theta = \\frac{-b \\pm \\sqrt{b^2 - 4AC}}{2A}",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Mean Squared Error Loss",
+    "standard_latex": "L = \\frac{1}{T} \\sum_{k=1}^{T} (\\psi_k - \\hat{\\psi}_k)^2",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Mean Squared Error Loss",
+    "standard_latex": "L = \\frac{1}{N} \\sum_{n=1}^{N} (z_n - \\hat{z}_n)^2",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Binomial Theorem",
+    "standard_latex": "(\\alpha + u)^m = \\sum_{k=0}^m \\binom{m}{k} \\alpha^{m-k} u^k",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Taylor Series",
+    "standard_latex": "f(u) = \\sum_{n=0}^{\\infty} \\frac{f^{(n)}(0)}{n!} (u - 0)^{n}",
+    "category": "calculus"
+  },
+  {
+    "name": "Block Matrix",
+    "standard_latex": "M = \\begin{bmatrix} A & B \\\\ C & D \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Newton's Law of Universal Gravitation",
+    "standard_latex": "F = G \\frac{m_0_1 m_0_2}{d^2}",
+    "category": "physics"
+  },
+  {
+    "name": "Binomial Theorem",
+    "standard_latex": "(u + \\psi)^m = \\sum_{k=0}^m \\binom{m}{k} u^{m-k} \\psi^k",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Pythagorean Theorem",
+    "standard_latex": "c_1^2 + c_2^2 = c^2",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Law of Cosines",
+    "standard_latex": "c_3^2 = c_1^2 + c_2^2 - 2c_1c_2 \\cos \\alpha",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Covariance Matrix",
+    "standard_latex": "\\Sigma = \\begin{bmatrix} \\sigma_{\\alpha}^2 & \\rho\\sigma_\\alpha\\sigma_2 \\\\ \\rho\\sigma_\\alpha\\sigma_2 & \\sigma_{2}^2 \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Taylor Series",
+    "standard_latex": "f(x) = \\sum_{k=0}^{\\infty} \\frac{f^{(k)}(0)}{k!} (x - 0)^{k}",
+    "category": "calculus"
+  },
+  {
+    "name": "Quadratic Formula",
+    "standard_latex": "x = \\frac{-B \\pm \\sqrt{B^2 - 4Ac_3}}{2A}",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "ReLU Activation Function",
+    "standard_latex": "\\text{ReLU}(z) = \\max(0, z)",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Newton's Law of Universal Gravitation",
+    "standard_latex": "F = G \\frac{M_1 M_2}{d^2}",
+    "category": "physics"
+  },
+  {
+    "name": "Mass-Energy Equivalence",
+    "standard_latex": "\\Delta E = m_0c^2",
+    "category": "physics"
+  },
+  {
+    "name": "Sample Variance",
+    "standard_latex": "\\sigma^2 = \\frac{1}{T-1} \\sum_{k=1}^{T} (v_k - p)^2",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Hessian Matrix",
+    "standard_latex": "H(f) = \\begin{bmatrix} \\frac{\\partial^2 f}{\\partial x^2} & \\frac{\\partial^2 f}{\\partial x \\partial y} \\\\ \\frac{\\partial^2 f}{\\partial y \\partial x} & \\frac{\\partial^2 f}{\\partial y^2} \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Covariance Matrix",
+    "standard_latex": "\\Sigma = \\begin{bmatrix} \\sigma_{X}^2 & \\rho\\sigma_X\\sigma_\\beta \\\\ \\rho\\sigma_X\\sigma_\\beta & \\sigma_{\\beta}^2 \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Kinematic Velocity Equation",
+    "standard_latex": "w_{new} = v_0 + A_1T",
+    "category": "physics"
+  },
+  {
+    "name": "Product Rule",
+    "standard_latex": "(uv)' = u'v + uv'",
+    "category": "calculus"
+  },
+  {
+    "name": "Laplace Transform",
+    "standard_latex": "\\mathcal{L}\\{f(T) \\}(s) = \\int_{0}^{\\infty} f(T) e^{-sT} dT",
+    "category": "calculus"
+  },
+  {
+    "name": "Arithmetic Series Sum",
+    "standard_latex": "S_n = \\frac{n}{2}(a_1 + a_n)",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Ideal Gas Law",
+    "standard_latex": "P V = n R T",
+    "category": "physics"
+  },
+  {
+    "name": "Fundamental Theorem of Calculus",
+    "standard_latex": "\\int_{a}^{b} f(z) dz = F(b) - F(a)",
+    "category": "calculus"
+  },
+  {
+    "name": "Limit Definition of Derivative",
+    "standard_latex": "f'(v) = \\lim_{h \\to 0} \\frac{f(v + h) - f(v)}{h}",
+    "category": "calculus"
+  },
+  {
+    "name": "Sine Angle Addition Formula",
+    "standard_latex": "\\sin(\\phi \\pm \\xi) = \\sin \\phi \\cos \\xi \\pm \\cos \\phi \\sin \\xi",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Mass-Energy Equivalence",
+    "standard_latex": "\\Delta E = mc^2",
+    "category": "physics"
+  },
+  {
+    "name": "Coulomb's Law",
+    "standard_latex": "F = k_e \\frac{q_1 Q_2}{R^2}",
+    "category": "physics"
+  },
+  {
+    "name": "Binomial Theorem",
+    "standard_latex": "(\\psi + \\xi)^k = \\sum_{k=0}^k \\binom{k}{k} \\psi^{k-k} \\xi^k",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Sine Angle Addition Formula",
+    "standard_latex": "\\sin(\\alpha \\pm \\beta) = \\sin \\alpha \\cos \\beta \\pm \\cos \\alpha \\sin \\beta",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "RNN Hidden State Update",
+    "standard_latex": "\\mathbf{h}_j = \\tanh(\\mathbf{W}\\mathbf{x}_j + \\mathbf{U}\\mathbf{h}_{j-1} + \\mathbf{b})",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Pythagorean Theorem",
+    "standard_latex": "a^2 + b^2 = c^2",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Pythagorean Theorem",
+    "standard_latex": "a^2 + c_2^2 = c_3^2",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Characteristic Equation",
+    "standard_latex": "\\det(A - \\lambda I) = 0",
+    "category": "matrix"
+  },
+  {
+    "name": "Covariance Matrix",
+    "standard_latex": "\\Sigma = \\begin{bmatrix} \\sigma_{x}^2 & \\rho\\sigma_x\\sigma_y \\\\ \\rho\\sigma_x\\sigma_y & \\sigma_{y}^2 \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Sample Variance",
+    "standard_latex": "\\sigma^2 = \\frac{1}{M-1} \\sum_{i=1}^{M} (\\phi_i - q)^2",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Kinematic Displacement Equation",
+    "standard_latex": "v_j^2 = v_i^2 + 2\\alpha_j\\Delta x",
+    "category": "physics"
+  },
+  {
+    "name": "Quotient Rule",
+    "standard_latex": "\\left(\\frac{f}{v}\\right)' = \\frac{f'v - fv'}{v^2}",
+    "category": "calculus"
+  },
+  {
+    "name": "Taylor Series",
+    "standard_latex": "f(u) = \\sum_{k=0}^{\\infty} \\frac{f^{(k)}(0)}{k!} (u - 0)^{k}",
+    "category": "calculus"
+  },
+  {
+    "name": "Kinematic Displacement Equation",
+    "standard_latex": "v_1^2 = v_i^2 + 2A_1\\Delta x",
+    "category": "physics"
+  },
+  {
+    "name": "Chain Rule",
+    "standard_latex": "\\frac{d}{du} [f(g(u))] = f'(g(u)) g'(u)",
+    "category": "calculus"
+  },
+  {
+    "name": "Quotient Rule",
+    "standard_latex": "\\left(\\frac{f}{g}\\right)' = \\frac{f'g - fg'}{g^2}",
+    "category": "calculus"
+  },
+  {
+    "name": "Quadratic Formula",
+    "standard_latex": "\\theta = \\frac{-c_2 \\pm \\sqrt{c_2^2 - 4c_1c}}{2c_1}",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Pythagorean Theorem",
+    "standard_latex": "c_1^2 + B^2 = c_3^2",
+    "category": "algebra_trig"
+  },
+  {
+    "name": "Characteristic Equation",
+    "standard_latex": "\\det(A - c I) = 0",
+    "category": "matrix"
+  },
+  {
+    "name": "N x N Matrix with Ellipsis",
+    "standard_latex": "A = \\begin{bmatrix} w_{11} & w_{12} & \\cdots & w_{1m} \\\\ w_{21} & w_{22} & \\cdots & w_{2m} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ w_{m1} & w_{m2} & \\cdots & w_{mm} \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Newton's Law of Universal Gravitation",
+    "standard_latex": "F = G \\frac{m_0_1 m_0_2}{r^2}",
+    "category": "physics"
+  },
+  {
+    "name": "Sample Variance",
+    "standard_latex": "s^2 = \\frac{1}{T-1} \\sum_{k=1}^{T} (\\beta_k - q)^2",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Mass-Energy Equivalence",
+    "standard_latex": "E = Mc_0^2",
+    "category": "physics"
+  },
+  {
+    "name": "Taylor Series",
+    "standard_latex": "f(v) = \\sum_{p=0}^{\\infty} \\frac{f^{(p)}(a)}{p!} (v - a)^{p}",
+    "category": "calculus"
+  },
+  {
+    "name": "Kinematic Velocity Equation",
+    "standard_latex": "v_j = v_0 + \\alpha_iT",
+    "category": "physics"
+  },
+  {
+    "name": "Chain Rule",
+    "standard_latex": "\\frac{d}{dv} [f(g(v))] = f'(g(v)) g'(v)",
+    "category": "calculus"
+  },
+  {
+    "name": "Rotation Matrix",
+    "standard_latex": "R_(\\phi) = \\begin{bmatrix} \\cos \\phi & -\\sin \\phi \\\\ \\sin \\phi & \\cos \\phi \\end{bmatrix}",
+    "category": "matrix"
+  },
+  {
+    "name": "Sample Mean",
+    "standard_latex": "q = \\frac{1}{N} \\sum_{j=1}^{N} \\xi_j",
+    "category": "stats_ml"
+  },
+  {
+    "name": "Binomial Theorem",
+    "standard_latex": "(z + \\alpha)^n = \\sum_{k=0}^n \\binom{n}{k} z^{n-k} \\alpha^k",
+    "category": "algebra_trig"
+  }
+]

@@ -1,0 +1,30 @@
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "e = c^{2} m", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Mass-Energy Equivalence 应当为：E = mc^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "-1 + e^{i \\pi} = 0", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Euler's Identity 应当为：e^{i\\pi} + 1 = 0"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Convert this to LaTeX: E  equals  mc squared 2", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Mass-Energy Equivalence 应当为：E = mc^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "x = \\frac{- b + \\sqrt{- 4 a c + b^{2}}}{2 a}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Quadratic Formula 应当为：x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Check this formula: E  equals  mc squared 2", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Mass-Energy Equivalence 应当为：E = mc^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Convert this to LaTeX: a squared 2  plus  b squared 2  equals  c squared 2", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Pythagorean Theorem 应当为：a^2 + b^2 = c^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "e = c^{2} m", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Mass-Energy Equivalence 应当为：E = mc^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "a^{2} - b^{2} = c^{2}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Pythagorean Theorem 应当为：a^2 + b^2 = c^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Convert this to LaTeX: e^{i\\pi}  plus  1  equals  0", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Euler's Identity 应当为：e^{i\\pi} + 1 = 0"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "x = \\frac{- b + \\sqrt{- 4 a c + b^{2}}}{2 a}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Quadratic Formula 应当为：x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "x  equals  divided by{ minus b \\pm \\sqrt{b squared 2  minus  4ac}}{2a} - help me format this properly.", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Quadratic Formula 应当为：x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "e = c^{2} m", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Mass-Energy Equivalence 应当为：E = mc^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "-1 + e^{i \\pi} = 0", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Euler's Identity 应当为：e^{i\\pi} + 1 = 0"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "E  equals  mc squared 2 - help me format this properly.", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Mass-Energy Equivalence 应当为：E = mc^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "- a^{2} + b^{2} = c^{1}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Pythagorean Theorem 应当为：a^2 + b^2 = c^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Check this formula: a squared 2  plus  b squared 2  equals  c squared 2", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Pythagorean Theorem 应当为：a^2 + b^2 = c^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "How do I type Area of Circle? Is it A  equals  \\pi r squared 2?", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Area of Circle 应当为：A = \\pi r^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Pythagorean Theorem is usually written like a squared 2  plus  b squared 2  equals  c squared 2.", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Pythagorean Theorem 应当为：a^2 + b^2 = c^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "A = \\pi r^{2}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Area of Circle 应当为：A = \\pi r^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Quadratic Formula is usually written like x  equals  divided by{ minus b \\pm \\sqrt{b squared 2  minus  4ac}}{2a}.", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Quadratic Formula 应当为：x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Convert this to LaTeX: A  equals  \\pi r squared 2", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Area of Circle 应当为：A = \\pi r^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "A = \\pi r^{2}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Area of Circle 应当为：A = \\pi r^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Check this formula: x  equals  divided by{ minus b \\pm \\sqrt{b squared 2  minus  4ac}}{2a}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Quadratic Formula 应当为：x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Check this formula: A  equals  \\pi r squared 2", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Area of Circle 应当为：A = \\pi r^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "A = \\pi r^{2}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Area of Circle 应当为：A = \\pi r^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "\\text{False}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Euler's Identity 应当为：e^{i\\pi} + 1 = 0"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "x = \\frac{- b + \\sqrt{- 4 a c + b^{2}}}{2 a}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Quadratic Formula 应当为：x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "e^{i\\pi}  plus  1  equals  0 - help me format this properly.", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Euler's Identity 应当为：e^{i\\pi} + 1 = 0"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "a^{2} - b^{2} = c^{2}", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Pythagorean Theorem 应当为：a^2 + b^2 = c^2"}
+{"instruction": "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。", "input": "Euler's Identity is usually written like e^{i\\pi}  plus  1  equals  0.", "output": "检测到公式表述不规整或存在逻辑错误。标准的 Euler's Identity 应当为：e^{i\\pi} + 1 = 0"}

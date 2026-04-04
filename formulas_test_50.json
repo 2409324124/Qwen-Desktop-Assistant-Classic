@@ -1,0 +1,252 @@
+[
+  {
+    "name": "Generated Named Formulas Formula 1",
+    "standard_latex": "\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{Q K^T}{\\sqrt{d_k}}\\right)V",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 2",
+    "standard_latex": "E = m c^2",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Matrix Formula 3",
+    "standard_latex": "\\left[\\begin{matrix}\\sigma_x^2 & \\rho \\sigma_x \\sigma_y\\\\\\rho \\sigma_x \\sigma_y & \\sigma_y^2\\end{matrix}\\right]",
+    "category": "matrix"
+  },
+  {
+    "name": "Generated Named Formulas Formula 4",
+    "standard_latex": "e^{i\\pi} + 1 = 0",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 5",
+    "standard_latex": "\\cos(2 W) = \\cos^2(W) - \\sin^2(W)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 6",
+    "standard_latex": "i \\hbar \\frac{\\partial}{\\partial T} \\Psi(\\mathbf{r}, T) = \\left[ -\\frac{\\hbar^2}{2m} \\nabla^2 + V(\\mathbf{r}, T) \\right] \\Psi(\\mathbf{r}, T)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 7",
+    "standard_latex": "\\text{RMSNorm}(v) = \\frac{v}{\\sqrt{\\frac{1}{d} \\sum_{i=1}^d v_i^2 + \\epsilon}} \\odot \\gamma",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 8",
+    "standard_latex": "\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 9",
+    "standard_latex": "\\text{Cov}(x, \\alpha) = \\mathbb{E}[(x - \\mathbb{E}[x])(\\alpha - \\mathbb{E}[\\alpha])]",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Matrix Formula 10",
+    "standard_latex": "\\left[\\begin{matrix}\\lambda_1 & 0 & 0\\\\0 & \\lambda_2 & 0\\\\0 & 0 & \\lambda_3\\end{matrix}\\right]",
+    "category": "matrix"
+  },
+  {
+    "name": "Generated Named Formulas Formula 11",
+    "standard_latex": "F = G \\frac{m_1 m_2}{r^2}",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Calculus Formula 12",
+    "standard_latex": "\\int\\limits_{-\\infty}^\\infty e^{-x^2}\\,dx",
+    "category": "calculus"
+  },
+  {
+    "name": "Generated Named Formulas Formula 13",
+    "standard_latex": "\\text{Cov}(\\alpha, x) = \\mathbb{E}[(\\alpha - \\mathbb{E}[\\alpha])(x - \\mathbb{E}[x])]",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Calculus Formula 14",
+    "standard_latex": "x - \\frac{x^3}{6}",
+    "category": "calculus"
+  },
+  {
+    "name": "Generated Named Formulas Formula 15",
+    "standard_latex": "\\text{RMSNorm}(z) = \\frac{z}{\\sqrt{\\frac{1}{d} \\sum_{k=1}^d z_k^2 + \\epsilon}} \\odot \\gamma",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 16",
+    "standard_latex": "\\mathcal{L} = -\\frac{1}{N} \\sum_{k=1}^{N} y_k \\log(\\hat{y}_k) + (1 - y_k) \\log(1 - \\hat{y}_k)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Complex Formula 17",
+    "standard_latex": "i^2 = -1",
+    "category": "complex"
+  },
+  {
+    "name": "Generated Named Formulas Formula 18",
+    "standard_latex": "\\hat{y} = \\sigma(W \\theta + b)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 19",
+    "standard_latex": "f(u|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(u-\\mu)^2}{2\\sigma^2}}",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 20",
+    "standard_latex": "f(x|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 21",
+    "standard_latex": "\\hat{y} = \\sigma(W u + b)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Matrix Formula 22",
+    "standard_latex": "\\left[\\begin{matrix}R_{11} & R_{12} & t_1\\\\R_{21} & R_{22} & t_2\\\\0 & 0 & 1\\end{matrix}\\right]",
+    "category": "matrix"
+  },
+  {
+    "name": "Generated Named Formulas Formula 23",
+    "standard_latex": "\\mathcal{L} = -\\frac{1}{N} \\sum_{m=1}^{N} y_m \\log(\\hat{y}_m) + (1 - y_m) \\log(1 - \\hat{y}_m)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 24",
+    "standard_latex": "\\text{Softmax}(x_m) = \\frac{\\exp(x_m)}{\\sum_j \\exp(x_j)}",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Matrix Formula 25",
+    "standard_latex": "\\left[\\begin{matrix}a & b\\\\c & d\\end{matrix}\\right]",
+    "category": "matrix"
+  },
+  {
+    "name": "Generated Named Formulas Formula 26",
+    "standard_latex": "\\cos(2 \\omega) = \\cos^2(\\omega) - \\sin^2(\\omega)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Matrix Formula 27",
+    "standard_latex": "\\left[\\begin{matrix}df_{1/dx 1} & df_{1/dx 2}\\\\df_{2/dx 1} & df_{2/dx 2}\\end{matrix}\\right]",
+    "category": "matrix"
+  },
+  {
+    "name": "Generated Matrix Formula 28",
+    "standard_latex": "\\left[\\begin{matrix}1 & 0 & 0\\\\0 & 1 & 0\\\\0 & 0 & 1\\end{matrix}\\right]",
+    "category": "matrix"
+  },
+  {
+    "name": "Generated Named Formulas Formula 29",
+    "standard_latex": "\\sin^2(W) + \\cos^2(W) = 1",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Complex Formula 30",
+    "standard_latex": "\\overline{z_1 \\cdot z_2} = \\bar{z}_1 \\cdot \\bar{z}_2",
+    "category": "complex"
+  },
+  {
+    "name": "Generated Named Formulas Formula 31",
+    "standard_latex": "\\nabla \\times \\mathbf{B} = \\mu_0 \\mathbf{J} + \\mu_0 \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t}",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 32",
+    "standard_latex": "S = k_B \\ln \\Omega",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 33",
+    "standard_latex": "f(y|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(y-\\mu)^2}{2\\sigma^2}}",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 34",
+    "standard_latex": "f(\\phi|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(\\phi-\\mu)^2}{2\\sigma^2}}",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 35",
+    "standard_latex": "\\mathcal{L} = -\\frac{1}{N} \\sum_{i=1}^{N} y_i \\log(\\hat{y}_i) + (1 - y_i) \\log(1 - \\hat{y}_i)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Complex Formula 36",
+    "standard_latex": "\\operatorname{Im}(z) = \\frac{z - \\bar{z}}{2i}",
+    "category": "complex"
+  },
+  {
+    "name": "Generated Named Formulas Formula 37",
+    "standard_latex": "\\hat{y} = \\sigma(W \\phi + b)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 38",
+    "standard_latex": "e^{i y} = \\cos(y) + i \\sin(y)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 39",
+    "standard_latex": "\\text{Cov}(\\phi, x) = \\mathbb{E}[(\\phi - \\mathbb{E}[\\phi])(x - \\mathbb{E}[x])]",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Complex Formula 40",
+    "standard_latex": "z = r e^{i\\theta},\\quad r = |z|",
+    "category": "complex"
+  },
+  {
+    "name": "Generated Named Formulas Formula 41",
+    "standard_latex": "\\cos(2 \\theta) = \\cos^2(\\theta) - \\sin^2(\\theta)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 42",
+    "standard_latex": "e^{i \\alpha} = \\cos(\\alpha) + i \\sin(\\alpha)",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 43",
+    "standard_latex": "\\text{Cov}(z, z) = \\mathbb{E}[(z - \\mathbb{E}[z])(z - \\mathbb{E}[z])]",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 44",
+    "standard_latex": "\\text{RMSNorm}(u) = \\frac{u}{\\sqrt{\\frac{1}{d} \\sum_{k=1}^d u_k^2 + \\epsilon}} \\odot \\gamma",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Named Formulas Formula 45",
+    "standard_latex": "\\text{Cov}(z, \\alpha) = \\mathbb{E}[(z - \\mathbb{E}[z])(\\alpha - \\mathbb{E}[\\alpha])]",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Calculus Formula 46",
+    "standard_latex": "\\frac{d}{dx} e^{xa}",
+    "category": "calculus"
+  },
+  {
+    "name": "Generated Named Formulas Formula 47",
+    "standard_latex": "\\sin^2(\\theta) + \\cos^2(\\theta) = 1",
+    "category": "named_formulas"
+  },
+  {
+    "name": "Generated Complex Formula 48",
+    "standard_latex": "\\arg(z_1 z_2) = \\arg z_1 + \\arg z_2",
+    "category": "complex"
+  },
+  {
+    "name": "Generated Matrix Formula 49",
+    "standard_latex": "\\left[\\begin{matrix}\\cos(\\theta) & -\\sin(\\theta)\\\\\\sin(\\theta) & \\cos(\\theta)\\end{matrix}\\right]",
+    "category": "matrix"
+  },
+  {
+    "name": "Generated Complex Formula 50",
+    "standard_latex": "|z|^2 = a^2 + b^2",
+    "category": "complex"
+  }
+]
