@@ -64,7 +64,20 @@ AMBIGUOUS_SHORTCUT_CONTEXT: dict[str, str] = {
     "Laplace Transform": "Laplace transform int 0 to inf",
     "Hessian Matrix": "Hessian second partial matrix",
     "Jacobian Matrix": "Jacobian partial derivative matrix",
+    "Covariance": "covariance formula for x and y",
+    "Characteristic Equation": "det A minus lambda I equals 0",
+    "Product Rule": "product rule derivative",
+    "Softmax Function": "softmax exp over sum exp",
+    "Schrodinger Equation": "Schrodinger equation i hbar d/dt psi",
 }
+
+GENERIC_SHORTCUT_MARKERS: tuple[str, ...] = (
+    "我想问",
+    "那个",
+    "就是",
+    "怎么写",
+    "公式",
+)
 
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -119,6 +132,24 @@ def dedupe_tail(head: str, tail: str) -> str:
     return " ".join(tail_tokens[:8]).strip()
 
 
+def maybe_apply_typo_noise(text: str, rng: random.Random, strength: float = 0.12) -> str:
+    if rng.random() >= strength:
+        return text
+
+    replacements = [
+        ("alpha", "alpa"),
+        ("gamma", "gama"),
+        ("theta", "thta"),
+        ("lambda", "lamda"),
+        ("sigma", "sigm"),
+    ]
+    mutated = text
+    for source, target in replacements:
+        if source in mutated and rng.random() < 0.45:
+            mutated = mutated.replace(source, target, 1)
+    return mutated
+
+
 def choose_applicable_rule(text: str, formula_name: str, formula: str, rng: random.Random) -> str:
     applicable = dict(DEFAULT_RULE_WEIGHTS)
     signal = f"{text} {formula_name} {formula}"
@@ -146,17 +177,18 @@ def apply_ascii_substitute(text: str, formula: str, rng: random.Random) -> str:
     fragment = latex_to_ascii_fragment(formula)
 
     if concise != text and rng.random() < 0.7:
-        return concise
+        return maybe_apply_typo_noise(concise, rng)
 
     if len(concise) > 48:
         suffix = dedupe_tail(concise, fragment)
-        return f"{concise[:48].rstrip()} {suffix}".strip() if suffix else concise[:64].rstrip()
+        out = f"{concise[:48].rstrip()} {suffix}".strip() if suffix else concise[:64].rstrip()
+        return maybe_apply_typo_noise(out, rng)
 
     prefix = concise if concise and rng.random() < 0.4 else ""
     suffix = dedupe_tail(prefix, fragment)
     if prefix and suffix:
-        return f"{prefix} {suffix}".strip()
-    return suffix or concise or fragment
+        return maybe_apply_typo_noise(f"{prefix} {suffix}".strip(), rng)
+    return maybe_apply_typo_noise(suffix or concise or fragment, rng)
 
 
 def apply_mixed_language(text: str, formula_name: str, rng: random.Random) -> str:
@@ -270,10 +302,14 @@ def apply_keyword_shorthand(text: str, formula_name: str, formula: str, rng: ran
     concise = maybe_trim(text, rng)
     parts = [part.strip() for part in re.split(r"[，,。.;；]", concise) if part.strip()]
     if parts:
-        return parts[0][:48]
+        candidate = parts[0][:48]
+        if len(candidate) >= 10 and not any(marker in candidate for marker in GENERIC_SHORTCUT_MARKERS):
+            return candidate
 
     fragment = latex_to_ascii_fragment(formula)
     tokens = [token for token in re.split(r"[^A-Za-z0-9_+-]+", fragment) if token]
+    if formula_name:
+        return f"{formula_name} { ' '.join(tokens[:3])}".strip()[:56]
     return " ".join(tokens[: min(5, len(tokens))]) or fragment[:48]
 
 
@@ -287,8 +323,9 @@ def apply_code_fragment_noise(text: str, formula_name: str, formula: str, rng: r
         f"{shortcut}: {fragment}",
         f"{label} -> {fragment}",
         f"{fragment} // {label}",
+        fragment,
     ]
-    return rng.choice(variants)
+    return maybe_apply_typo_noise(rng.choice(variants), rng, strength=0.08)
 
 
 def mutate_record(record: dict[str, Any], rng: random.Random) -> dict[str, Any]:
@@ -347,7 +384,7 @@ def build_noisy_records(records: list[dict[str, Any]], count: int, seed: int) ->
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--src", default="train_clean_v1_120.jsonl")
-    parser.add_argument("--out", default="train_noisy_v2_100.jsonl")
+    parser.add_argument("--out", default="train_noisy_v3_100.jsonl")
     parser.add_argument("--count", type=int, default=100)
     parser.add_argument("--seed", type=int, default=42)
     return parser.parse_args()
