@@ -13,22 +13,20 @@ DEFAULT_INSTRUCTION = "请将以下含糊、口语化或程序化描述还原为
 DEFAULT_GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta"
 DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 
-# Gemini 结构化输出 schema。
-# 我们直接把输出格式钉死成 3 个字符串字段，便于后续稳定 flatten。
 PERSPECTIVE_JSON_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "beginner": {
             "type": "string",
-            "description": "纯口语化描述（小白视角），只能用通俗自然语言描述公式形态。",
+            "description": "纯口语化描述（小白视角），用自然中文描述用户会怎么说这条公式。",
         },
         "programmer": {
             "type": "string",
-            "description": "键盘伪代码（程序员视角），使用纯键盘字符、缩写或类代码逻辑表达。",
+            "description": "键盘伪代码（程序员视角），用 plain-text、ASCII、代码式写法表达公式。",
         },
         "researcher": {
             "type": "string",
-            "description": "中英夹杂的含糊拼写（真实科研场景），允许术语缩写、中英文混合和局部省略。",
+            "description": "中英夹杂的科研速记（真实科研场景），像组会笔记、草稿、推导速记。",
         },
     },
     "required": ["beginner", "programmer", "researcher"],
@@ -37,7 +35,6 @@ PERSPECTIVE_JSON_SCHEMA: dict[str, Any] = {
 
 
 def load_local_env(env_path: str = ".env") -> None:
-    # 轻量级 .env 读取器，避免为了加载 API key 额外引入 python-dotenv。
     if not os.path.exists(env_path):
         return
 
@@ -55,19 +52,12 @@ def load_local_env(env_path: str = ".env") -> None:
 
 
 class PerspectiveGenerator(ABC):
-    # 外部生成器统一接口。
-    # 任何模型提供方只要实现 generate(formula) -> 三视角 dict，
-    # data_builder 的其余部分就可以保持不变。
     @abstractmethod
     async def generate(self, formula: dict[str, Any]) -> dict[str, str]:
         raise NotImplementedError
 
 
 class GeminiGenerator(PerspectiveGenerator):
-    # 真实 Gemini REST 适配器。
-    #
-    # 这里把“怎么请求 Gemini”封装起来，
-    # 让数据管道层只关心标准输入和标准输出。
     def __init__(
         self,
         api_key: str,
@@ -85,50 +75,57 @@ class GeminiGenerator(PerspectiveGenerator):
 
     @staticmethod
     def _normalize_model_name(model: str) -> str:
-        # 兼容两种写法：
-        # 1. gemini-2.5-flash
-        # 2. models/gemini-2.5-flash
         return model.split("/", 1)[1] if model.startswith("models/") else model
 
     def _build_prompt(self, formula: dict[str, Any]) -> str:
-        # 这里保留 provider-specific prompt。
-        # 当前先采用中文主提示词，后续如果要做中英双语扩展，继续在这里演进即可。
+        # 这版 prompt 吸收了 Tavily 检索得到的真实网页表达风格：
+        # 1. beginner 更像用户提问，而不是逐字符念符号
+        # 2. programmer 更像 plain-text/ASCII/代码式键盘输入
+        # 3. researcher 更像中英夹杂、组会速记、草稿 shorthand
+        #
+        # 同时继续严格限制：不能求解、不能解释含义、不能改写变量结构、不能直接抄标准公式。
         return (
             "# [角色设定]\n"
-            "你是一位资深的大语言模型（LLM）数据合成专家与提示词工程师。"
-            "你深谙如何为 SFT（监督微调）和 LoRA 训练构建高质量、多样化的指令微调数据集。"
-            "你极其擅长角色扮演与用户意图逆向工程，能够精准模拟不同知识背景"
-            "（从零基础小白到资深科研人员）的用户在使用大模型处理数学、深度学习或工程公式时的真实输入习惯。\n\n"
-            "# [背景上下文]\n"
-            "在真实的科研与工程场景中，用户输入复杂数学公式或特定领域术语时，往往不会使用标准且完美的 LaTeX 语法。"
-            "为了提升大语言模型对人类泛化输入，尤其是具有高度长尾特征的口语化、伪代码化、中英夹杂输入的理解与泛化能力，"
-            "我们需要批量合成多样化的用户指令特征。当前需要针对给定的标准公式或学术表达式，"
-            "生成三种不同认知颗粒度的自然语言描述，以模拟真实世界的复杂 Prompt 场景。\n\n"
-            "# [核心任务]\n"
-            "你的核心任务是接收输入的标准公式，并将其准确降维、拆解并重构为以下三种特定视角的输入特征：\n"
-            "1. 纯口语化描述（小白视角）：完全不使用任何专业数学符号或编程术语，用最基础、最通俗的日常语言描述公式的视觉形态。\n"
-            "2. 键盘伪代码（程序员视角）：模拟软件工程师在不方便输入公式时，习惯使用的纯键盘字符、缩写或类代码逻辑表达。\n"
-            "3. 中英夹杂的含糊拼写（真实科研场景）：模拟科研人员在组会记录、快速推导或编写草稿时，极具特征的中英文混用、术语缩写及部分结构省略的表达。\n\n"
-            "# [边界与约束]\n"
-            "1. 严禁过度解释：仅翻译和模拟输入的形态，绝对不能对目标公式进行数学求解、化简或解释其物理/工程意义。\n"
-            "2. 严禁偏离设定：三种视角的颗粒度必须泾渭分明，不能在小白视角中出现编程缩写，也不能在程序员视角中出现过多中文口语连接词。\n"
-            "3. 严禁捏造数据：必须 100% 忠实于目标公式本身的变量和结构，绝对不能脑补原公式中不存在的参数、常数或条件限制。\n"
-            "4. 格式硬约束：最终只返回结构化 JSON，对应字段为 beginner、programmer、researcher；禁止输出任何额外说明。\n\n"
+            "你是一位资深的大语言模型数据合成专家与提示词工程师，擅长为 SFT/LoRA 构造高质量用户输入数据。\n\n"
+            "# [任务目标]\n"
+            "给定一条标准公式，请生成三种不同风格的“用户输入”，这些输入都应该指向同一个目标公式，"
+            "但表达方式要像真实人类会输入给模型的话，而不是把标准公式原样抄一遍。\n\n"
             "# [目标公式元数据]\n"
             f"- name: {formula.get('name', 'unknown')}\n"
             f"- category: {formula.get('category', 'unknown')}\n"
             f"- target_formula: {formula['standard_latex']}\n"
             f"- sympy_expr: {formula.get('sympy_expr')}\n\n"
-            "# [字段语义映射]\n"
-            "- beginner 对应：纯口语化描述（小白视角）\n"
-            "- programmer 对应：键盘伪代码（程序员视角）\n"
-            "- researcher 对应：中英夹杂的含糊拼写（真实科研场景）\n"
+            "# [三种视角要求]\n"
+            "1. beginner（纯口语化描述 / 小白视角）\n"
+            "- 必须主要使用自然中文。\n"
+            "- 要像真实用户在问模型“这个公式怎么写”。\n"
+            "- 可以描述结构，但不要机械地逐字符念公式。\n"
+            "- 少用“像某个符号长什么样”这类生硬表达。\n"
+            "- 不要出现太多程序员式符号缩写，比如 sum、inf、==、exp( 之类。\n\n"
+            "2. programmer（键盘伪代码 / 程序员视角）\n"
+            "- 要像人在键盘上直接输入的 plain-text 公式。\n"
+            "- 允许使用 ASCII、函数名、简写、代码风格写法。\n"
+            "- 可以使用 sum(), exp(), int, sqrt, ^, **, ==, <= 这类键盘表达。\n"
+            "- 但不要只是把标准公式机械转抄成另一种排版；要保留真实输入感。\n\n"
+            "3. researcher（中英夹杂科研速记 / 真实科研场景）\n"
+            "- 要像组会笔记、论文草稿、推导速记、白板记录。\n"
+            "- 允许中英夹杂、术语缩写、局部省略、简短片段式表达。\n"
+            "- 风格应更像 shorthand，而不是完整解释句。\n"
+            "- 可以简洁，但必须仍然能明显指向目标公式。\n\n"
+            "# [硬性约束]\n"
+            "1. 严禁求解、推导、解释物理意义或数学意义。\n"
+            "2. 严禁捏造目标公式中不存在的变量、系数、上下限、条件。\n"
+            "3. 三个字段必须都忠实对应同一条目标公式。\n"
+            "4. beginner / programmer / researcher 三种风格必须明显不同。\n"
+            "5. 不要输出 markdown、标题、解释、问候语。\n"
+            "6. 最终只返回结构化 JSON，对应字段为 beginner、programmer、researcher。\n\n"
+            "# [反例提醒]\n"
+            "- 不要把 beginner 写成逐字符读公式。\n"
+            "- 不要把 programmer 写成几乎与标准公式完全一样的转写。\n"
+            "- 不要把 researcher 写成完整教材式解释段落。\n"
         )
 
     def _build_request_payload(self, formula: dict[str, Any]) -> dict[str, Any]:
-        # 官方文档说明：
-        # generateContent 使用 contents + generationConfig，
-        # 且 structured output 要设置 responseMimeType 和 responseJsonSchema。
         return {
             "contents": [
                 {
@@ -142,7 +139,7 @@ class GeminiGenerator(PerspectiveGenerator):
             "generationConfig": {
                 "responseMimeType": "application/json",
                 "responseJsonSchema": PERSPECTIVE_JSON_SCHEMA,
-                "temperature": 0.7,
+                "temperature": 0.75,
             },
         }
 
@@ -178,12 +175,6 @@ class GeminiGenerator(PerspectiveGenerator):
 
 
 class AsyncFormulaDatasetBuilder:
-    # 数据管道层：
-    # 1. 读取标准公式
-    # 2. 调用外部生成器
-    # 3. 校验输出契约
-    # 4. 展平为训练样本
-    # 5. 保存 jsonl
     def __init__(
         self,
         src_path: str,
@@ -220,7 +211,6 @@ class AsyncFormulaDatasetBuilder:
         self.formulas = filtered
 
     def validate_generated_payload(self, payload: Any) -> dict[str, str]:
-        # 这里把下游训练需要的数据契约钉死。
         if not isinstance(payload, dict):
             raise ValueError("generator output must be a dict")
 
@@ -235,7 +225,6 @@ class AsyncFormulaDatasetBuilder:
     async def _request_formula(self, formula: dict[str, Any]) -> list[dict[str, Any]]:
         last_error = "unknown error"
 
-        # semaphore 仍然保留，主要是为了控制 API 并发、失败风暴和整体稳定性。
         async with self.semaphore:
             for attempt in range(self.retries + 1):
                 try:
@@ -255,7 +244,6 @@ class AsyncFormulaDatasetBuilder:
         formula: dict[str, Any],
         generated: dict[str, str],
     ) -> list[dict[str, Any]]:
-        # 1 条公式 * 3 个视角 -> 3 条独立训练样本。
         records: list[dict[str, Any]] = []
         for perspective in ("beginner", "programmer", "researcher"):
             records.append(

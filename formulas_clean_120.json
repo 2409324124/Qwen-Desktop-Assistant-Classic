@@ -1,0 +1,752 @@
+[
+  {
+    "name": "RNN Hidden State Update",
+    "category": "stats_ml",
+    "standard_latex": "\\mathbf{h}_{m} = \\tanh(\\mathbf{W}\\mathbf{x}_{m} + \\mathbf{U}\\mathbf{h}_{m-1} + \\mathbf{b})",
+    "sympy_expr": "Eq(h_m, tanh(U*h_{m-1} + W*x_m + b))"
+  },
+  {
+    "name": "Mean Squared Error",
+    "category": "stats_ml",
+    "standard_latex": "L = \\frac{1}{M} \\sum_{n=1}^{M} (\\alpha_{n} - \\hat{\\alpha}_{n})^2",
+    "sympy_expr": "Eq(L, 1*Sum((-\\hat{\\alpha}_n + alpha_n)**2, (n, 1, M))/M)"
+  },
+  {
+    "name": "ReLU Activation Function",
+    "category": "stats_ml",
+    "standard_latex": "\\text{ReLU}(\\theta) = \\max(0, \\theta)",
+    "sympy_expr": "Eq(E*L*R*U(theta), Max(0, theta))"
+  },
+  {
+    "name": "Self-Attention Mechanism",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{Q K^T}{\\sqrt{d_k}}\\right)V",
+    "sympy_expr": "Eq(E*A*i*n*o*t*t*t*n(Q, K, V), V*a*f*m*o*s*t*x*(Q*transpose(K))/(sqrt(d_k)))"
+  },
+  {
+    "name": "Softmax Function",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Softmax}(\\gamma_{k}) = \\frac{\\exp(\\gamma_{k})}{\\sum_j \\exp(\\gamma_j)}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\frac{\\exp(\\gamma_{k})}{\\sum_j \\exp(\\gamma_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\n\\text{Softmax}(\\gamma_{k}) = \\frac{\\exp(\\gamma_{k})}{\\sum_j \\exp(\\gamma_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nSoftmax(\\gamma_{k}) = \\frac{\\exp(\\gamma_{k})}{\\sum_j \\exp(\\gamma_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "RNN Hidden State Update",
+    "category": "stats_ml",
+    "standard_latex": "\\mathbf{h}_{M} = \\tanh(\\mathbf{W}\\mathbf{x}_{M} + \\mathbf{U}\\mathbf{h}_{M-1} + \\mathbf{b})",
+    "sympy_expr": "Eq(h_M, tanh(U*h_{M-1} + W*x_M + b))"
+  },
+  {
+    "name": "Mean Squared Error",
+    "category": "stats_ml",
+    "standard_latex": "L = \\frac{1}{T} \\sum_{n=1}^{T} (v_{n} - \\hat{v}_{n})^2",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\frac{1}{T} \\sum_{n=1}^{T} (v_{n} - \\hat{v}_{n})^2\n~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\nL = \\frac{1}{T} \\sum_{n=1}^{T} (v_{n} - \\hat{v}_{n})^2\n~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nL = \\frac{1}{T} \\sum_{n=1}^{T} (v_{n} - \\hat{v}_{n})^2\n~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Fundamental Theorem of Calculus",
+    "category": "calculus",
+    "standard_latex": "\\int_{a}^{b} f(z) dz = F(b) - F(a)",
+    "sympy_expr": "Eq(Integral(f(z), (z, a, b)), -F(a) + F(b))"
+  },
+  {
+    "name": "Gradient Descent Update",
+    "category": "stats_ml",
+    "standard_latex": "\\phi_{n} = \\phi_{n-1} - \\eta \\nabla J(\\phi_{n-1})",
+    "sympy_expr": "Eq(phi_n, -\\nabla*eta*J(phi_{n-1}) + phi_{n-1})"
+  },
+  {
+    "name": "Fourier Transform",
+    "category": "calculus",
+    "standard_latex": "\\mathcal{F}\\{f(n)\\}(\\omega) = \\int_{-\\infty}^{\\infty} f(n) e^{-i\\omega n} dn",
+    "sympy_expr": "Eq(F*omega*f(n), Integral(f(n)*exp(-i*n*omega), (n, -oo, oo)))"
+  },
+  {
+    "name": "Laplace Transform",
+    "category": "calculus",
+    "standard_latex": "\\mathcal{L}\\{f(M)\\}(s) = \\int_{0}^{\\infty} f(M) e^{-sM} dM",
+    "sympy_expr": "Eq(L*s*f(M), Integral(f(M)*exp(-M*s), (M, 0, oo)))"
+  },
+  {
+    "name": "Sample Variance",
+    "category": "stats_ml",
+    "standard_latex": "s^2 = \\frac{1}{N-1} \\sum_{i=1}^{N} (\\theta_{i} - \\bar{\\theta})^2",
+    "sympy_expr": "Eq(s**2, 1*Sum((-\\bar{\\theta} + theta_i)**2, (i, 1, N))/(N - 1))"
+  },
+  {
+    "name": "Sample Variance",
+    "category": "stats_ml",
+    "standard_latex": "s^2 = \\frac{1}{T-1} \\sum_{j=1}^{T} (\\xi_{j} - \\bar{\\xi})^2",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\frac{1}{T-1} \\sum_{j=1}^{T} (\\xi_{j} - \\bar{\\xi})^2\n~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\ns^2 = \\frac{1}{T-1} \\sum_{j=1}^{T} (\\xi_{j} - \\bar{\\xi})^2\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\ns^2 = \\frac{1}{T-1} \\sum_{j=1}^{T} (\\xi_{j} - \\bar{\\xi})^2\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Laplace Transform",
+    "category": "calculus",
+    "standard_latex": "\\mathcal{L}\\{f(T)\\}(s) = \\int_{0}^{\\infty} f(T) e^{-sT} dT",
+    "sympy_expr": "Eq(L*s*f(T), Integral(f(T)*exp(-T*s), (T, 0, oo)))"
+  },
+  {
+    "name": "Bayes' Theorem",
+    "category": "stats_ml",
+    "standard_latex": "P(A|B) = \\frac{P(B|A)P(A)}{P(B)}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\nP(A|B)\n~~~~~^ | raw: Exception: I expected something else here\nP(A|B) = \\frac{P(B|A)P(A)}{P(B)}\n~~~~~^ | normalized: Exception: I expected something else here\nP(A|B) = \\frac{P(B|A)P(A)}{P(B)}\n~~~~~^"
+  },
+  {
+    "name": "Product Rule",
+    "category": "calculus",
+    "standard_latex": "(yv)' = y'v + yv'",
+    "sympy_expr": "Eq(transpose(v)*transpose(y), v*transpose(y) + y*transpose(v))"
+  },
+  {
+    "name": "Linear Layer with Activation",
+    "category": "stats_ml",
+    "standard_latex": "\\hat{\\gamma} = \\sigma(V \\xi + b)",
+    "sympy_expr": "Eq(\\hat{\\gamma}, sigma*(V*xi + b))"
+  },
+  {
+    "name": "Chain Rule",
+    "category": "calculus",
+    "standard_latex": "\\frac{d}{d\\theta} [f(g(\\theta))] = f'(g(\\theta)) g'(\\theta)",
+    "sympy_expr": "Eq(Derivative(f*g(theta), theta), theta*g(theta)*transpose(f)*transpose(g))"
+  },
+  {
+    "name": "Sample Variance",
+    "category": "stats_ml",
+    "standard_latex": "s^2 = \\frac{1}{T-1} \\sum_{M=1}^{T} (\\xi_{M} - \\bar{\\xi})^2",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\frac{1}{T-1} \\sum_{M=1}^{T} (\\xi_{M} - \\bar{\\xi})^2\n~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\ns^2 = \\frac{1}{T-1} \\sum_{M=1}^{T} (\\xi_{M} - \\bar{\\xi})^2\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\ns^2 = \\frac{1}{T-1} \\sum_{M=1}^{T} (\\xi_{M} - \\bar{\\xi})^2\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Product Rule",
+    "category": "calculus",
+    "standard_latex": "(\\theta\\alpha)' = \\theta'\\alpha + \\theta\\alpha'",
+    "sympy_expr": "Eq(transpose(alpha)*transpose(theta), alpha*transpose(theta) + theta*transpose(alpha))"
+  },
+  {
+    "name": "Linear Layer with Activation",
+    "category": "stats_ml",
+    "standard_latex": "\\hat{\\phi} = \\sigma(W \\xi + \\beta)",
+    "sympy_expr": "Eq(\\hat{\\phi}, sigma*(W*xi + beta))"
+  },
+  {
+    "name": "Product Rule",
+    "category": "calculus",
+    "standard_latex": "(u\\phi)' = u'\\phi + u\\phi'",
+    "sympy_expr": "Eq(transpose(phi)*transpose(u), phi*transpose(u) + u*transpose(phi))"
+  },
+  {
+    "name": "Gaussian Integral",
+    "category": "calculus",
+    "standard_latex": "\\int_{-\\infty}^{\\infty} e^{-u^2} du = \\sqrt{\\pi}",
+    "sympy_expr": "Eq(Integral(exp(-u**2), (u, -oo, oo)), sqrt(pi))"
+  },
+  {
+    "name": "Normal Distribution PDF",
+    "category": "stats_ml",
+    "standard_latex": "f(\\alpha|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(\\alpha-\\mu)^2}{2\\sigma^2}}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\nf(\\alpha|\\mu,\\sigma^2)\n~~~~~~~~~~~~^ | raw: Exception: I expected something else here\nf(\\alpha|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(\\alpha-\\mu)^2}{2\\sigma^2}}\n~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nf(\\alpha|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(\\alpha-\\mu)^2}{2\\sigma^2}}\n~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Limit Definition of Derivative",
+    "category": "calculus",
+    "standard_latex": "f'(\\xi) = \\lim_{h \\to 0} \\frac{f(\\xi + h) - f(\\xi)}{h}",
+    "sympy_expr": "Eq(xi*transpose(f), Limit((f*(h + xi) - f(xi))/h, h, 0, dir='+'))"
+  },
+  {
+    "name": "Covariance",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Cov}(\\alpha, v) = \\mathbb{E}[(\\alpha - \\mathbb{E}[\\alpha])(v - \\mathbb{E}[v])]",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\nE[(\\alpha - E[\\alpha])(v - E[v])]\n^ | raw: Exception: I expected something else here\n\\text{Cov}(\\alpha, v) = \\mathbb{E}[(\\alpha - \\mathbb{E}[\\alpha])(v - \\mathbb{E}[v])]\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nCov(\\alpha, v) = E[(\\alpha - E[\\alpha])(v - E[v])]\n~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Product Rule",
+    "category": "calculus",
+    "standard_latex": "(y\\gamma)' = y'\\gamma + y\\gamma'",
+    "sympy_expr": "Eq(transpose(gamma)*transpose(y), gamma*transpose(y) + y*transpose(gamma))"
+  },
+  {
+    "name": "Gradient Descent Update",
+    "category": "stats_ml",
+    "standard_latex": "\\alpha_{i} = \\alpha_{i-1} - \\eta \\nabla J(\\alpha_{i-1})",
+    "sympy_expr": "Eq(alpha_i, -\\nabla*eta*J(alpha_{i-1}) + alpha_{i-1})"
+  },
+  {
+    "name": "Softmax Function",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Softmax}(\\xi_{n}) = \\frac{\\exp(\\xi_{n})}{\\sum_j \\exp(\\xi_j)}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\frac{\\exp(\\xi_{n})}{\\sum_j \\exp(\\xi_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\n\\text{Softmax}(\\xi_{n}) = \\frac{\\exp(\\xi_{n})}{\\sum_j \\exp(\\xi_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nSoftmax(\\xi_{n}) = \\frac{\\exp(\\xi_{n})}{\\sum_j \\exp(\\xi_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Laplace Transform",
+    "category": "calculus",
+    "standard_latex": "\\mathcal{L}\\{f(i)\\}(s) = \\int_{0}^{\\infty} f(i) e^{-si} di",
+    "sympy_expr": "Eq(L*s*f(i), Integral(f(i)*exp(-i*s), (i, 0, oo)))"
+  },
+  {
+    "name": "Taylor Series",
+    "category": "calculus",
+    "standard_latex": "f(v) = \\sum_{M=0}^{\\infty} \\frac{f^{(M)}(a)}{M!} (v - a)^{M}",
+    "sympy_expr": "Eq(f(v), Sum((-a + v)**M*f(a)**M/factorial(M), (M, 0, oo)))"
+  },
+  {
+    "name": "Normal Distribution PDF",
+    "category": "stats_ml",
+    "standard_latex": "f(\\xi|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(\\xi-\\mu)^2}{2\\sigma^2}}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\nf(\\xi|\\mu,\\sigma^2)\n~~~~~~~~~^ | raw: Exception: I expected something else here\nf(\\xi|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(\\xi-\\mu)^2}{2\\sigma^2}}\n~~~~~~~~~^ | normalized: Exception: I expected something else here\nf(\\xi|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(\\xi-\\mu)^2}{2\\sigma^2}}\n~~~~~~~~~^"
+  },
+  {
+    "name": "Characteristic Equation",
+    "category": "matrix",
+    "standard_latex": "\\det(A - \\lambda I) = 0",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: AttributeError: 'Add' object has no attribute 'det' | raw: AttributeError: 'Add' object has no attribute 'det' | normalized: AttributeError: 'Add' object has no attribute 'det'"
+  },
+  {
+    "name": "Quadratic Formula",
+    "category": "algebra_trig",
+    "standard_latex": "v = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\n\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\n~~~~~~~~~^ | raw: Exception: I don't understand this\nv = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\n~~~~~~~~~~~~~^ | normalized: Exception: I don't understand this\nv = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\n~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Newton's Law of Universal Gravitation",
+    "category": "physics",
+    "standard_latex": "F = G \\frac{M_0 m}{d^2}",
+    "sympy_expr": "Eq(F, G*(M_0*m)/(d**2))"
+  },
+  {
+    "name": "Ampere-Maxwell Law",
+    "category": "physics",
+    "standard_latex": "\\nabla \\times \\mathbf{B} = \\mu_0 \\mathbf{J} + \\mu_0 \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial j}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\mu_0 J + \\mu_0 \\varepsilon_0 \\frac{\\partial E}{\\partial j}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\n\\nabla \\times \\mathbf{B} = \\mu_0 \\mathbf{J} + \\mu_0 \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial j}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\n\\nabla \\times B = \\mu_0 J + \\mu_0 \\varepsilon_0 \\frac{\\partial E}{\\partial j}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Fourier Transform",
+    "category": "calculus",
+    "standard_latex": "\\mathcal{F}\\{f(k)\\}(\\omega) = \\int_{-\\infty}^{\\infty} f(k) e^{-i\\omega k} dk",
+    "sympy_expr": "Eq(F*omega*f(k), Integral(f(k)*exp(-i*k*omega), (k, -oo, oo)))"
+  },
+  {
+    "name": "Sample Variance",
+    "category": "stats_ml",
+    "standard_latex": "s^2 = \\frac{1}{M-1} \\sum_{n=1}^{M} (z_{n} - \\bar{z})^2",
+    "sympy_expr": "Eq(s**2, 1*Sum((-\\bar{z} + z_n)**2, (n, 1, M))/(M - 1))"
+  },
+  {
+    "name": "Euler's Formula",
+    "category": "algebra_trig",
+    "standard_latex": "e^{i u} = \\cos u + i \\sin u",
+    "sympy_expr": "Eq(exp(i*u), i*sin(u) + cos(u))"
+  },
+  {
+    "name": "Hessian Matrix",
+    "category": "matrix",
+    "standard_latex": "H(f) = \\begin{bmatrix} \\frac{\\partial^2 f}{\\partial v_1^2} & \\frac{\\partial^2 f}{\\partial v_1 \\partial v_2} \\\\ \\frac{\\partial^2 f}{\\partial v_2 \\partial v_1} & \\frac{\\partial^2 f}{\\partial v_2^2} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: Unrecognized symbol | raw: Exception: Unrecognized symbol | normalized: Exception: Unrecognized symbol"
+  },
+  {
+    "name": "Covariance Matrix",
+    "category": "matrix",
+    "standard_latex": "\\Sigma = \\begin{bmatrix} \\sigma_{z}^2 & \\rho\\sigma_{z}\\sigma_{\\theta} \\\\ \\rho\\sigma_{z}\\sigma_{\\theta} & \\sigma_{\\theta}^2 \\end{bmatrix}",
+    "sympy_expr": "Eq(Sigma, Matrix([\n[                sigma_z**2, rho*sigma_z*sigma_{\\theta}],\n[rho*sigma_z*sigma_{\\theta},          sigma_{\\theta}**2]]))"
+  },
+  {
+    "name": "Newton's Law of Universal Gravitation",
+    "category": "physics",
+    "standard_latex": "F = G \\frac{M \\mu}{d^2}",
+    "sympy_expr": "Eq(F, G*(M*mu)/(d**2))"
+  },
+  {
+    "name": "Law of Cosines",
+    "category": "algebra_trig",
+    "standard_latex": "c^2 = a^2 + b^2 - 2ab \\cos \\phi",
+    "sympy_expr": "Eq(c**2, a**2 - 1*2*a*b*cos(phi) + b**2)"
+  },
+  {
+    "name": "Taylor Series",
+    "category": "calculus",
+    "standard_latex": "f(\\gamma) = \\sum_{N=0}^{\\infty} \\frac{f^{(N)}(a)}{N!} (\\gamma - a)^{N}",
+    "sympy_expr": "Eq(f(gamma), Sum((-a + gamma)**N*f(a)**N/factorial(N), (N, 0, oo)))"
+  },
+  {
+    "name": "Gradient Descent Update",
+    "category": "stats_ml",
+    "standard_latex": "\\phi_{i} = \\phi_{i-1} - \\eta \\nabla J(\\phi_{i-1})",
+    "sympy_expr": "Eq(phi_i, -\\nabla*eta*J(phi_{i-1}) + phi_{i-1})"
+  },
+  {
+    "name": "Kinematic Displacement Equation",
+    "category": "physics",
+    "standard_latex": "v^2 = v_0^2 + 2a\\Delta \\gamma",
+    "sympy_expr": "Eq(v**2, 2*Delta*a*gamma + v_0**2)"
+  },
+  {
+    "name": "Diagonal Matrix",
+    "category": "matrix",
+    "standard_latex": "\\Lambda = \\begin{bmatrix} \\lambda_1 & 0 & 0 \\\\ 0 & \\lambda_2 & 0 \\\\ 0 & 0 & \\lambda_3 \\end{bmatrix}",
+    "sympy_expr": "Eq(Lambda, Matrix([\n[lambda_1,        0,        0],\n[       0, lambda_2,        0],\n[       0,        0, lambda_3]]))"
+  },
+  {
+    "name": "Linear Layer with Activation",
+    "category": "stats_ml",
+    "standard_latex": "\\hat{x} = \\sigma(V u + B)",
+    "sympy_expr": "Eq(\\hat{x}, sigma*(B + V*u))"
+  },
+  {
+    "name": "Complex Conjugate Product",
+    "category": "algebra_trig",
+    "standard_latex": "(a + bi)(a - bi) = a^2 + b^2",
+    "sympy_expr": "Eq((a - b*i)*(a + b*i), a**2 + b**2)"
+  },
+  {
+    "name": "Quotient Rule",
+    "category": "calculus",
+    "standard_latex": "\\left(\\frac{v}{x}\\right)' = \\frac{v'x - vx'}{x^2}",
+    "sympy_expr": "Eq(transpose(v)/transpose(x), (-v*transpose(x) + x*transpose(v))/(x**2))"
+  },
+  {
+    "name": "ReLU Activation Function",
+    "category": "stats_ml",
+    "standard_latex": "\\text{ReLU}(\\phi) = \\max(0, \\phi)",
+    "sympy_expr": "Eq(E*L*R*U(phi), Max(0, phi))"
+  },
+  {
+    "name": "Fundamental Theorem of Calculus",
+    "category": "calculus",
+    "standard_latex": "\\int_{a}^{b} f(\\phi) d\\phi = F(b) - F(a)",
+    "sympy_expr": "Eq(Integral(f(phi), (phi, a, b)), -F(a) + F(b))"
+  },
+  {
+    "name": "Rotation Matrix",
+    "category": "matrix",
+    "standard_latex": "R_{\\theta} = \\begin{bmatrix} \\cos \\theta & -\\sin \\theta \\\\ \\sin \\theta & \\cos \\theta \\end{bmatrix}",
+    "sympy_expr": "Eq(R_{\\theta}, Matrix([\n[cos(theta), -sin(theta)],\n[sin(theta),  cos(theta)]]))"
+  },
+  {
+    "name": "Gauss's Law for Electricity",
+    "category": "physics",
+    "standard_latex": "\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}",
+    "sympy_expr": "Eq(\\nabla, rho/varepsilon_0)"
+  },
+  {
+    "name": "Euler's Formula",
+    "category": "algebra_trig",
+    "standard_latex": "e^{i \\gamma} = \\cos \\gamma + i \\sin \\gamma",
+    "sympy_expr": "Eq(exp(gamma*i), i*sin(gamma) + cos(gamma))"
+  },
+  {
+    "name": "Taylor Series",
+    "category": "calculus",
+    "standard_latex": "f(\\phi) = \\sum_{T=0}^{\\infty} \\frac{f^{(T)}(a)}{T!} (\\phi - a)^{T}",
+    "sympy_expr": "Eq(f(phi), Sum((-transpose(a) + transpose(phi))*f(a)**T/factorial(T), (T, 0, oo)))"
+  },
+  {
+    "name": "Rotation Matrix",
+    "category": "matrix",
+    "standard_latex": "R_{\\alpha} = \\begin{bmatrix} \\cos \\alpha & -\\sin \\alpha \\\\ \\sin \\alpha & \\cos \\alpha \\end{bmatrix}",
+    "sympy_expr": "Eq(R_{\\alpha}, Matrix([\n[cos(alpha), -sin(alpha)],\n[sin(alpha),  cos(alpha)]]))"
+  },
+  {
+    "name": "Covariance",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Cov}(\\alpha, \\xi) = \\mathbb{E}[(\\alpha - \\mathbb{E}[\\alpha])(\\xi - \\mathbb{E}[\\xi])]",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\nE[(\\alpha - E[\\alpha])(\\xi - E[\\xi])]\n^ | raw: Exception: I expected something else here\n\\text{Cov}(\\alpha, \\xi) = \\mathbb{E}[(\\alpha - \\mathbb{E}[\\alpha])(\\xi - \\mathbb{E}[\\xi])]\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nCov(\\alpha, \\xi) = E[(\\alpha - E[\\alpha])(\\xi - E[\\xi])]\n~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Euler's Identity",
+    "category": "algebra_trig",
+    "standard_latex": "e^{i \\pi} + 1 = 0",
+    "sympy_expr": "Eq(exp(pi*i) + 1, 0)"
+  },
+  {
+    "name": "De Broglie Wavelength",
+    "category": "physics",
+    "standard_latex": "\\lambda = \\frac{h}{p}",
+    "sympy_expr": "Eq(lambda, h/p)"
+  },
+  {
+    "name": "Arithmetic Series Sum",
+    "category": "algebra_trig",
+    "standard_latex": "S_{k} = \\frac{k}{2}(a_1 + a_{k})",
+    "sympy_expr": "Eq(S_k, k*(a_1 + a_k)/2)"
+  },
+  {
+    "name": "Jacobian Matrix",
+    "category": "matrix",
+    "standard_latex": "J = \\begin{bmatrix} \\frac{\\partial f_1}{\\partial \\gamma_1} & \\frac{\\partial f_1}{\\partial \\gamma_2} \\\\ \\frac{\\partial f_2}{\\partial \\gamma_1} & \\frac{\\partial f_2}{\\partial \\gamma_2} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: Unrecognized symbol | raw: Exception: Unrecognized symbol | normalized: Exception: Unrecognized symbol"
+  },
+  {
+    "name": "Kinematic Velocity Equation",
+    "category": "physics",
+    "standard_latex": "\\xi = v_0 + a m",
+    "sympy_expr": "Eq(xi, a*m + v_0)"
+  },
+  {
+    "name": "Linear Layer with Activation",
+    "category": "stats_ml",
+    "standard_latex": "\\hat{\\phi} = \\sigma(V \\gamma + \\beta)",
+    "sympy_expr": "Eq(\\hat{\\phi}, sigma*(V*gamma + beta))"
+  },
+  {
+    "name": "Product Rule",
+    "category": "calculus",
+    "standard_latex": "(vz)' = v'z + vz'",
+    "sympy_expr": "Eq(transpose(v)*transpose(z), v*transpose(z) + z*transpose(v))"
+  },
+  {
+    "name": "Self-Attention Mechanism",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Attention}(\\mathbf{Q}, K, V) = \\text{softmax}\\left(\\frac{\\mathbf{Q} K^T}{\\sqrt{d_k}}\\right)V",
+    "sympy_expr": "Eq(E*A*i*n*o*t*t*t*n(Q, K, V), V*a*f*m*o*s*t*x*(Q*transpose(K))/(sqrt(d_k)))"
+  },
+  {
+    "name": "Gaussian Integral",
+    "category": "calculus",
+    "standard_latex": "\\int_{-\\infty}^{\\infty} e^{-\\gamma^2} d\\gamma = \\sqrt{\\pi}",
+    "sympy_expr": "Eq(Integral(exp(-gamma**2), (gamma, -oo, oo)), sqrt(pi))"
+  },
+  {
+    "name": "Rotation Matrix",
+    "category": "matrix",
+    "standard_latex": "R_{\\phi} = \\begin{bmatrix} \\cos \\phi & -\\sin \\phi \\\\ \\sin \\phi & \\cos \\phi \\end{bmatrix}",
+    "sympy_expr": "Eq(R_{\\phi}, Matrix([\n[cos(phi), -sin(phi)],\n[sin(phi),  cos(phi)]]))"
+  },
+  {
+    "name": "Kinematic Velocity Equation",
+    "category": "physics",
+    "standard_latex": "v = v_0 + a k",
+    "sympy_expr": "Eq(v, a*k + v_0)"
+  },
+  {
+    "name": "Pythagorean Identity",
+    "category": "algebra_trig",
+    "standard_latex": "\\sin^2 \\phi + \\cos^2 \\phi = 1",
+    "sympy_expr": "Eq(sin(phi)**2 + cos(phi)**2, 1)"
+  },
+  {
+    "name": "Gradient Descent Update",
+    "category": "stats_ml",
+    "standard_latex": "\\omega_{M} = \\omega_{M-1} - \\eta \\nabla J(\\omega_{M-1})",
+    "sympy_expr": "Eq(omega_M, -\\nabla*eta*J(omega_{M-1}) + omega_{M-1})"
+  },
+  {
+    "name": "Second Law of Thermodynamics",
+    "category": "physics",
+    "standard_latex": "\\Delta S \\ge 0",
+    "sympy_expr": "Delta*S >= 0"
+  },
+  {
+    "name": "Block Matrix",
+    "category": "matrix",
+    "standard_latex": "M = \\begin{bmatrix} A & B \\\\ C & D \\end{bmatrix}",
+    "sympy_expr": "Eq(M, Matrix([\n[A, B],\n[C, D]]))"
+  },
+  {
+    "name": "Gaussian Integral",
+    "category": "calculus",
+    "standard_latex": "\\int_{-\\infty}^{\\infty} e^{-\\xi^2} d\\xi = \\sqrt{\\pi}",
+    "sympy_expr": "Eq(Integral(exp(-xi**2), (xi, -oo, oo)), sqrt(pi))"
+  },
+  {
+    "name": "Geometric Series Sum",
+    "category": "algebra_trig",
+    "standard_latex": "S_{j} = \\frac{a_1(1 - r^{j})}{1 - r}",
+    "sympy_expr": "Eq(S_j, (a_1*(1 - r**j))/(1 - r))"
+  },
+  {
+    "name": "Hessian Matrix",
+    "category": "matrix",
+    "standard_latex": "H(f) = \\begin{bmatrix} \\frac{\\partial^2 f}{\\partial \\phi_1^2} & \\frac{\\partial^2 f}{\\partial \\phi_1 \\partial \\phi_2} \\\\ \\frac{\\partial^2 f}{\\partial \\phi_2 \\partial \\phi_1} & \\frac{\\partial^2 f}{\\partial \\phi_2^2} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: Unrecognized symbol | raw: Exception: Unrecognized symbol | normalized: Exception: Unrecognized symbol"
+  },
+  {
+    "name": "Geometric Series Sum",
+    "category": "algebra_trig",
+    "standard_latex": "S_{k} = \\frac{a_1(1 - r^{k})}{1 - r}",
+    "sympy_expr": "Eq(S_k, (a_1*(1 - r**k))/(1 - r))"
+  },
+  {
+    "name": "Covariance",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Cov}(\\gamma, u) = \\mathbb{E}[(\\gamma - \\mathbb{E}[\\gamma])(u - \\mathbb{E}[u])]",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\nE[(\\gamma - E[\\gamma])(u - E[u])]\n^ | raw: Exception: I expected something else here\n\\text{Cov}(\\gamma, u) = \\mathbb{E}[(\\gamma - \\mathbb{E}[\\gamma])(u - \\mathbb{E}[u])]\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nCov(\\gamma, u) = E[(\\gamma - E[\\gamma])(u - E[u])]\n~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Laplace Transform",
+    "category": "calculus",
+    "standard_latex": "\\mathcal{L}\\{f(j)\\}(s) = \\int_{0}^{\\infty} f(j) e^{-sj} dj",
+    "sympy_expr": "Eq(L*s*f(j), Integral(f(j)*exp(-j*s), (j, 0, oo)))"
+  },
+  {
+    "name": "Schrodinger Equation",
+    "category": "physics",
+    "standard_latex": "i \\hbar \\frac{\\partial}{\\partial T} \\Psi(\\mathbf{r}, T) = \\left[ -\\frac{\\hbar^2}{2m} \\nabla^2 + V(\\mathbf{r}, T) \\right] \\Psi(\\mathbf{r}, T)",
+    "sympy_expr": "Eq(\\hbar*i*Derivative(\\Psi(r, T), T), (-\\hbar**2*\\nabla**2/(2*m) + V(r, T))*\\Psi(r, T))"
+  },
+  {
+    "name": "Laplace Transform",
+    "category": "calculus",
+    "standard_latex": "\\mathcal{L}\\{f(N)\\}(s) = \\int_{0}^{\\infty} f(N) e^{-sN} dN",
+    "sympy_expr": "Eq(L*s*f(N), Integral(f(N)*exp(-N*s), (N, 0, oo)))"
+  },
+  {
+    "name": "Kinematic Displacement Equation",
+    "category": "physics",
+    "standard_latex": "\\alpha^2 = v_0^2 + 2a\\Delta \\xi",
+    "sympy_expr": "Eq(alpha**2, 2*Delta*a*xi + v_0**2)"
+  },
+  {
+    "name": "Cross-Entropy Loss",
+    "category": "stats_ml",
+    "standard_latex": "\\mathcal{L} = -\\frac{1}{T} \\sum_{N=1}^{T} \\xi_{N} \\log(\\hat{\\xi}_{N}) + (1 - \\xi_{N}) \\log(1 - \\hat{\\xi}_{N})",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n-\\frac{1}{T} \\sum_{N=1}^{T} \\xi_{N} \\log(\\hat{\\xi}_{N}) + (1 - \\xi_{N}) \\log(1 - \\hat{\\xi}_{N})\n~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\n\\mathcal{L} = -\\frac{1}{T} \\sum_{N=1}^{T} \\xi_{N} \\log(\\hat{\\xi}_{N}) + (1 - \\xi_{N}) \\log(1 - \\hat{\\xi}_{N})\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nL = -\\frac{1}{T} \\sum_{N=1}^{T} \\xi_{N} \\log(\\hat{\\xi}_{N}) + (1 - \\xi_{N}) \\log(1 - \\hat{\\xi}_{N})\n~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Covariance Matrix",
+    "category": "matrix",
+    "standard_latex": "\\Sigma = \\begin{bmatrix} \\sigma_{\\phi}^2 & \\rho\\sigma_{\\phi}\\sigma_{u} \\\\ \\rho\\sigma_{\\phi}\\sigma_{u} & \\sigma_{u}^2 \\end{bmatrix}",
+    "sympy_expr": "Eq(Sigma, Matrix([\n[         sigma_{\\phi}**2, rho*sigma_u*sigma_{\\phi}],\n[rho*sigma_u*sigma_{\\phi},               sigma_u**2]]))"
+  },
+  {
+    "name": "Law of Sines",
+    "category": "algebra_trig",
+    "standard_latex": "\\frac{\\sin A}{a} = \\frac{\\sin B}{b} = \\frac{\\sin C}{c}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: SympifyError: SympifyError: [Eq(C, pi - asin(c*sin(B)/b)), Eq(C, asin(c*sin(B)/b)), Eq(c, b*sin(C)/sin(B)), Eq(b, c*sin(B)/sin(C)), Eq(B, pi - asin(b*sin(C)/c)), Eq(B, asin(b*sin(C)/c))] | raw: AttributeError: 'list' object has no attribute 'is_Symbol' | normalized: AttributeError: 'list' object has no attribute 'is_Symbol'"
+  },
+  {
+    "name": "Kinematic Displacement Equation",
+    "category": "physics",
+    "standard_latex": "u^2 = v_0^2 + 2a\\Delta x",
+    "sympy_expr": "Eq(u**2, 2*Delta*a*x + v_0**2)"
+  },
+  {
+    "name": "Chain Rule",
+    "category": "calculus",
+    "standard_latex": "\\frac{d}{d\\alpha} [f(g(\\alpha))] = f'(g(\\alpha)) g'(\\alpha)",
+    "sympy_expr": "Eq(Derivative(f*g(alpha), alpha), alpha*g(alpha)*transpose(f)*transpose(g))"
+  },
+  {
+    "name": "Mean Squared Error",
+    "category": "stats_ml",
+    "standard_latex": "L = \\frac{1}{M} \\sum_{n=1}^{M} (z_{n} - \\hat{z}_{n})^2",
+    "sympy_expr": "Eq(L, 1*Sum((-\\hat{z}_n + z_n)**2, (n, 1, M))/M)"
+  },
+  {
+    "name": "Double Angle Formula",
+    "category": "algebra_trig",
+    "standard_latex": "\\cos(2 \\alpha) = \\cos^2 \\alpha - \\sin^2 \\alpha",
+    "sympy_expr": "Eq(cos(2*alpha), -sin(alpha)**2 + cos(alpha)**2)"
+  },
+  {
+    "name": "Eigenvalue Equation",
+    "category": "matrix",
+    "standard_latex": "A \\mathbf{v} = \\lambda \\mathbf{v}",
+    "sympy_expr": "Eq(A*v, lambda*v)"
+  },
+  {
+    "name": "Gaussian Integral",
+    "category": "calculus",
+    "standard_latex": "\\int_{-\\infty}^{\\infty} e^{-y^2} dy = \\sqrt{\\pi}",
+    "sympy_expr": "Eq(Integral(exp(-y**2), (y, -oo, oo)), sqrt(pi))"
+  },
+  {
+    "name": "Boltzmann Entropy",
+    "category": "physics",
+    "standard_latex": "S = k_B \\ln \\Omega",
+    "sympy_expr": "Eq(S, k_B*log(Omega, E))"
+  },
+  {
+    "name": "RMSNorm",
+    "category": "stats_ml",
+    "standard_latex": "\\text{RMSNorm}(u) = \\frac{u}{\\sqrt{\\frac{1}{d} \\sum_{i=1}^d u_{i}^2 + \\epsilon}} \\odot \\gamma",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\n\\frac{u}{\\sqrt{\\frac{1}{d} \\sum_{i=1}^d u_{i}^2 + \\epsilon}} \\odot \\gamma\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I don't understand this\n\\text{RMSNorm}(u) = \\frac{u}{\\sqrt{\\frac{1}{d} \\sum_{i=1}^d u_{i}^2 + \\epsilon}} \\odot \\gamma\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I don't understand this\nRMSNorm(u) = \\frac{u}{\\sqrt{\\frac{1}{d} \\sum_{i=1}^d u_{i}^2 + \\epsilon}} \\odot \\gamma\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Binomial Theorem",
+    "category": "algebra_trig",
+    "standard_latex": "(\\theta + z)^{k} = \\sum_{j=0}^{k} \\binom{k}{j} \\theta^{k-j} z^{j}",
+    "sympy_expr": "Eq((theta + z)**k, Sum(theta**(-j + k)*z**j*binomial(k, j), (j, 0, k)))"
+  },
+  {
+    "name": "Covariance Matrix",
+    "category": "matrix",
+    "standard_latex": "\\Sigma = \\begin{bmatrix} \\sigma_{\\alpha}^2 & \\rho\\sigma_{\\alpha}\\sigma_{\\phi} \\\\ \\rho\\sigma_{\\alpha}\\sigma_{\\phi} & \\sigma_{\\phi}^2 \\end{bmatrix}",
+    "sympy_expr": "Eq(Sigma, Matrix([\n[              sigma_{\\alpha}**2, rho*sigma_{\\alpha}*sigma_{\\phi}],\n[rho*sigma_{\\alpha}*sigma_{\\phi},                 sigma_{\\phi}**2]]))"
+  },
+  {
+    "name": "Gauss's Law (Integral Form)",
+    "category": "physics",
+    "standard_latex": "\\oint \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{\\text{enc}}}{\\varepsilon_0}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\n\\oint E dA\n^ | raw: Exception: I don't understand this\n\\oint \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{\\text{enc}}}{\\varepsilon_0}\n^ | normalized: Exception: I don't understand this\n\\oint E dA = \\frac{Q_{enc}}{\\varepsilon_0}\n^"
+  },
+  {
+    "name": "Double Angle Formula",
+    "category": "algebra_trig",
+    "standard_latex": "\\cos(2 \\phi) = \\cos^2 \\phi - \\sin^2 \\phi",
+    "sympy_expr": "Eq(cos(2*phi), -sin(phi)**2 + cos(phi)**2)"
+  },
+  {
+    "name": "Mean Squared Error",
+    "category": "stats_ml",
+    "standard_latex": "L = \\frac{1}{T} \\sum_{j=1}^{T} (\\alpha_{j} - \\hat{\\alpha}_{j})^2",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\frac{1}{T} \\sum_{j=1}^{T} (\\alpha_{j} - \\hat{\\alpha}_{j})^2\n~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\nL = \\frac{1}{T} \\sum_{j=1}^{T} (\\alpha_{j} - \\hat{\\alpha}_{j})^2\n~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nL = \\frac{1}{T} \\sum_{j=1}^{T} (\\alpha_{j} - \\hat{\\alpha}_{j})^2\n~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Rotation Matrix",
+    "category": "matrix",
+    "standard_latex": "R_{\\omega} = \\begin{bmatrix} \\cos \\omega & -\\sin \\omega \\\\ \\sin \\omega & \\cos \\omega \\end{bmatrix}",
+    "sympy_expr": "Eq(R_{\\omega}, Matrix([\n[cos(omega), -sin(omega)],\n[sin(omega),  cos(omega)]]))"
+  },
+  {
+    "name": "Limit Definition of Derivative",
+    "category": "calculus",
+    "standard_latex": "f'(y) = \\lim_{h \\to 0} \\frac{f(y + h) - f(y)}{h}",
+    "sympy_expr": "Eq(y*transpose(f), Limit((f*(h + y) - f(y))/h, h, 0, dir='+'))"
+  },
+  {
+    "name": "Euler's Formula",
+    "category": "algebra_trig",
+    "standard_latex": "e^{i \\alpha} = \\cos \\alpha + i \\sin \\alpha",
+    "sympy_expr": "Eq(exp(alpha*i), i*sin(alpha) + cos(alpha))"
+  },
+  {
+    "name": "Product Rule",
+    "category": "calculus",
+    "standard_latex": "(\\gammav)' = \\gamma'v + \\gammav'",
+    "sympy_expr": "Eq(transpose(gamma)*transpose(v), gamma*transpose(v) + v*transpose(gamma))"
+  },
+  {
+    "name": "Linear Layer with Activation",
+    "category": "stats_ml",
+    "standard_latex": "\\hat{y} = \\sigma(V \\gamma + \\beta)",
+    "sympy_expr": "Eq(\\hat{y}, sigma*(V*gamma + beta))"
+  },
+  {
+    "name": "N x N Matrix with Ellipsis",
+    "category": "matrix",
+    "standard_latex": "A = \\begin{bmatrix} a_{11} & a_{12} & \\cdots & a_{1T} \\\\ a_{21} & a_{22} & \\cdots & a_{2T} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{T1} & a_{T2} & \\cdots & a_{TT} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\n\\begin{bmatrix} a_{11} & a_{12} & s & a_{1T} \\\\ a_{21} & a_{22} & s & a_{2T} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{T1} & a_{T2} & s & a_{TT} \\end{bmatrix}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I don't understand this\nA = \\begin{bmatrix} a_{11} & a_{12} & \\cdots & a_{1T} \\\\ a_{21} & a_{22} & \\cdots & a_{2T} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{T1} & a_{T2} & \\cdots & a_{TT} \\end{bmatrix}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I don't understand this\nA = \\begin{bmatrix} a_{11} & a_{12} & s & a_{1T} \\\\ a_{21} & a_{22} & s & a_{2T} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{T1} & a_{T2} & s & a_{TT} \\end{bmatrix}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Kinematic Displacement Equation",
+    "category": "physics",
+    "standard_latex": "\\theta^2 = v_0^2 + 2a\\Delta x",
+    "sympy_expr": "Eq(theta**2, 2*Delta*a*x + v_0**2)"
+  },
+  {
+    "name": "Kinematic Displacement Equation",
+    "category": "physics",
+    "standard_latex": "y^2 = v_0^2 + 2a\\Delta \\alpha",
+    "sympy_expr": "Eq(y**2, 2*Delta*a*alpha + v_0**2)"
+  },
+  {
+    "name": "Softmax Function",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Softmax}(\\gamma_{n}) = \\frac{\\exp(\\gamma_{n})}{\\sum_j \\exp(\\gamma_j)}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\n\\frac{\\exp(\\gamma_{n})}{\\sum_j \\exp(\\gamma_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I expected something else here\n\\text{Softmax}(\\gamma_{n}) = \\frac{\\exp(\\gamma_{n})}{\\sum_j \\exp(\\gamma_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I expected something else here\nSoftmax(\\gamma_{n}) = \\frac{\\exp(\\gamma_{n})}{\\sum_j \\exp(\\gamma_j)}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Pythagorean Theorem",
+    "category": "algebra_trig",
+    "standard_latex": "x^2 + \\alpha^2 = \\xi^2",
+    "sympy_expr": "Eq(alpha**2 + x**2, xi**2)"
+  },
+  {
+    "name": "Hessian Matrix",
+    "category": "matrix",
+    "standard_latex": "H(f) = \\begin{bmatrix} \\frac{\\partial^2 f}{\\partial u_1^2} & \\frac{\\partial^2 f}{\\partial u_1 \\partial u_2} \\\\ \\frac{\\partial^2 f}{\\partial u_2 \\partial u_1} & \\frac{\\partial^2 f}{\\partial u_2^2} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: Unrecognized symbol | raw: Exception: Unrecognized symbol | normalized: Exception: Unrecognized symbol"
+  },
+  {
+    "name": "Taylor Series",
+    "category": "calculus",
+    "standard_latex": "f(y) = \\sum_{k=0}^{\\infty} \\frac{f^{(k)}(a)}{k!} (y - a)^{k}",
+    "sympy_expr": "Eq(f(y), Sum((-a + y)**k*f(a)**k/factorial(k), (k, 0, oo)))"
+  },
+  {
+    "name": "Normal Distribution PDF",
+    "category": "stats_ml",
+    "standard_latex": "f(z|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(z-\\mu)^2}{2\\sigma^2}}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\nf(z|\\mu,\\sigma^2)\n~~~~~~~^ | raw: Exception: I expected something else here\nf(z|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(z-\\mu)^2}{2\\sigma^2}}\n~~~~~~~^ | normalized: Exception: I expected something else here\nf(z|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(z-\\mu)^2}{2\\sigma^2}}\n~~~~~~~^"
+  },
+  {
+    "name": "Jacobian Matrix",
+    "category": "matrix",
+    "standard_latex": "J = \\begin{bmatrix} \\frac{\\partial f_1}{\\partial u_1} & \\frac{\\partial f_1}{\\partial u_2} \\\\ \\frac{\\partial f_2}{\\partial u_1} & \\frac{\\partial f_2}{\\partial u_2} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: Unrecognized symbol | raw: Exception: Unrecognized symbol | normalized: Exception: Unrecognized symbol"
+  },
+  {
+    "name": "Arithmetic Series Sum",
+    "category": "algebra_trig",
+    "standard_latex": "S_{n} = \\frac{n}{2}(a_1 + a_{n})",
+    "sympy_expr": "Eq(S_n, n*(a_1 + a_n)/2)"
+  },
+  {
+    "name": "Schrodinger Equation",
+    "category": "physics",
+    "standard_latex": "i \\hbar \\frac{\\partial}{\\partial m} \\Psi(\\mathbf{r}, m) = \\left[ -\\frac{\\hbar^2}{2m} \\nabla^2 + V(\\mathbf{r}, m) \\right] \\Psi(\\mathbf{r}, m)",
+    "sympy_expr": "Eq(\\hbar*i*Derivative(\\Psi(r, m), m), (-\\hbar**2*\\nabla**2/(2*m) + V(r, m))*\\Psi(r, m))"
+  },
+  {
+    "name": "Product Rule",
+    "category": "calculus",
+    "standard_latex": "(\\alphay)' = \\alpha'y + \\alphay'",
+    "sympy_expr": "Eq(transpose(alpha)*transpose(y), alpha*transpose(y) + y*transpose(alpha))"
+  },
+  {
+    "name": "Coulomb's Law",
+    "category": "physics",
+    "standard_latex": "F = k_e \\frac{q_1 q_2}{R^2}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\nk_e \\frac{q_1 q_2}{R^2}\n~~^ | raw: Exception: I expected something else here\nF = k_e \\frac{q_1 q_2}{R^2}\n~~~~~~^ | normalized: Exception: I expected something else here\nF = k_e \\frac{q_1 q_2}{R^2}\n~~~~~~^"
+  },
+  {
+    "name": "RMSNorm",
+    "category": "stats_ml",
+    "standard_latex": "\\text{RMSNorm}(x) = \\frac{x}{\\sqrt{\\frac{1}{d} \\sum_{N=1}^d x_{N}^2 + \\epsilon}} \\odot \\gamma",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\n\\frac{x}{\\sqrt{\\frac{1}{d} \\sum_{N=1}^d x_{N}^2 + \\epsilon}} \\odot \\gamma\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I don't understand this\n\\text{RMSNorm}(x) = \\frac{x}{\\sqrt{\\frac{1}{d} \\sum_{N=1}^d x_{N}^2 + \\epsilon}} \\odot \\gamma\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I don't understand this\nRMSNorm(x) = \\frac{x}{\\sqrt{\\frac{1}{d} \\sum_{N=1}^d x_{N}^2 + \\epsilon}} \\odot \\gamma\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Quotient Rule",
+    "category": "calculus",
+    "standard_latex": "\\left(\\frac{z}{x}\\right)' = \\frac{z'x - zx'}{x^2}",
+    "sympy_expr": "Eq(transpose(z)/transpose(x), (x*transpose(z) - z*transpose(x))/(x**2))"
+  },
+  {
+    "name": "Pythagorean Theorem",
+    "category": "algebra_trig",
+    "standard_latex": "z^2 + y^2 = v^2",
+    "sympy_expr": "Eq(y**2 + z**2, v**2)"
+  },
+  {
+    "name": "N x N Matrix with Ellipsis",
+    "category": "matrix",
+    "standard_latex": "A = \\begin{bmatrix} a_{11} & a_{12} & \\cdots & a_{1M} \\\\ a_{21} & a_{22} & \\cdots & a_{2M} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{M1} & a_{M2} & \\cdots & a_{MM} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\n\\begin{bmatrix} a_{11} & a_{12} & s & a_{1M} \\\\ a_{21} & a_{22} & s & a_{2M} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{M1} & a_{M2} & s & a_{MM} \\end{bmatrix}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I don't understand this\nA = \\begin{bmatrix} a_{11} & a_{12} & \\cdots & a_{1M} \\\\ a_{21} & a_{22} & \\cdots & a_{2M} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{M1} & a_{M2} & \\cdots & a_{MM} \\end{bmatrix}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I don't understand this\nA = \\begin{bmatrix} a_{11} & a_{12} & s & a_{1M} \\\\ a_{21} & a_{22} & s & a_{2M} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{M1} & a_{M2} & s & a_{MM} \\end{bmatrix}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  }
+]
