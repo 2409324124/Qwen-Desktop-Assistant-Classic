@@ -1,0 +1,126 @@
+[
+  {
+    "name": "Gradient Descent Update",
+    "category": "stats_ml",
+    "standard_latex": "\\omega_{T} = \\omega_{T-1} - \\eta \\nabla J(\\omega_{T-1})",
+    "sympy_expr": "Eq(omega_T, -\\nabla*eta*J(omega_{T-1}) + omega_{T-1})"
+  },
+  {
+    "name": "Linear Layer with Activation",
+    "category": "stats_ml",
+    "standard_latex": "\\hat{u} = \\sigma(\\mathbf{W} \\xi + b)",
+    "sympy_expr": "Eq(\\hat{u}, sigma*(W*xi + b))"
+  },
+  {
+    "name": "Limit Definition of Derivative",
+    "category": "calculus",
+    "standard_latex": "f'(v) = \\lim_{h \\to 0} \\frac{f(v + h) - f(v)}{h}",
+    "sympy_expr": "Eq(v*transpose(f), Limit((f*(h + v) - f(v))/h, h, 0, dir='+'))"
+  },
+  {
+    "name": "Quotient Rule",
+    "category": "calculus",
+    "standard_latex": "\\left(\\frac{\\gamma}{\\xi}\\right)' = \\frac{\\gamma'\\xi - \\gamma\\xi'}{\\xi^2}",
+    "sympy_expr": "Eq(transpose(gamma)/transpose(xi), (-gamma*transpose(xi) + xi*transpose(gamma))/(xi**2))"
+  },
+  {
+    "name": "Self-Attention Mechanism",
+    "category": "stats_ml",
+    "standard_latex": "\\text{Attention}(Q, K, \\mathbf{V}) = \\text{softmax}\\left(\\frac{Q K^T}{\\sqrt{d_k}}\\right)\\mathbf{V}",
+    "sympy_expr": "Eq(E*A*i*n*o*t*t*t*n(Q, K, V), V*a*f*m*o*s*t*x*(Q*transpose(K))/(sqrt(d_k)))"
+  },
+  {
+    "name": "Sample Mean",
+    "category": "stats_ml",
+    "standard_latex": "\\bar{\\gamma} = \\frac{1}{N} \\sum_{j=1}^{N} \\gamma_{j}",
+    "sympy_expr": "Eq(\\bar{\\gamma}, 1*Sum(gamma_j, (j, 1, N))/N)"
+  },
+  {
+    "name": "Euler's Formula",
+    "category": "algebra_trig",
+    "standard_latex": "e^{i \\alpha} = \\cos \\alpha + i \\sin \\alpha",
+    "sympy_expr": "Eq(exp(alpha*i), i*sin(alpha) + cos(alpha))"
+  },
+  {
+    "name": "Coulomb's Law",
+    "category": "physics",
+    "standard_latex": "F = k_e \\frac{q_1 q_2}{R^2}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\nk_e \\frac{q_1 q_2}{R^2}\n~~^ | raw: Exception: I expected something else here\nF = k_e \\frac{q_1 q_2}{R^2}\n~~~~~~^ | normalized: Exception: I expected something else here\nF = k_e \\frac{q_1 q_2}{R^2}\n~~~~~~^"
+  },
+  {
+    "name": "N x N Matrix with Ellipsis",
+    "category": "matrix",
+    "standard_latex": "A = \\begin{bmatrix} a_{11} & a_{12} & \\cdots & a_{1N} \\\\ a_{21} & a_{22} & \\cdots & a_{2N} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{N1} & a_{N2} & \\cdots & a_{NN} \\end{bmatrix}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I don't understand this\n\\begin{bmatrix} a_{11} & a_{12} & s & a_{1N} \\\\ a_{21} & a_{22} & s & a_{2N} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{N1} & a_{N2} & s & a_{NN} \\end{bmatrix}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | raw: Exception: I don't understand this\nA = \\begin{bmatrix} a_{11} & a_{12} & \\cdots & a_{1N} \\\\ a_{21} & a_{22} & \\cdots & a_{2N} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{N1} & a_{N2} & \\cdots & a_{NN} \\end{bmatrix}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ | normalized: Exception: I don't understand this\nA = \\begin{bmatrix} a_{11} & a_{12} & s & a_{1N} \\\\ a_{21} & a_{22} & s & a_{2N} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{N1} & a_{N2} & s & a_{NN} \\end{bmatrix}\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^"
+  },
+  {
+    "name": "Gaussian Integral",
+    "category": "calculus",
+    "standard_latex": "\\int_{-\\infty}^{\\infty} e^{-v^2} dv = \\sqrt{\\pi}",
+    "sympy_expr": "Eq(Integral(exp(-v**2), (v, -oo, oo)), sqrt(pi))"
+  },
+  {
+    "name": "Schrodinger Equation",
+    "category": "physics",
+    "standard_latex": "i \\hbar \\frac{\\partial}{\\partial k} \\Psi(\\mathbf{r}, k) = \\left[ -\\frac{\\hbar^2}{2m} \\nabla^2 + V(\\mathbf{r}, k) \\right] \\Psi(\\mathbf{r}, k)",
+    "sympy_expr": "Eq(\\hbar*i*Derivative(\\Psi(r, k), k), (-\\hbar**2*\\nabla**2/(2*m) + V(r, k))*\\Psi(r, k))"
+  },
+  {
+    "name": "Bayes' Theorem",
+    "category": "stats_ml",
+    "standard_latex": "P(A|B) = \\frac{P(B|A)P(A)}{P(B)}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\nP(A|B)\n~~~~~^ | raw: Exception: I expected something else here\nP(A|B) = \\frac{P(B|A)P(A)}{P(B)}\n~~~~~^ | normalized: Exception: I expected something else here\nP(A|B) = \\frac{P(B|A)P(A)}{P(B)}\n~~~~~^"
+  },
+  {
+    "name": "Quotient Rule",
+    "category": "calculus",
+    "standard_latex": "\\left(\\frac{y}{u}\\right)' = \\frac{y'u - yu'}{u^2}",
+    "sympy_expr": "Eq(transpose(y)/transpose(u), (u*transpose(y) - y*transpose(u))/(u**2))"
+  },
+  {
+    "name": "Complex Conjugate Product",
+    "category": "algebra_trig",
+    "standard_latex": "(a + bi)(a - bi) = a^2 + b^2",
+    "sympy_expr": "Eq((a - b*i)*(a + b*i), a**2 + b**2)"
+  },
+  {
+    "name": "Eigenvalue Equation",
+    "category": "matrix",
+    "standard_latex": "A \\mathbf{v} = \\lambda \\mathbf{v}",
+    "sympy_expr": "Eq(A*v, lambda*v)"
+  },
+  {
+    "name": "Euler's Formula",
+    "category": "algebra_trig",
+    "standard_latex": "e^{i u} = \\cos u + i \\sin u",
+    "sympy_expr": "Eq(exp(i*u), i*sin(u) + cos(u))"
+  },
+  {
+    "name": "Limit Definition of Derivative",
+    "category": "calculus",
+    "standard_latex": "f'(u) = \\lim_{h \\to 0} \\frac{f(u + h) - f(u)}{h}",
+    "sympy_expr": "Eq(u*transpose(f), Limit((f*(h + u) - f(u))/h, h, 0, dir='+'))"
+  },
+  {
+    "name": "Gauss's Law for Electricity",
+    "category": "physics",
+    "standard_latex": "\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}",
+    "sympy_expr": "Eq(\\nabla, rho/varepsilon_0)"
+  },
+  {
+    "name": "Rotation Matrix",
+    "category": "matrix",
+    "standard_latex": "R_{\\phi} = \\begin{bmatrix} \\cos \\phi & -\\sin \\phi \\\\ \\sin \\phi & \\cos \\phi \\end{bmatrix}",
+    "sympy_expr": "Eq(R_{\\phi}, Matrix([\n[cos(phi), -sin(phi)],\n[sin(phi),  cos(phi)]]))"
+  },
+  {
+    "name": "Normal Distribution PDF",
+    "category": "stats_ml",
+    "standard_latex": "f(y|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(y-\\mu)^2}{2\\sigma^2}}",
+    "sympy_expr": null,
+    "sympy_error": "equation_sides: Exception: I expected something else here\nf(y|\\mu,\\sigma^2)\n~~~~~~~^ | raw: Exception: I expected something else here\nf(y|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(y-\\mu)^2}{2\\sigma^2}}\n~~~~~~~^ | normalized: Exception: I expected something else here\nf(y|\\mu,\\sigma^2) = \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(y-\\mu)^2}{2\\sigma^2}}\n~~~~~~~^"
+  }
+]

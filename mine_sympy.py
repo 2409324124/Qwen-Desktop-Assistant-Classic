@@ -15,6 +15,21 @@ OPERATOR_MACRO_RE = re.compile(r"\\(?:mathrm|operatorname)\{([^{}]*)\}")
 STYLE_MACRO_RE = re.compile(r"\\(?:mathbf|mathcal|mathbb|mathit)\{([^{}]+)\}")
 WHITESPACE_RE = re.compile(r"\s+")
 
+# 默认领域配额。
+# 这组比例来自我们当前的数据集规划：
+# - stats_ml: 30%
+# - calculus: 25%
+# - physics: 15%
+# - matrix: 15%
+# - algebra_trig: 15%
+DEFAULT_CATEGORY_RATIOS: dict[str, float] = {
+    "stats_ml": 0.30,
+    "calculus": 0.25,
+    "physics": 0.15,
+    "matrix": 0.15,
+    "algebra_trig": 0.15,
+}
+
 
 def normalize_latex_for_sympy(latex_str: str) -> str:
     normalized = latex_str.strip()
@@ -116,20 +131,96 @@ def build_templates() -> list[dict[str, str]]:
     ]
 
 
-def generate_formulas(count: int = 1000) -> list[dict[str, object]]:
+def allocate_category_targets(count: int, ratios: dict[str, float]) -> dict[str, int]:
+    # 用 largest remainder 的思路把比例分配成整数目标数。
+    # 这样 count=20 之类的小样本时，也能尽量贴近既定领域配额。
+    raw_targets = {category: count * ratio for category, ratio in ratios.items()}
+    base_targets = {category: int(value) for category, value in raw_targets.items()}
+    remainder = count - sum(base_targets.values())
+
+    ranked_remainders = sorted(
+        ((raw_targets[category] - base_targets[category], category) for category in ratios),
+        reverse=True,
+    )
+    for _, category in ranked_remainders[:remainder]:
+        base_targets[category] += 1
+    return base_targets
+
+
+def parse_category_ratios(raw: Optional[str]) -> dict[str, float]:
+    if not raw:
+        return DEFAULT_CATEGORY_RATIOS.copy()
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid --category-ratios JSON: {exc}") from exc
+
+    if not isinstance(payload, dict):
+        raise ValueError("--category-ratios must be a JSON object")
+
+    normalized: dict[str, float] = {}
+    for category, value in payload.items():
+        if category not in DEFAULT_CATEGORY_RATIOS:
+            raise ValueError(f"Unknown category in --category-ratios: {category}")
+        if not isinstance(value, (int, float)) or value < 0:
+            raise ValueError(f"Invalid ratio for category {category}: {value}")
+        normalized[category] = float(value)
+
+    total = sum(normalized.values())
+    if total <= 0:
+        raise ValueError("Sum of category ratios must be > 0")
+
+    return {category: normalized.get(category, 0.0) / total for category in DEFAULT_CATEGORY_RATIOS}
+
+
+def choose_next_category(
+    category_targets: dict[str, int],
+    category_counts: Counter,
+    templates_by_category: dict[str, list[dict[str, str]]],
+) -> str:
+    # 优先选择“尚未达到配额”的领域。
+    deficits: list[tuple[int, str]] = []
+    for category, target in category_targets.items():
+        current = category_counts[category]
+        remaining = target - current
+        if remaining > 0 and templates_by_category.get(category):
+            deficits.append((remaining, category))
+
+    if deficits:
+        max_remaining = max(remaining for remaining, _ in deficits)
+        candidates = [category for remaining, category in deficits if remaining == max_remaining]
+        return random.choice(candidates)
+
+    # 如果所有领域都满足最低配额，但总数还没够，就退回到全领域随机。
+    return random.choice([category for category, items in templates_by_category.items() if items])
+
+
+def generate_formulas(
+    count: int = 1000,
+    category_ratios: Optional[dict[str, float]] = None,
+) -> list[dict[str, object]]:
     vars_x = ["x", "y", "z", "u", "v", r"\theta", r"\alpha", r"\phi", r"\xi", r"\gamma"]
     vars_n = ["n", "k", "m", "i", "j", "T", "N", "M"]
     vars_mass = ["m", "M", "m_0", "M_0", r"\mu"]
     templates = build_templates()
+    category_ratios = category_ratios or DEFAULT_CATEGORY_RATIOS.copy()
+    category_targets = allocate_category_targets(count, category_ratios)
+    templates_by_category: dict[str, list[dict[str, str]]] = {
+        category: [template for template in templates if template["category"] == category]
+        for category in category_ratios
+    }
 
     results: list[dict[str, object]] = []
     seen: set[str] = set()
     attempts = 0
     parse_failures = 0
+    category_counts: Counter = Counter()
 
     while len(results) < count and attempts < count * 50:
         attempts += 1
-        template = random.choice(templates)
+        category = choose_next_category(category_targets, category_counts, templates_by_category)
+        template = random.choice(templates_by_category[category])
 
         vx, vy, vz, vu, vv = random.sample(vars_x, 5)
         vn, vk, vi, vt = random.sample(vars_n, 4)
@@ -178,6 +269,7 @@ def generate_formulas(count: int = 1000) -> list[dict[str, object]]:
             print(f"[WARN] {template['name']} parse failed: {parse_error}", file=sys.stderr)
 
         results.append(record)
+        category_counts[template["category"]] += 1
 
     print(f"[INFO] parse failures: {parse_failures}/{len(results)}", file=sys.stderr)
     return results
@@ -187,9 +279,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--count", type=int, default=1000)
     parser.add_argument("--out", default="formulas_dataset_1000.json")
+    parser.add_argument(
+        "--category-ratios",
+        default=None,
+        help='JSON object like {"stats_ml":0.3,"calculus":0.25,"physics":0.15,"matrix":0.15,"algebra_trig":0.15}',
+    )
     args = parser.parse_args()
 
-    data = generate_formulas(args.count)
+    category_ratios = parse_category_ratios(args.category_ratios)
+    data = generate_formulas(args.count, category_ratios=category_ratios)
     with open(args.out, "w", encoding="utf-8") as handle:
         json.dump(data, handle, ensure_ascii=False, indent=2)
 
