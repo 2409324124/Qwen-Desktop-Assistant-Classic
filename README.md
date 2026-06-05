@@ -33,6 +33,10 @@ A lightweight, local AI desktop assistant that bridges **Ollama** and your Windo
 *   **UI 扩展**: 集成 `prompt_manager.py` 到助手主界面。
 - **Ultra Responsive**: Built with a non-blocking `asyncio` backend for smooth streaming UI updates.
 
+## Training Workflow
+
+The current model-training path lives in [`training/`](training/README.md). It prepares the frozen clean/noisy/hard datasets for LLaMA-Factory, trains a Qwen3 4B LoRA adapter on a 3090-class GPU, and produces a fixed evaluation report.
+
 ## 🚀 Getting Started
 
 ### Prerequisites

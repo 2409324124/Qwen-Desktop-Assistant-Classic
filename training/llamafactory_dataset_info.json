@@ -1,0 +1,20 @@
+{
+  "latex_formula_train": {
+    "file_name": "latex_formula_train.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "input",
+      "response": "output",
+      "system": "instruction"
+    }
+  },
+  "latex_formula_eval": {
+    "file_name": "latex_formula_eval.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "input",
+      "response": "output",
+      "system": "instruction"
+    }
+  }
+}
