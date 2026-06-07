@@ -63,8 +63,12 @@ def load_sources(repo_root: Path, sources: tuple[tuple[str, str], ...] = DEFAULT
         path = repo_root / relative_path
         records = load_jsonl(path)
         validate_records(records, relative_path)
-        for record in records:
+        for index, record in enumerate(records, 1):
+            canonical_output = record.get("canonical_output")
+            if not isinstance(canonical_output, str) or not canonical_output.strip():
+                raise DatasetValidationError(f"{relative_path}:{index}: missing non-empty 'canonical_output'")
             cloned = dict(record)
+            cloned["output"] = canonical_output
             metadata = dict(cloned.get("metadata") or {})
             metadata["dataset_layer"] = layer
             metadata["source_file"] = relative_path

@@ -1,9 +1,11 @@
 import argparse
 import json
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
+
+from training.latex_semantics import compare_latex
 
 
 def normalize_latex(value: str) -> str:
@@ -16,54 +18,103 @@ def normalize_latex(value: str) -> str:
 
 
 def evaluate_pairs(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    by_layer: dict[str, dict[str, int]] = defaultdict(lambda: {"total": 0, "exact": 0, "normalized": 0})
+    def empty_stats() -> dict[str, int]:
+        return {
+            "total": 0,
+            "exact": 0,
+            "normalized": 0,
+            "canonical": 0,
+            "symbol_fidelity": 0,
+            "semantic": 0,
+            "parsed": 0,
+        }
+
+    by_layer: dict[str, dict[str, int]] = defaultdict(empty_stats)
+    by_formula: dict[str, dict[str, int]] = defaultdict(empty_stats)
     failures: list[dict[str, Any]] = []
     exact = 0
     normalized = 0
+    canonical = 0
+    symbol_fidelity = 0
+    semantic = 0
+    parsed = 0
+    match_levels: Counter[str] = Counter()
 
     for row in rows:
         expected = str(row["expected"])
         prediction = str(row["prediction"])
-        is_exact = prediction.strip() == expected.strip()
+        metadata = row.get("metadata") or {}
+        formula_name = str(metadata.get("formula_name") or "unknown")
+        comparison = compare_latex(expected, prediction, formula_name=formula_name)
+        is_exact = comparison.exact_match
         is_normalized = normalize_latex(prediction) == normalize_latex(expected)
         exact += int(is_exact)
         normalized += int(is_normalized)
+        canonical += int(comparison.canonical_match)
+        symbol_fidelity += int(comparison.symbol_fidelity_match)
+        semantic += int(comparison.semantic_match)
+        parsed += int(comparison.parse_success)
+        match_levels[comparison.match_level] += 1
 
-        metadata = row.get("metadata") or {}
         layer = str(metadata.get("dataset_layer") or "unknown")
-        by_layer[layer]["total"] += 1
-        by_layer[layer]["exact"] += int(is_exact)
-        by_layer[layer]["normalized"] += int(is_normalized)
+        for bucket in (by_layer[layer], by_formula[formula_name]):
+            bucket["total"] += 1
+            bucket["exact"] += int(is_exact)
+            bucket["normalized"] += int(is_normalized)
+            bucket["canonical"] += int(comparison.canonical_match)
+            bucket["symbol_fidelity"] += int(comparison.symbol_fidelity_match)
+            bucket["semantic"] += int(comparison.semantic_match)
+            bucket["parsed"] += int(comparison.parse_success)
 
-        if not is_normalized:
+        if not comparison.semantic_match:
             failures.append(
                 {
                     "input": row.get("input", ""),
                     "expected": expected,
                     "prediction": prediction,
                     "metadata": metadata,
+                    "match_level": comparison.match_level,
+                    "reason": comparison.reason,
                 }
             )
 
     total = len(rows)
-    layer_summary = {}
-    for layer, stats in sorted(by_layer.items()):
-        layer_total = stats["total"]
-        layer_summary[layer] = {
-            "total": layer_total,
-            "exact_match": stats["exact"],
-            "normalized_match": stats["normalized"],
-            "exact_accuracy": stats["exact"] / layer_total if layer_total else 0.0,
-            "normalized_accuracy": stats["normalized"] / layer_total if layer_total else 0.0,
-        }
+    def summarize(groups: dict[str, dict[str, int]]) -> dict[str, Any]:
+        summary: dict[str, Any] = {}
+        for name, stats in sorted(groups.items()):
+            group_total = stats["total"]
+            summary[name] = {
+                "total": group_total,
+                "exact_match": stats["exact"],
+                "normalized_match": stats["normalized"],
+                "canonical_match": stats["canonical"],
+                "symbol_fidelity_match": stats["symbol_fidelity"],
+                "semantic_match": stats["semantic"],
+                "exact_accuracy": stats["exact"] / group_total if group_total else 0.0,
+                "normalized_accuracy": stats["normalized"] / group_total if group_total else 0.0,
+                "canonical_accuracy": stats["canonical"] / group_total if group_total else 0.0,
+                "symbol_fidelity_accuracy": stats["symbol_fidelity"] / group_total if group_total else 0.0,
+                "semantic_accuracy": stats["semantic"] / group_total if group_total else 0.0,
+                "parse_coverage": stats["parsed"] / group_total if group_total else 0.0,
+            }
+        return summary
 
     return {
         "total": total,
         "exact_match": exact,
         "normalized_match": normalized,
+        "canonical_match": canonical,
+        "symbol_fidelity_match": symbol_fidelity,
+        "semantic_match": semantic,
         "exact_accuracy": exact / total if total else 0.0,
         "normalized_accuracy": normalized / total if total else 0.0,
-        "by_layer": layer_summary,
+        "canonical_accuracy": canonical / total if total else 0.0,
+        "symbol_fidelity_accuracy": symbol_fidelity / total if total else 0.0,
+        "semantic_accuracy": semantic / total if total else 0.0,
+        "parse_coverage": parsed / total if total else 0.0,
+        "match_levels": dict(sorted(match_levels.items())),
+        "by_layer": summarize(by_layer),
+        "by_formula": summarize(by_formula),
         "failures": failures,
     }
 
@@ -88,18 +139,34 @@ def write_report(results: dict[str, Any], output_path: Path, max_failures: int =
         "# Qwen3-4B LaTeX Correction Evaluation",
         "",
         f"- total: {results['total']}",
+        f"- semantic_accuracy: {results['semantic_accuracy']:.4f} (primary)",
+        f"- symbol_fidelity_accuracy: {results['symbol_fidelity_accuracy']:.4f}",
+        f"- canonical_accuracy: {results['canonical_accuracy']:.4f}",
         f"- exact_accuracy: {results['exact_accuracy']:.4f}",
         f"- normalized_accuracy: {results['normalized_accuracy']:.4f}",
+        f"- parse_coverage: {results['parse_coverage']:.4f}",
         "",
-        "## By Layer",
+        "## Match Levels",
         "",
-        "| layer | total | exact | normalized | normalized accuracy |",
-        "| --- | ---: | ---: | ---: | ---: |",
+        "| level | count |",
+        "| --- | ---: |",
     ]
+    for level, count in results["match_levels"].items():
+        lines.append(f"| {level} | {count} |")
+    lines.extend(
+        [
+            "",
+            "## By Layer",
+            "",
+            "| layer | total | exact | symbol fidelity | semantic | semantic accuracy | parse coverage |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
     for layer, stats in results["by_layer"].items():
         lines.append(
             f"| {layer} | {stats['total']} | {stats['exact_match']} | "
-            f"{stats['normalized_match']} | {stats['normalized_accuracy']:.4f} |"
+            f"{stats['symbol_fidelity_match']} | {stats['semantic_match']} | "
+            f"{stats['semantic_accuracy']:.4f} | {stats['parse_coverage']:.4f} |"
         )
 
     lines.extend(["", "## Failure Samples", ""])
@@ -111,6 +178,8 @@ def write_report(results: dict[str, Any], output_path: Path, max_failures: int =
                 f"- input: {failure['input']}",
                 f"- expected: `{failure['expected']}`",
                 f"- prediction: `{failure['prediction']}`",
+                f"- match_level: {failure['match_level']}",
+                f"- reason: {failure['reason']}",
                 "",
             ]
         )

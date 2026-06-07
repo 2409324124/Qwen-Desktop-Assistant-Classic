@@ -3,10 +3,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from training.canonicalize_dataset import canonicalize_records
 from training.prepare_dataset import (
     DatasetValidationError,
     dedupe_records,
     load_jsonl,
+    load_sources,
     split_records,
     validate_records,
     write_jsonl,
@@ -67,6 +69,27 @@ class TrainingDatasetTests(unittest.TestCase):
 
             raw = path.read_text(encoding="utf-8").strip()
             self.assertEqual(json.loads(raw)["input"], "sample input clean 1")
+
+    def test_canonicalization_preserves_original_output(self) -> None:
+        record = make_record(1, "clean")
+
+        normalized, stats = canonicalize_records([record])
+
+        self.assertEqual(normalized[0]["output"], "x_1 = y_1")
+        self.assertEqual(normalized[0]["canonical_output"], "x_{1} = y_{1}")
+        self.assertEqual(stats["changed"], 1)
+
+    def test_load_sources_uses_canonical_output_as_training_target(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            record = make_record(1, "clean")
+            record["canonical_output"] = r"x_{1} = y_{1}"
+            write_jsonl(root / "source.jsonl", [record])
+
+            loaded = load_sources(root, (("clean", "source.jsonl"),))
+
+            self.assertEqual(loaded[0]["output"], r"x_{1} = y_{1}")
+            self.assertEqual(loaded[0]["canonical_output"], r"x_{1} = y_{1}")
 
 
 if __name__ == "__main__":
