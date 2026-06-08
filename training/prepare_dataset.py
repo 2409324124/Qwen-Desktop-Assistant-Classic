@@ -5,6 +5,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+from training.prompts import SYSTEM_PROMPT
+
 
 DEFAULT_SOURCES: tuple[tuple[str, str], ...] = (
     ("clean", "train_clean_v1_500.jsonl"),
@@ -68,6 +70,7 @@ def load_sources(repo_root: Path, sources: tuple[tuple[str, str], ...] = DEFAULT
             if not isinstance(canonical_output, str) or not canonical_output.strip():
                 raise DatasetValidationError(f"{relative_path}:{index}: missing non-empty 'canonical_output'")
             cloned = dict(record)
+            cloned["instruction"] = SYSTEM_PROMPT
             cloned["output"] = canonical_output
             metadata = dict(cloned.get("metadata") or {})
             metadata["dataset_layer"] = layer

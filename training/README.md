@@ -21,6 +21,8 @@ From the repository root:
 python -m training.prepare_dataset
 ```
 
+The generated train and eval records use the strict canonical-dialect system prompt from `training/prompts.py`. The original source instructions remain untouched.
+
 Generated files:
 
 - `training/data/latex_formula_train.jsonl`
@@ -42,6 +44,12 @@ pip install -e ".[torch,metrics]"
 
 Copy this repository to the remote host, or run these commands from a checkout that contains this `training/` directory.
 
+The 3090 profile uses BF16 and FlashAttention-2. Verify the existing environment before the smoke test:
+
+```bash
+python -c 'import flash_attn; print(flash_attn.__version__)'
+```
+
 ## 4. Smoke Test
 
 ```bash
@@ -55,6 +63,8 @@ If the 3090 runs out of memory, set `per_device_train_batch_size: 1` in both YAM
 ```bash
 llamafactory-cli train training/qwen3_4b_lora_sft.yaml
 ```
+
+The full config evaluates the fixed `latex_formula_eval` dataset every 100 optimizer steps and reloads the checkpoint with the lowest `eval_loss` at the end.
 
 Primary output:
 

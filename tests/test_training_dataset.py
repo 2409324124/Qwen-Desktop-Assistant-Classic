@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from training.canonicalize_dataset import canonicalize_records
+from training.prompts import SYSTEM_PROMPT
 from training.prepare_dataset import (
     DatasetValidationError,
     dedupe_records,
@@ -90,6 +91,7 @@ class TrainingDatasetTests(unittest.TestCase):
 
             self.assertEqual(loaded[0]["output"], r"x_{1} = y_{1}")
             self.assertEqual(loaded[0]["canonical_output"], r"x_{1} = y_{1}")
+            self.assertEqual(loaded[0]["instruction"], SYSTEM_PROMPT)
 
 
 if __name__ == "__main__":

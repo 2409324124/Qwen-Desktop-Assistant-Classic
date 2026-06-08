@@ -2,8 +2,7 @@ import argparse
 import json
 from pathlib import Path
 
-
-SYSTEM_PROMPT = "请将以下含糊、口语化或程序化描述还原为标准的 LaTeX 公式。只输出公式本身。"
+from training.prompts import SYSTEM_PROMPT
 
 
 def parse_args() -> argparse.Namespace:
