@@ -5,6 +5,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
+from tqdm.auto import tqdm
+
 from training.latex_semantics import compare_latex
 
 
@@ -17,7 +19,7 @@ def normalize_latex(value: str) -> str:
     return normalized
 
 
-def evaluate_pairs(rows: list[dict[str, Any]]) -> dict[str, Any]:
+def evaluate_pairs(rows: list[dict[str, Any]], *, show_progress: bool = False) -> dict[str, Any]:
     def empty_stats() -> dict[str, int]:
         return {
             "total": 0,
@@ -40,7 +42,7 @@ def evaluate_pairs(rows: list[dict[str, Any]]) -> dict[str, Any]:
     parsed = 0
     match_levels: Counter[str] = Counter()
 
-    for row in rows:
+    for row in tqdm(rows, desc="Evaluating", unit="formula", disable=not show_progress):
         expected = str(row["expected"])
         prediction = str(row["prediction"])
         metadata = row.get("metadata") or {}
@@ -197,7 +199,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    results = evaluate_pairs(load_prediction_rows(args.predictions))
+    results = evaluate_pairs(load_prediction_rows(args.predictions), show_progress=True)
     write_report(results, args.report)
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)

@@ -5,6 +5,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+from training.dataset_quality import apply_quality_overrides, load_quality_overrides
 from training.prompts import SYSTEM_PROMPT
 
 
@@ -163,24 +164,35 @@ def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
 
 def build_datasets(repo_root: Path, out_dir: Path, eval_ratio: float, seed: int) -> dict[str, Any]:
     source_records = load_sources(repo_root)
-    records, duplicate_count = dedupe_records(source_records)
+    overrides_path = repo_root / "training/dataset_quality_overrides.json"
+    quality_records, quarantined_records, quality_counts = apply_quality_overrides(
+        source_records,
+        load_quality_overrides(overrides_path),
+    )
+    records, duplicate_count = dedupe_records(quality_records)
     train, eval_records = split_records(records, eval_ratio=eval_ratio, seed=seed)
     validate_records(train, "train split")
     validate_records(eval_records, "eval split")
 
     train_path = out_dir / "latex_formula_train.jsonl"
     eval_path = out_dir / "latex_formula_eval.jsonl"
+    quarantine_path = out_dir / "latex_formula_quarantine.jsonl"
     write_jsonl(train_path, train)
     write_jsonl(eval_path, eval_records)
+    write_jsonl(quarantine_path, quarantined_records)
 
     summary = {
         "source": summarize(source_records),
+        "quality_review": quality_counts,
+        "quality_accepted": summarize(quality_records),
+        "quarantine": summarize(quarantined_records),
         "deduped_source": summarize(records),
         "duplicate_input_output_pairs_removed": duplicate_count,
         "train": summarize(train),
         "eval": summarize(eval_records),
         "train_path": str(train_path),
         "eval_path": str(eval_path),
+        "quarantine_path": str(quarantine_path),
     }
     summary_path = out_dir / "dataset_summary.json"
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

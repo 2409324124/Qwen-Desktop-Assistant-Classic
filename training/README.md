@@ -29,6 +29,9 @@ Generated files:
 - `training/data/latex_formula_eval.jsonl`
 - `training/data/dataset_summary.json`
 - `training/data/dataset_info.json`
+- `training/data/latex_formula_quarantine.jsonl`
+
+The reviewed decisions in `training/dataset_quality_overrides.json` are applied before deduplication and splitting. Excluded records are retained in the quarantine file for auditability; repaired targets record their review reason in metadata.
 
 ## 3. Remote 3090 Environment
 
@@ -74,6 +77,8 @@ saves/qwen3-4b-latex-correction/lora/sft
 
 ## 6. Evaluation
 
+Long-running inference and evaluation commands display progress bars. Inference also flushes every prediction to disk, so `wc -l` reflects current progress.
+
 Run a base-model baseline over the fixed eval split:
 
 ```bash
@@ -97,6 +102,14 @@ python -m training.evaluate_latex \
   --report reports/qwen3-4b-latex-correction-eval.md \
   --json reports/qwen3-4b-latex-correction-eval.json
 ```
+
+Before scoring an existing 300-row prediction file, apply the reviewed quality decisions without rerunning inference:
+
+```bash
+python -m training.clean_evaluation --input reports/qwen3-4b-latex-correction-lora-v2-predictions.jsonl --output reports/qwen3-4b-latex-correction-lora-v2-clean-predictions.jsonl --quarantine reports/qwen3-4b-latex-correction-v2-quarantine.jsonl --audit reports/qwen3-4b-latex-correction-v2-quality-audit.json
+```
+
+Then evaluate the clean prediction file. The current review manifest retains 292 of the fixed 300 examples, repairs five Ground Truth formulas, and quarantines eight underspecified or ambiguous prompts.
 
 `semantic_accuracy` is the primary metric. The report also retains:
 

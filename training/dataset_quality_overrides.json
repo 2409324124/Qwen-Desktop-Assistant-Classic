@@ -1,0 +1,98 @@
+[
+  {
+    "source_file": "train_hard_v5_600.jsonl",
+    "input": "H(f) = H, f, u_1",
+    "formula_name": "Hessian Matrix",
+    "action": "exclude",
+    "reason": "The truncated input does not specify the matrix dimensions or entries."
+  },
+  {
+    "source_file": "train_hard_v5_600.jsonl",
+    "input": "Schrodinger equation i hbar d psi dt for i, j, r",
+    "formula_name": "Schrodinger Equation",
+    "action": "exclude",
+    "reason": "The time/index variable is ambiguous between i and j."
+  },
+  {
+    "source_file": "train_noisy_v4_900.jsonl",
+    "input": "displacement formula with v0 a delta x",
+    "formula_name": "Kinematic Displacement Equation",
+    "action": "replace_output",
+    "output": "v^{2} = v_{0}^{2} + 2a\\Delta x",
+    "reason": "The original target used an unrelated left-hand symbol and Delta v instead of Delta x."
+  },
+  {
+    "source_file": "train_noisy_v4_900.jsonl",
+    "input": "那个",
+    "formula_name": "Jacobian Matrix",
+    "action": "exclude",
+    "reason": "The input contains no information identifying a formula."
+  },
+  {
+    "source_file": "train_clean_v1_500.jsonl",
+    "input": "我想知道那个用来算误差的公式，就是把每个实际值跟预测值之间的差先平方，然后再把这些平方值都加起来，最后再除以总的样本数量。",
+    "formula_name": "Mean Squared Error",
+    "action": "replace_output",
+    "output": "L = \\frac{1}{N} \\sum_{i=1}^{N} (y_{i} - \\hat{y}_{i})^{2}",
+    "reason": "The original target reused N as both the bound and summation index."
+  },
+  {
+    "source_file": "train_clean_v1_500.jsonl",
+    "input": "我想算一个平均数，就是把一堆数加起来，然后除以它们的个数。那个公式怎么写啊？就是那个上面有个横杠的theta，等于总数分之一再乘以所有theta的和。",
+    "formula_name": "Sample Mean",
+    "action": "replace_output",
+    "output": "\\bar{\\theta} = \\frac{1}{T} \\sum_{i=1}^{T} \\theta_{i}",
+    "reason": "The original target reused T as both the bound and summation index."
+  },
+  {
+    "source_file": "train_clean_v1_500.jsonl",
+    "input": "Prod rule: (fg)' = f'g + fg'",
+    "formula_name": "Product Rule",
+    "action": "replace_output",
+    "output": "(fg)' = f'g + fg'",
+    "reason": "The target must preserve the explicit f and g symbols supplied by the input."
+  },
+  {
+    "source_file": "train_noisy_v4_900.jsonl",
+    "input": "softmax",
+    "formula_name": "Softmax Function",
+    "action": "replace_output",
+    "output": "\\text{Softmax}(\\xi_{i}) = \\frac{\\exp(\\xi_{i})}{\\sum_{j} \\exp(\\xi_{j})}",
+    "reason": "The output index must not be captured by the denominator summation index."
+  },
+  {
+    "source_file": "train_noisy_v4_900.jsonl",
+    "input": "就是",
+    "formula_name": "Covariance Matrix",
+    "action": "exclude",
+    "reason": "The input contains no information identifying a formula."
+  },
+  {
+    "source_file": "train_hard_v5_600.jsonl",
+    "input": "product",
+    "formula_name": "Product Rule",
+    "action": "exclude",
+    "reason": "The word product does not uniquely request the derivative product rule."
+  },
+  {
+    "source_file": "train_noisy_v4_900.jsonl",
+    "input": "那个",
+    "formula_name": "Taylor Series",
+    "action": "exclude",
+    "reason": "The input contains no information identifying a formula."
+  },
+  {
+    "source_file": "train_noisy_v4_900.jsonl",
+    "input": "那个",
+    "formula_name": "Sample Mean",
+    "action": "exclude",
+    "reason": "The input contains no information identifying a formula."
+  },
+  {
+    "source_file": "train_noisy_v4_900.jsonl",
+    "input": "我想问",
+    "formula_name": "Quadratic Formula",
+    "action": "exclude",
+    "reason": "The input contains no information identifying a formula."
+  }
+]

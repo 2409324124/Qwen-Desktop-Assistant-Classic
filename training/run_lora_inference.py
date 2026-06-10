@@ -2,6 +2,8 @@ import argparse
 import json
 from pathlib import Path
 
+from tqdm.auto import tqdm
+
 from training.prompts import SYSTEM_PROMPT
 
 
@@ -32,8 +34,11 @@ def main() -> None:
     model.eval()
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    with args.eval_file.open("r", encoding="utf-8") as source, args.out.open("w", encoding="utf-8") as sink:
-        for line in source:
+    with args.eval_file.open("r", encoding="utf-8") as source:
+        lines = [line for line in source if line.strip()]
+
+    with args.out.open("w", encoding="utf-8") as sink:
+        for line in tqdm(lines, desc="Generating", unit="formula"):
             record = json.loads(line)
             messages = [
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -63,6 +68,7 @@ def main() -> None:
                 )
                 + "\n"
             )
+            sink.flush()
 
 
 if __name__ == "__main__":

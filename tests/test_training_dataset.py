@@ -4,7 +4,9 @@ import unittest
 from pathlib import Path
 
 from training.canonicalize_dataset import canonicalize_records
+from training.clean_evaluation import clean_evaluation
 from training.prompts import SYSTEM_PROMPT
+from training.dataset_quality import apply_quality_overrides, load_quality_overrides
 from training.prepare_dataset import (
     DatasetValidationError,
     dedupe_records,
@@ -35,6 +37,119 @@ def make_record(idx: int, layer: str, category: str = "stats_ml") -> dict:
 
 
 class TrainingDatasetTests(unittest.TestCase):
+    def test_quality_overrides_repair_or_quarantine_records(self) -> None:
+        keep = make_record(1, "clean")
+        repair = make_record(2, "clean")
+        quarantine = make_record(3, "noisy")
+        for record, source_file in ((keep, "clean.jsonl"), (repair, "clean.jsonl"), (quarantine, "noisy.jsonl")):
+            record["metadata"]["source_file"] = source_file
+            record["metadata"]["formula_name"] = f"formula-{record['input']}"
+
+        overrides = [
+            {
+                "source_file": "clean.jsonl",
+                "input": repair["input"],
+                "formula_name": repair["metadata"]["formula_name"],
+                "action": "replace_output",
+                "output": r"x_{2} = z_{2}",
+                "reason": "Ground Truth used the wrong symbol.",
+            },
+            {
+                "source_file": "noisy.jsonl",
+                "input": quarantine["input"],
+                "formula_name": quarantine["metadata"]["formula_name"],
+                "action": "exclude",
+                "reason": "Input is underspecified.",
+            },
+        ]
+
+        accepted, rejected, audit = apply_quality_overrides([keep, repair, quarantine], overrides)
+
+        self.assertEqual([record["input"] for record in accepted], [keep["input"], repair["input"]])
+        self.assertEqual(accepted[1]["output"], r"x_{2} = z_{2}")
+        self.assertEqual(accepted[1]["canonical_output"], r"x_{2} = z_{2}")
+        self.assertEqual(rejected, [quarantine])
+        self.assertEqual(audit, {"kept": 1, "repaired": 1, "excluded": 1})
+
+    def test_quality_overrides_can_repair_prediction_ground_truth(self) -> None:
+        row = make_record(4, "clean")
+        row["expected"] = row.pop("output")
+        row["prediction"] = r"x_{4} = z_{4}"
+        row["metadata"].update({"source_file": "clean.jsonl", "formula_name": "Example"})
+        override = {
+            "source_file": "clean.jsonl",
+            "input": row["input"],
+            "formula_name": "Example",
+            "action": "replace_output",
+            "output": r"x_{4} = z_{4}",
+            "reason": "Repair expected value.",
+        }
+
+        accepted, rejected, audit = apply_quality_overrides([row], [override], target_field="expected")
+
+        self.assertEqual(accepted[0]["expected"], r"x_{4} = z_{4}")
+        self.assertNotIn("canonical_output", accepted[0])
+        self.assertEqual(rejected, [])
+        self.assertEqual(audit, {"kept": 0, "repaired": 1, "excluded": 0})
+
+    def test_reviewed_quality_manifest_matches_the_fixed_eval_split(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        records = load_jsonl(root / "training/data/latex_formula_eval.jsonl")
+        overrides = load_quality_overrides(root / "training/dataset_quality_overrides.json")
+
+        accepted, rejected, audit = apply_quality_overrides(records, overrides)
+
+        self.assertEqual(len(accepted), 292)
+        self.assertEqual(len(rejected), 8)
+        self.assertEqual(audit, {"kept": 287, "repaired": 5, "excluded": 8})
+
+    def test_clean_evaluation_writes_clean_predictions_and_quarantine(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            keep = make_record(1, "clean")
+            drop = make_record(2, "noisy")
+            rows = []
+            for record, source_file in ((keep, "clean.jsonl"), (drop, "noisy.jsonl")):
+                rows.append(
+                    {
+                        "input": record["input"],
+                        "expected": record["output"],
+                        "prediction": record["output"],
+                        "metadata": {
+                            **record["metadata"],
+                            "source_file": source_file,
+                            "formula_name": record["input"],
+                        },
+                    }
+                )
+            write_jsonl(root / "predictions.jsonl", rows)
+            (root / "overrides.json").write_text(
+                json.dumps(
+                    [
+                        {
+                            "source_file": "noisy.jsonl",
+                            "input": drop["input"],
+                            "formula_name": drop["input"],
+                            "action": "exclude",
+                            "reason": "Underspecified.",
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            audit = clean_evaluation(
+                root / "predictions.jsonl",
+                root / "clean.jsonl",
+                root / "quarantine.jsonl",
+                root / "audit.json",
+                root / "overrides.json",
+            )
+
+            self.assertEqual(len(load_jsonl(root / "clean.jsonl")), 1)
+            self.assertEqual(len(load_jsonl(root / "quarantine.jsonl")), 1)
+            self.assertEqual(audit["clean_total"], 1)
+
     def test_validation_rejects_missing_required_fields(self) -> None:
         with self.assertRaises(DatasetValidationError):
             validate_records([{"instruction": "restore", "input": "x"}], "bad.jsonl")
