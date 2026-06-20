@@ -16,7 +16,7 @@ lora_target: all
 ### dataset
 dataset_dir: training/data
 dataset: latex_formula_train
-eval_dataset: latex_formula_eval
+eval_dataset: latex_formula_eval_clean
 template: qwen3_nothink
 cutoff_len: 1024
 overwrite_cache: true

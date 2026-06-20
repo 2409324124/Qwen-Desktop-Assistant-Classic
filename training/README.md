@@ -27,11 +27,12 @@ Generated files:
 
 - `training/data/latex_formula_train.jsonl`
 - `training/data/latex_formula_eval.jsonl`
+- `training/data/latex_formula_eval_clean.jsonl`
 - `training/data/dataset_summary.json`
 - `training/data/dataset_info.json`
 - `training/data/latex_formula_quarantine.jsonl`
 
-The reviewed decisions in `training/dataset_quality_overrides.json` are applied before deduplication and splitting. Excluded records are retained in the quarantine file for auditability; repaired targets record their review reason in metadata.
+The reviewed decisions in `training/dataset_quality_overrides.json` and the automatic low-information prompt filter are applied before deduplication and splitting. Excluded records are retained in the quarantine file for auditability; repaired targets record their review reason in metadata. Ground Truth formulas are passed through the same LaTeX boundary postprocessor used for inference, so train, eval, and prediction strings share the same display dialect.
 
 ## 3. Remote 3090 Environment
 
@@ -67,7 +68,7 @@ If the 3090 runs out of memory, set `per_device_train_batch_size: 1` in both YAM
 llamafactory-cli train training/qwen3_4b_lora_sft.yaml
 ```
 
-The full config evaluates the fixed `latex_formula_eval` dataset every 100 optimizer steps and reloads the checkpoint with the lowest `eval_loss` at the end.
+The full config evaluates the fixed `latex_formula_eval_clean` dataset every 100 optimizer steps and reloads the checkpoint with the lowest `eval_loss` at the end.
 
 Primary output:
 
@@ -89,14 +90,14 @@ saves/qwen3-4b-latex-correction/lora/sft-v3
 
 Long-running inference and evaluation commands display progress bars. Inference also flushes every prediction to disk, so `wc -l` reflects current progress. Inference applies deterministic LaTeX boundary postprocessing by default and records `raw_prediction` only when the final `prediction` changes; pass `--no-postprocess` for raw model output.
 
-Run a base-model baseline over the fixed eval split:
+Run a base-model baseline over the fixed clean eval split:
 
 ```bash
 python -m training.run_lora_inference \
   --out reports/qwen3-4b-latex-correction-base-predictions.jsonl
 ```
 
-Run the trained LoRA adapter over the same split:
+Run the trained LoRA adapter over the same clean split:
 
 ```bash
 python -m training.run_lora_inference \
@@ -104,7 +105,7 @@ python -m training.run_lora_inference \
   --out reports/qwen3-4b-latex-correction-lora-predictions.jsonl
 ```
 
-Run the v3 adapter over the same split:
+Run the v3 adapter over the same clean split:
 
 ```bash
 python -m training.run_lora_inference \
@@ -121,13 +122,13 @@ python -m training.evaluate_latex \
   --json reports/qwen3-4b-latex-correction-eval.json
 ```
 
-Before scoring an existing 300-row prediction file, apply the reviewed quality decisions without rerunning inference:
+`run_lora_inference` defaults to `training/data/latex_formula_eval_clean.jsonl`. Before scoring an older 300-row prediction file generated from `latex_formula_eval.jsonl`, apply the reviewed quality decisions without rerunning inference:
 
 ```bash
 python -m training.clean_evaluation --input reports/qwen3-4b-latex-correction-lora-v2-predictions.jsonl --output reports/qwen3-4b-latex-correction-lora-v2-clean-predictions.jsonl --quarantine reports/qwen3-4b-latex-correction-v2-quarantine.jsonl --audit reports/qwen3-4b-latex-correction-v2-quality-audit.json
 ```
 
-Then evaluate the clean prediction file. The current review manifest retains 292 of the fixed 300 examples, repairs five Ground Truth formulas, and quarantines eight underspecified or ambiguous prompts.
+Then evaluate the clean prediction file. New predictions against `latex_formula_eval_clean.jsonl` can be evaluated directly.
 
 `semantic_accuracy` is the primary metric. The report also retains:
 

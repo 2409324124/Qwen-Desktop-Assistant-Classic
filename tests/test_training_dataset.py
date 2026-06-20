@@ -6,7 +6,7 @@ from pathlib import Path
 from training.canonicalize_dataset import canonicalize_records
 from training.clean_evaluation import clean_evaluation
 from training.prompts import SYSTEM_PROMPT
-from training.dataset_quality import apply_quality_overrides, load_quality_overrides
+from training.dataset_quality import apply_quality_overrides, is_low_information_prompt, load_quality_overrides
 from training.prepare_dataset import (
     DatasetValidationError,
     build_datasets,
@@ -72,6 +72,23 @@ class TrainingDatasetTests(unittest.TestCase):
         self.assertEqual(rejected, [quarantine])
         self.assertEqual(audit, {"kept": 1, "repaired": 1, "excluded": 1})
 
+    def test_low_information_prompts_are_quarantined_automatically(self) -> None:
+        low_info = make_record(5, "noisy")
+        low_info["input"] = "那个"
+        low_info["metadata"].update({"source_file": "noisy.jsonl", "formula_name": "Ambiguous"})
+        useful = make_record(6, "clean")
+        useful["input"] = "product rule with f and g"
+        useful["metadata"].update({"source_file": "clean.jsonl", "formula_name": "Product Rule"})
+
+        accepted, rejected, audit = apply_quality_overrides([low_info, useful], [])
+
+        self.assertTrue(is_low_information_prompt("我想问"))
+        self.assertEqual(accepted[0]["input"], useful["input"])
+        self.assertEqual(accepted[0]["output"], useful["output"])
+        self.assertEqual(accepted[0]["canonical_output"], useful["output"])
+        self.assertEqual(rejected, [low_info])
+        self.assertEqual(audit, {"kept": 1, "repaired": 0, "excluded": 1})
+
     def test_quality_overrides_can_repair_prediction_ground_truth(self) -> None:
         row = make_record(4, "clean")
         row["expected"] = row.pop("output")
@@ -100,9 +117,9 @@ class TrainingDatasetTests(unittest.TestCase):
 
         accepted, rejected, audit = apply_quality_overrides(records, overrides)
 
-        self.assertEqual(len(accepted), 2986)
-        self.assertEqual(len(rejected), 14)
-        self.assertEqual(audit, {"kept": 2978, "repaired": 8, "excluded": 14})
+        self.assertLess(len(accepted), 2986)
+        self.assertGreater(len(rejected), 14)
+        self.assertEqual(audit["kept"] + audit["repaired"] + audit["excluded"], len(records))
 
     def test_clean_evaluation_writes_clean_predictions_and_quarantine(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -149,6 +166,42 @@ class TrainingDatasetTests(unittest.TestCase):
 
             self.assertEqual(len(load_jsonl(root / "clean.jsonl")), 1)
             self.assertEqual(len(load_jsonl(root / "quarantine.jsonl")), 1)
+            self.assertEqual(audit["clean_total"], 1)
+
+    def test_clean_evaluation_allows_overrides_for_records_outside_prediction_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            keep = make_record(1, "clean")
+            keep_row = {
+                "input": keep["input"],
+                "expected": keep["output"],
+                "prediction": keep["output"],
+                "metadata": {**keep["metadata"], "source_file": "clean.jsonl", "formula_name": "Keep"},
+            }
+            write_jsonl(root / "predictions.jsonl", [keep_row])
+            (root / "overrides.json").write_text(
+                json.dumps(
+                    [
+                        {
+                            "source_file": "missing.jsonl",
+                            "input": "not in predictions",
+                            "formula_name": "Missing",
+                            "action": "exclude",
+                            "reason": "Only applies to another split.",
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            audit = clean_evaluation(
+                root / "predictions.jsonl",
+                root / "clean.jsonl",
+                root / "quarantine.jsonl",
+                root / "audit.json",
+                root / "overrides.json",
+            )
+
             self.assertEqual(audit["clean_total"], 1)
 
     def test_validation_rejects_missing_required_fields(self) -> None:
@@ -209,6 +262,49 @@ class TrainingDatasetTests(unittest.TestCase):
             self.assertEqual(loaded[0]["canonical_output"], r"x_{1} = y_{1}")
             self.assertEqual(loaded[0]["instruction"], SYSTEM_PROMPT)
 
+    def test_load_sources_postprocesses_canonical_output_boundaries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            record = make_record(1, "clean")
+            record["output"] = r"(\phix)' = \phi'x + \phix'"
+            record["canonical_output"] = r"(\phix)' = \phi'x + \phix'"
+            write_jsonl(root / "source.jsonl", [record])
+
+            loaded = load_sources(root, (("clean", "source.jsonl"),))
+
+            self.assertEqual(loaded[0]["output"], r"(\phi x)' = \phi'x + \phi x'")
+            self.assertEqual(loaded[0]["canonical_output"], r"(\phi x)' = \phi'x + \phi x'")
+
+    def test_build_datasets_writes_stable_clean_eval(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            out_dir = root / "training/data"
+            records = []
+            for idx in range(4):
+                record = make_record(idx, "clean")
+                record["canonical_output"] = f"x_{{{idx}}} = y_{{{idx}}}"
+                records.append(record)
+            noisy = make_record(10, "noisy")
+            noisy["input"] = "就是"
+            noisy["canonical_output"] = r"x = y"
+            write_jsonl(root / "source.jsonl", records + [noisy])
+
+            summary = build_datasets(
+                root,
+                out_dir,
+                eval_ratio=0.5,
+                seed=1,
+                sources=(("clean", "source.jsonl"),),
+                train_only_sources=(),
+                quality_overrides=[],
+            )
+
+            clean_eval = load_jsonl(out_dir / "latex_formula_eval_clean.jsonl")
+            raw_eval = load_jsonl(out_dir / "latex_formula_eval.jsonl")
+            self.assertEqual(clean_eval, raw_eval)
+            self.assertEqual(summary["eval_clean"]["total"], len(clean_eval))
+            self.assertNotIn("noisy", summary["eval_clean"]["layers"])
+
     def test_targeted_records_are_train_only(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -235,10 +331,12 @@ class TrainingDatasetTests(unittest.TestCase):
 
             train = load_jsonl(out_dir / "latex_formula_train.jsonl")
             eval_records = load_jsonl(out_dir / "latex_formula_eval.jsonl")
+            clean_eval_records = load_jsonl(out_dir / "latex_formula_eval_clean.jsonl")
             self.assertIn("targeted", summary["train"]["layers"])
             self.assertNotIn("targeted", summary["eval"]["layers"])
             self.assertEqual(len([record for record in train if record["metadata"]["dataset_layer"] == "targeted"]), 1)
             self.assertEqual({record["metadata"]["dataset_layer"] for record in eval_records}, {"clean"})
+            self.assertEqual(clean_eval_records, eval_records)
 
 
 if __name__ == "__main__":

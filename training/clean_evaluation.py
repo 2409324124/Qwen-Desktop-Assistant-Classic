@@ -20,6 +20,7 @@ def clean_evaluation(
         records,
         load_quality_overrides(overrides_path),
         target_field=target_field,
+        require_all_overrides=False,
     )
     write_jsonl(output_path, accepted)
     write_jsonl(quarantine_path, rejected)

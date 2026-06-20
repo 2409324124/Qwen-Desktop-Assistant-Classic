@@ -6,6 +6,15 @@ import json
 from pathlib import Path
 from typing import Any
 
+from training.latex_postprocess import postprocess_latex
+
+_LOW_INFORMATION_PROMPTS = {"那个", "就是", "我想问", "product"}
+
+
+def is_low_information_prompt(value: str) -> bool:
+    normalized = value.strip().lower()
+    return normalized in _LOW_INFORMATION_PROMPTS
+
 
 def record_selector(record: dict[str, Any]) -> tuple[str, str, str]:
     metadata = record.get("metadata") or {}
@@ -28,6 +37,7 @@ def apply_quality_overrides(
     overrides: list[dict[str, Any]],
     *,
     target_field: str = "output",
+    require_all_overrides: bool = True,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, int]]:
     decisions: dict[tuple[str, str, str], dict[str, Any]] = {}
     for override in overrides:
@@ -47,8 +57,19 @@ def apply_quality_overrides(
     for record in records:
         selector = record_selector(record)
         override = decisions.get(selector)
+        if override is None and is_low_information_prompt(str(record.get("input") or "")):
+            rejected.append(record)
+            counts["excluded"] += 1
+            continue
         if override is None:
-            accepted.append(record)
+            normalized = deepcopy(record)
+            value = normalized.get(target_field)
+            if isinstance(value, str):
+                normalized_value = postprocess_latex(value)
+                normalized[target_field] = normalized_value
+                if target_field == "output":
+                    normalized["canonical_output"] = normalized_value
+            accepted.append(normalized)
             counts["kept"] += 1
             continue
 
@@ -62,9 +83,9 @@ def apply_quality_overrides(
             if not isinstance(output, str) or not output.strip():
                 raise ValueError(f"replacement output must be non-empty: {selector}")
             repaired = deepcopy(record)
-            repaired[target_field] = output
+            repaired[target_field] = postprocess_latex(output)
             if target_field == "output":
-                repaired["canonical_output"] = output
+                repaired["canonical_output"] = repaired[target_field]
             metadata = dict(repaired.get("metadata") or {})
             metadata["quality_override_reason"] = str(override.get("reason") or "")
             repaired["metadata"] = metadata
@@ -74,7 +95,7 @@ def apply_quality_overrides(
             raise ValueError(f"unsupported quality override action {action!r}: {selector}")
 
     missing = set(decisions) - matched
-    if missing:
+    if require_all_overrides and missing:
         raise ValueError(f"quality overrides did not match records: {sorted(missing)}")
 
     return accepted, rejected, {name: counts[name] for name in ("kept", "repaired", "excluded")}

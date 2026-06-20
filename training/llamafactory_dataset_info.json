@@ -16,5 +16,14 @@
       "response": "output",
       "system": "instruction"
     }
+  },
+  "latex_formula_eval_clean": {
+    "file_name": "latex_formula_eval_clean.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "input",
+      "response": "output",
+      "system": "instruction"
+    }
   }
 }

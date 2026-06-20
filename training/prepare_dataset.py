@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from training.dataset_quality import apply_quality_overrides, load_quality_overrides
+from training.latex_postprocess import postprocess_latex
 from training.prompts import SYSTEM_PROMPT
 
 
@@ -74,9 +75,11 @@ def load_sources(repo_root: Path, sources: tuple[tuple[str, str], ...] = DEFAULT
             canonical_output = record.get("canonical_output")
             if not isinstance(canonical_output, str) or not canonical_output.strip():
                 raise DatasetValidationError(f"{relative_path}:{index}: missing non-empty 'canonical_output'")
+            canonical_output = postprocess_latex(canonical_output)
             cloned = dict(record)
             cloned["instruction"] = SYSTEM_PROMPT
             cloned["output"] = canonical_output
+            cloned["canonical_output"] = canonical_output
             metadata = dict(cloned.get("metadata") or {})
             metadata["dataset_layer"] = layer
             metadata["source_file"] = relative_path
@@ -153,6 +156,11 @@ def dataset_info() -> dict[str, Any]:
             "formatting": "alpaca",
             "columns": columns,
         },
+        "latex_formula_eval_clean": {
+            "file_name": "latex_formula_eval_clean.jsonl",
+            "formatting": "alpaca",
+            "columns": columns,
+        },
     }
 
 def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
@@ -192,9 +200,11 @@ def build_datasets(
 
     train_path = out_dir / "latex_formula_train.jsonl"
     eval_path = out_dir / "latex_formula_eval.jsonl"
+    eval_clean_path = out_dir / "latex_formula_eval_clean.jsonl"
     quarantine_path = out_dir / "latex_formula_quarantine.jsonl"
     write_jsonl(train_path, train)
     write_jsonl(eval_path, eval_records)
+    write_jsonl(eval_clean_path, eval_records)
     write_jsonl(quarantine_path, quarantined_records)
 
     summary = {
@@ -207,8 +217,10 @@ def build_datasets(
         "duplicate_input_output_pairs_removed": duplicate_count,
         "train": summarize(train),
         "eval": summarize(eval_records),
+        "eval_clean": summarize(eval_records),
         "train_path": str(train_path),
         "eval_path": str(eval_path),
+        "eval_clean_path": str(eval_clean_path),
         "quarantine_path": str(quarantine_path),
     }
     summary_path = out_dir / "dataset_summary.json"

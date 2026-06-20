@@ -33,7 +33,7 @@ class TrainingConfigurationTests(unittest.TestCase):
         self.assertEqual(config["gradient_accumulation_steps"], 4)
         self.assertEqual(config["cutoff_len"], 1024)
         self.assertTrue(config["do_eval"])
-        self.assertEqual(config["eval_dataset"], "latex_formula_eval")
+        self.assertEqual(config["eval_dataset"], "latex_formula_eval_clean")
         self.assertEqual(config["eval_strategy"], "steps")
         self.assertEqual(config["eval_steps"], 100)
         self.assertEqual(config["save_steps"], 100)

@@ -12,7 +12,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run LoRA inference over the fixed eval split.")
     parser.add_argument("--model", default="Qwen/Qwen3-4B-Instruct-2507")
     parser.add_argument("--adapter", default=None, help="Optional LoRA adapter path. Omit for base-model baseline.")
-    parser.add_argument("--eval-file", type=Path, default=Path("training/data/latex_formula_eval.jsonl"))
+    parser.add_argument("--eval-file", type=Path, default=Path("training/data/latex_formula_eval_clean.jsonl"))
     parser.add_argument("--out", type=Path, default=Path("reports/qwen3-4b-latex-correction-predictions.jsonl"))
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--no-postprocess", action="store_true", help="Write raw decoded model output without repairs.")
