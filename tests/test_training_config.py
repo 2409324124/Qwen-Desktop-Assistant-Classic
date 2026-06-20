@@ -38,6 +38,27 @@ class TrainingConfigurationTests(unittest.TestCase):
         self.assertEqual(config["eval_steps"], 100)
         self.assertEqual(config["save_steps"], 100)
 
+    def test_v3_training_config_preserves_v2_and_uses_targeted_output_dir(self) -> None:
+        full = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_sft.yaml").read_text(encoding="utf-8"))
+        v3 = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_sft_v3.yaml").read_text(encoding="utf-8"))
+
+        self.assertEqual(v3["output_dir"], "saves/qwen3-4b-latex-correction/lora/sft-v3")
+        self.assertNotEqual(v3["output_dir"], full["output_dir"])
+        for key in (
+            "bf16",
+            "flash_attn",
+            "lora_rank",
+            "lora_alpha",
+            "lora_target",
+            "learning_rate",
+            "num_train_epochs",
+            "per_device_train_batch_size",
+            "gradient_accumulation_steps",
+            "cutoff_len",
+            "eval_dataset",
+        ):
+            self.assertEqual(v3[key], full[key], key)
+
     def test_smoke_config_uses_the_same_adapter_shape(self) -> None:
         full = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_sft.yaml").read_text(encoding="utf-8"))
         smoke = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_smoke.yaml").read_text(encoding="utf-8"))

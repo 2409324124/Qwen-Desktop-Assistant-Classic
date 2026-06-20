@@ -15,6 +15,10 @@ DEFAULT_SOURCES: tuple[tuple[str, str], ...] = (
     ("hard", "train_hard_v5_600.jsonl"),
 )
 
+TRAIN_ONLY_SOURCES: tuple[tuple[str, str], ...] = (
+    ("targeted", "training/targeted_v3_train.jsonl"),
+)
+
 
 class DatasetValidationError(ValueError):
     pass
@@ -162,15 +166,27 @@ def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
     return summary
 
 
-def build_datasets(repo_root: Path, out_dir: Path, eval_ratio: float, seed: int) -> dict[str, Any]:
-    source_records = load_sources(repo_root)
+def build_datasets(
+    repo_root: Path,
+    out_dir: Path,
+    eval_ratio: float,
+    seed: int,
+    *,
+    sources: tuple[tuple[str, str], ...] = DEFAULT_SOURCES,
+    train_only_sources: tuple[tuple[str, str], ...] = TRAIN_ONLY_SOURCES,
+    quality_overrides: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    source_records = load_sources(repo_root, sources)
+    train_only_records = load_sources(repo_root, train_only_sources) if train_only_sources else []
     overrides_path = repo_root / "training/dataset_quality_overrides.json"
+    overrides = load_quality_overrides(overrides_path) if quality_overrides is None else quality_overrides
     quality_records, quarantined_records, quality_counts = apply_quality_overrides(
         source_records,
-        load_quality_overrides(overrides_path),
+        overrides,
     )
     records, duplicate_count = dedupe_records(quality_records)
     train, eval_records = split_records(records, eval_ratio=eval_ratio, seed=seed)
+    train.extend(train_only_records)
     validate_records(train, "train split")
     validate_records(eval_records, "eval split")
 
@@ -183,6 +199,7 @@ def build_datasets(repo_root: Path, out_dir: Path, eval_ratio: float, seed: int)
 
     summary = {
         "source": summarize(source_records),
+        "train_only_source": summarize(train_only_records),
         "quality_review": quality_counts,
         "quality_accepted": summarize(quality_records),
         "quarantine": summarize(quarantined_records),

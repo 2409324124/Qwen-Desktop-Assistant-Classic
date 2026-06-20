@@ -9,6 +9,7 @@ from training.prompts import SYSTEM_PROMPT
 from training.dataset_quality import apply_quality_overrides, load_quality_overrides
 from training.prepare_dataset import (
     DatasetValidationError,
+    build_datasets,
     dedupe_records,
     load_jsonl,
     load_sources,
@@ -92,16 +93,16 @@ class TrainingDatasetTests(unittest.TestCase):
         self.assertEqual(rejected, [])
         self.assertEqual(audit, {"kept": 0, "repaired": 1, "excluded": 0})
 
-    def test_reviewed_quality_manifest_matches_the_fixed_eval_split(self) -> None:
+    def test_reviewed_quality_manifest_matches_full_source_records(self) -> None:
         root = Path(__file__).resolve().parents[1]
-        records = load_jsonl(root / "training/data/latex_formula_eval.jsonl")
+        records = load_sources(root)
         overrides = load_quality_overrides(root / "training/dataset_quality_overrides.json")
 
         accepted, rejected, audit = apply_quality_overrides(records, overrides)
 
-        self.assertEqual(len(accepted), 292)
-        self.assertEqual(len(rejected), 8)
-        self.assertEqual(audit, {"kept": 287, "repaired": 5, "excluded": 8})
+        self.assertEqual(len(accepted), 2986)
+        self.assertEqual(len(rejected), 14)
+        self.assertEqual(audit, {"kept": 2978, "repaired": 8, "excluded": 14})
 
     def test_clean_evaluation_writes_clean_predictions_and_quarantine(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -207,6 +208,37 @@ class TrainingDatasetTests(unittest.TestCase):
             self.assertEqual(loaded[0]["output"], r"x_{1} = y_{1}")
             self.assertEqual(loaded[0]["canonical_output"], r"x_{1} = y_{1}")
             self.assertEqual(loaded[0]["instruction"], SYSTEM_PROMPT)
+
+    def test_targeted_records_are_train_only(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            out_dir = root / "training/data"
+            base = make_record(1, "clean")
+            base["canonical_output"] = r"x_{1} = y_{1}"
+            base_2 = make_record(3, "clean")
+            base_2["canonical_output"] = r"x_{3} = y_{3}"
+            write_jsonl(root / "source.jsonl", [base, base_2])
+            targeted = make_record(2, "targeted")
+            targeted["metadata"]["formula_name"] = "Product Rule"
+            targeted["canonical_output"] = r"(u\gamma)' = u'\gamma + u\gamma'"
+            write_jsonl(root / "targeted.jsonl", [targeted])
+
+            summary = build_datasets(
+                root,
+                out_dir,
+                eval_ratio=0.5,
+                seed=1,
+                sources=(("clean", "source.jsonl"),),
+                train_only_sources=(("targeted", "targeted.jsonl"),),
+                quality_overrides=[],
+            )
+
+            train = load_jsonl(out_dir / "latex_formula_train.jsonl")
+            eval_records = load_jsonl(out_dir / "latex_formula_eval.jsonl")
+            self.assertIn("targeted", summary["train"]["layers"])
+            self.assertNotIn("targeted", summary["eval"]["layers"])
+            self.assertEqual(len([record for record in train if record["metadata"]["dataset_layer"] == "targeted"]), 1)
+            self.assertEqual({record["metadata"]["dataset_layer"] for record in eval_records}, {"clean"})
 
 
 if __name__ == "__main__":

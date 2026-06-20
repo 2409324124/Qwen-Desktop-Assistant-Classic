@@ -21,7 +21,7 @@ From the repository root:
 python -m training.prepare_dataset
 ```
 
-The generated train and eval records use the strict canonical-dialect system prompt from `training/prompts.py`. The original source instructions remain untouched.
+The generated train and eval records use the strict canonical-dialect system prompt from `training/prompts.py`. The original source instructions remain untouched. The v3 targeted records in `training/targeted_v3_train.jsonl` are train-only and never enter the fixed eval split.
 
 Generated files:
 
@@ -75,9 +75,19 @@ Primary output:
 saves/qwen3-4b-latex-correction/lora/sft
 ```
 
+The v3 targeted run keeps the same 3090 profile but writes to a separate adapter directory:
+
+```bash
+llamafactory-cli train training/qwen3_4b_lora_sft_v3.yaml
+```
+
+```text
+saves/qwen3-4b-latex-correction/lora/sft-v3
+```
+
 ## 6. Evaluation
 
-Long-running inference and evaluation commands display progress bars. Inference also flushes every prediction to disk, so `wc -l` reflects current progress.
+Long-running inference and evaluation commands display progress bars. Inference also flushes every prediction to disk, so `wc -l` reflects current progress. Inference applies deterministic LaTeX boundary postprocessing by default and records `raw_prediction` only when the final `prediction` changes; pass `--no-postprocess` for raw model output.
 
 Run a base-model baseline over the fixed eval split:
 
@@ -92,6 +102,14 @@ Run the trained LoRA adapter over the same split:
 python -m training.run_lora_inference \
   --adapter saves/qwen3-4b-latex-correction/lora/sft \
   --out reports/qwen3-4b-latex-correction-lora-predictions.jsonl
+```
+
+Run the v3 adapter over the same split:
+
+```bash
+python -m training.run_lora_inference \
+  --adapter saves/qwen3-4b-latex-correction/lora/sft-v3 \
+  --out reports/qwen3-4b-latex-correction-lora-v3-predictions.jsonl
 ```
 
 Generate the report:

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from tqdm.auto import tqdm
 
+from training.latex_postprocess import postprocess_latex
 from training.prompts import SYSTEM_PROMPT
 
 
@@ -14,6 +15,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--eval-file", type=Path, default=Path("training/data/latex_formula_eval.jsonl"))
     parser.add_argument("--out", type=Path, default=Path("reports/qwen3-4b-latex-correction-predictions.jsonl"))
     parser.add_argument("--max-new-tokens", type=int, default=256)
+    parser.add_argument("--no-postprocess", action="store_true", help="Write raw decoded model output without repairs.")
     return parser.parse_args()
 
 
@@ -55,17 +57,19 @@ def main() -> None:
                     top_p=None,
                 )
             new_tokens = generated[0][inputs["input_ids"].shape[-1] :]
-            prediction = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+            raw_prediction = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+            prediction = raw_prediction if args.no_postprocess else postprocess_latex(raw_prediction)
+            payload = {
+                "input": record["input"],
+                "expected": record["output"],
+                "prediction": prediction,
+                "metadata": record.get("metadata", {}),
+            }
+            if prediction != raw_prediction:
+                payload["raw_prediction"] = raw_prediction
+                payload["postprocessed"] = True
             sink.write(
-                json.dumps(
-                    {
-                        "input": record["input"],
-                        "expected": record["output"],
-                        "prediction": prediction,
-                        "metadata": record.get("metadata", {}),
-                    },
-                    ensure_ascii=False,
-                )
+                json.dumps(payload, ensure_ascii=False)
                 + "\n"
             )
             sink.flush()
