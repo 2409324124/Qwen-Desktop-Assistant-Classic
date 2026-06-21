@@ -36,12 +36,14 @@ The base model often responds with explanatory text or malformed/truncated LaTeX
 
 ### Model Artifacts
 
-- Merged model: [xu2409324124/qwen3-4b-latex-correction-v3](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3)
-- v3 LoRA adapter: [adapter/sft-v3](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3/tree/main/adapter/sft-v3)
-- v2 LoRA adapter: [adapter/sft-v2](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3/tree/main/adapter/sft-v2)
-- v3 clean eval report:
-  - [Markdown](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3/blob/main/reports/qwen3-4b-latex-correction-v3-clean-v4-eval.md)
-  - [JSON](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3/blob/main/reports/qwen3-4b-latex-correction-v3-clean-v4-eval.json)
+The release is split by runtime format:
+
+- Full BF16 merged model: [xu2409324124/qwen3-4b-latex-correction-v3-bf16](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-bf16)
+  - Use this for Transformers, vLLM-compatible conversion, further fine-tuning, or producing new quantizations.
+- GGUF Q4_K_M model: [xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m)
+  - Use this for llama.cpp, Ollama, LM Studio, and other GGUF local-inference runtimes.
+
+The older aggregate release remains useful as an audit trail for adapters and reports, but the two repositories above are the clean model download targets.
 
 ## Training Workflow
 

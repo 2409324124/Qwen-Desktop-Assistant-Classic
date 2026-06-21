@@ -2,6 +2,15 @@
 
 This workflow trains a LoRA adapter for Simplified-Chinese LaTeX formula correction using the frozen phase-1 datasets.
 
+## Release Artifacts
+
+The v3 release is published as separate Hugging Face repositories by runtime format:
+
+- Full BF16 merged model: [xu2409324124/qwen3-4b-latex-correction-v3-bf16](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-bf16)
+- GGUF Q4_K_M model: [xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m)
+
+Keep BF16 safetensors and GGUF quantizations in separate repositories. The BF16 repository is the canonical merged checkpoint for Transformers-compatible workflows; the GGUF repository is the deployment-oriented local inference package.
+
 ## 1. Canonicalize Ground Truth
 
 The source JSONL files retain their original `output` and add a deterministic `canonical_output` used for training.
