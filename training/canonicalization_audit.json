@@ -1,7 +1,7 @@
 {
   "mode": "check",
   "files": {
-    "train_clean_v1_500.jsonl": {
+    "data/frozen/phase1/train_clean_v1_500.jsonl": {
       "total": 1500,
       "changed": 0,
       "added": 0,
@@ -71,7 +71,7 @@
       "sha256_after": "71f0de0390ffb9c0ebd61797de351709c9d60fb12dc11ede82649d90d9a42577",
       "up_to_date": true
     },
-    "train_noisy_v4_900.jsonl": {
+    "data/frozen/phase1/train_noisy_v4_900.jsonl": {
       "total": 900,
       "changed": 0,
       "added": 0,
@@ -141,7 +141,7 @@
       "sha256_after": "04ffd71673e6fc239231ff0b5baa3c8a0e4714c689816cb03fd7dfbbe8e5db7c",
       "up_to_date": true
     },
-    "train_hard_v5_600.jsonl": {
+    "data/frozen/phase1/train_hard_v5_600.jsonl": {
       "total": 600,
       "changed": 0,
       "added": 0,

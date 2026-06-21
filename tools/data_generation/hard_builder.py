@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from noisy_builder import (
+from tools.data_generation.noisy_builder import (
     FORMULA_NAME_SHORTCUTS,
     AMBIGUOUS_SHORTCUT_CONTEXT,
     dedupe_tail,
@@ -343,8 +343,8 @@ def build_hard_records(records: list[dict[str, Any]], count: int, seed: int) -> 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--src", default="train_clean_v1_300.jsonl")
-    parser.add_argument("--out", default="train_hard_v1_100.jsonl")
+    parser.add_argument("--src", default="archive/phase1/data/train_clean_v1_300.jsonl")
+    parser.add_argument("--out", default="archive/phase1/data/train_hard_v1_100.jsonl")
     parser.add_argument("--count", type=int, default=100)
     parser.add_argument("--seed", type=int, default=42)
     return parser.parse_args()

@@ -12,9 +12,9 @@ from training.latex_semantics import canonicalize_latex, parse_latex
 
 
 DEFAULT_SOURCE_FILES = (
-    "train_clean_v1_500.jsonl",
-    "train_noisy_v4_900.jsonl",
-    "train_hard_v5_600.jsonl",
+    "data/frozen/phase1/train_clean_v1_500.jsonl",
+    "data/frozen/phase1/train_noisy_v4_900.jsonl",
+    "data/frozen/phase1/train_hard_v5_600.jsonl",
 )
 
 

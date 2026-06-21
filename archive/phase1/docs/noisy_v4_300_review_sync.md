@@ -29,17 +29,17 @@
 
 当前架构已经稳定为：
 
-1. [mine_sympy.py](D:\1\mine_sympy.py)
+1. [mine_sympy.py](mine_sympy.py)
 - 生成标准公式底座
 - 输出 `standard_latex`
 - 输出 `sympy_expr`
 
-2. [data_builder.py](D:\1\data_builder.py)
+2. [data_builder.py](data_builder.py)
 - 生成 `clean` 风格训练数据
 - 使用 Gemini 生成用户输入风格
 - 始终保留标准 LaTeX 作为 `output`
 
-3. [noisy_builder.py](D:\1\noisy_builder.py)
+3. [noisy_builder.py](noisy_builder.py)
 - 从 `clean` 基线派生规则驱动的 `noisy` 数据
 
 4. 本地 Ollama
@@ -52,7 +52,7 @@
 
 当前 `clean` 基线：
 
-- [train_clean_v1_120.jsonl](D:\1\train_clean_v1_120.jsonl)
+- [train_clean_v1_120.jsonl](train_clean_v1_120.jsonl)
 
 状态：
 
@@ -65,7 +65,7 @@
 
 ### `noisy_v1`
 
-- [train_noisy_v1_100.jsonl](D:\1\train_noisy_v1_100.jsonl)
+- [train_noisy_v1_100.jsonl](train_noisy_v1_100.jsonl)
 
 问题：
 
@@ -75,7 +75,7 @@
 
 ### `noisy_v2`
 
-- [train_noisy_v2_100.jsonl](D:\1\train_noisy_v2_100.jsonl)
+- [train_noisy_v2_100.jsonl](train_noisy_v2_100.jsonl)
 
 改进：
 
@@ -87,7 +87,7 @@
 
 ### `noisy_v3`
 
-- [train_noisy_v3_100.jsonl](D:\1\train_noisy_v3_100.jsonl)
+- [train_noisy_v3_100.jsonl](train_noisy_v3_100.jsonl)
 
 改进：
 
@@ -109,7 +109,7 @@
 
 当前最新生成器：
 
-- [noisy_builder.py](D:\1\noisy_builder.py)
+- [noisy_builder.py](noisy_builder.py)
 
 核心升级：
 
@@ -131,9 +131,9 @@
 
 当前重点审查文件：
 
-- [train_noisy_v4_300.jsonl](D:\1\train_noisy_v4_300.jsonl)
+- [train_noisy_v4_300.jsonl](train_noisy_v4_300.jsonl)
 
-这是基于当前 [noisy_builder.py](D:\1\noisy_builder.py) 生成的 `300` 条 noisy 验证集。
+这是基于当前 [noisy_builder.py](noisy_builder.py) 生成的 `300` 条 noisy 验证集。
 
 ---
 

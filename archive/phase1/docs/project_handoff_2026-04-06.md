@@ -21,20 +21,20 @@ Current user focus:
 
 The pipeline has been upgraded from a naive local-Ollama-only flow into a split architecture:
 
-1. [mine_sympy.py](D:\1\mine_sympy.py)
+1. [mine_sympy.py](mine_sympy.py)
 - generates canonical formula records
 - includes `standard_latex`
 - includes `sympy_expr`
 - uses defensive parsing and failure fallback
 
-2. [data_builder.py](D:\1\data_builder.py)
+2. [data_builder.py](data_builder.py)
 - builds `clean`-style training data
 - uses Gemini REST generation
 - reads `.env`
 - keeps the canonical LaTeX as `output`
 - only uses the model for input-side variant generation
 
-3. [tavily_client.py](D:\1\tavily_client.py)
+3. [tavily_client.py](tavily_client.py)
 - asynchronous Tavily client
 - used for real-web expression/noise reference collection
 
@@ -50,7 +50,7 @@ The pipeline has been upgraded from a naive local-Ollama-only flow into a split 
 
 Current baseline:
 
-- [train_clean_v1_120.jsonl](D:\1\train_clean_v1_120.jsonl)
+- [train_clean_v1_120.jsonl](train_clean_v1_120.jsonl)
 
 Status:
 
@@ -60,23 +60,23 @@ Status:
 
 Supporting source:
 
-- [formulas_clean_120.json](D:\1\formulas_clean_120.json)
+- [formulas_clean_120.json](formulas_clean_120.json)
 
 ### `noisy`
 
 Version history:
 
-- [train_noisy_v1_100.jsonl](D:\1\train_noisy_v1_100.jsonl)
+- [train_noisy_v1_100.jsonl](train_noisy_v1_100.jsonl)
   - first prototype
   - useful as review baseline
   - too much script smell
 
-- [train_noisy_v2_100.jsonl](D:\1\train_noisy_v2_100.jsonl)
+- [train_noisy_v2_100.jsonl](train_noisy_v2_100.jsonl)
   - fixed major Frankenstein-style issues
   - significantly improved realism
   - judged by Gemini as “small fixes before scaling”
 
-- [train_noisy_v3_100.jsonl](D:\1\train_noisy_v3_100.jsonl)
+- [train_noisy_v3_100.jsonl](train_noisy_v3_100.jsonl)
   - latest prototype
   - adds lighter typo noise
   - reduces rigid prefix/template usage further
@@ -84,11 +84,11 @@ Version history:
 
 Generator:
 
-- [noisy_builder.py](D:\1\noisy_builder.py)
+- [noisy_builder.py](noisy_builder.py)
 
 Rule design:
 
-- [noisy_rules_v1.md](D:\1\noisy_rules_v1.md)
+- [noisy_rules_v1.md](noisy_rules_v1.md)
 
 ### `hard`
 
@@ -103,9 +103,9 @@ Status:
 
 ### Real expression style references
 
-- [expression_reference_sampler.py](D:\1\expression_reference_sampler.py)
-- [expression_reference_sample.json](D:\1\expression_reference_sample.json)
-- [expression_reference_sample.md](D:\1\expression_reference_sample.md)
+- [expression_reference_sampler.py](expression_reference_sampler.py)
+- [expression_reference_sample.json](expression_reference_sample.json)
+- [expression_reference_sample.md](expression_reference_sample.md)
 
 Purpose:
 
@@ -114,9 +114,9 @@ Purpose:
 
 ### Real noisy reference collection
 
-- [noise_reference_sampler.py](D:\1\noise_reference_sampler.py)
-- [noise_reference_sample.json](D:\1\noise_reference_sample.json)
-- [noise_reference_sample.md](D:\1\noise_reference_sample.md)
+- [noise_reference_sampler.py](noise_reference_sampler.py)
+- [noise_reference_sample.json](noise_reference_sample.json)
+- [noise_reference_sample.md](noise_reference_sample.md)
 
 Purpose:
 
@@ -129,7 +129,7 @@ Purpose:
 
 ### Cross-review of Gemini audit
 
-- [gemini_audit_cross_review.md](D:\1\gemini_audit_cross_review.md)
+- [gemini_audit_cross_review.md](gemini_audit_cross_review.md)
 
 Purpose:
 
@@ -139,7 +139,7 @@ Purpose:
 
 ### Gemini v2 review prompt
 
-- [gemini_noisy_v2_review_prompt.md](D:\1\gemini_noisy_v2_review_prompt.md)
+- [gemini_noisy_v2_review_prompt.md](gemini_noisy_v2_review_prompt.md)
 
 Purpose:
 
@@ -173,7 +173,7 @@ It is now in the stage of dataset quality iteration.
 
 Recommended order:
 
-1. External review of [train_noisy_v3_100.jsonl](D:\1\train_noisy_v3_100.jsonl)
+1. External review of [train_noisy_v3_100.jsonl](train_noisy_v3_100.jsonl)
 - check realism
 - check recoverability
 - check whether typo noise is appropriately light
@@ -210,7 +210,7 @@ Recommended order:
 This handoff file was created after:
 
 - generating `noisy_v3`
-- updating [noisy_builder.py](D:\1\noisy_builder.py)
+- updating [noisy_builder.py](noisy_builder.py)
 
 At the time of writing, the intended next action is:
 

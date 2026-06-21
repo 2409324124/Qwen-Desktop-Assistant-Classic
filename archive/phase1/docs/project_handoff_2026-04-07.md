@@ -24,19 +24,19 @@ The project is no longer in exploratory architecture mode.
 
 Current architecture is:
 
-1. [mine_sympy.py](D:\1\mine_sympy.py)
+1. [mine_sympy.py](mine_sympy.py)
 - generates canonical formula records
 - includes `standard_latex`
 - includes `sympy_expr`
 - uses defensive parsing and stores parse failures instead of crashing
 
-2. [data_builder.py](D:\1\data_builder.py)
+2. [data_builder.py](data_builder.py)
 - builds `clean` training data
 - calls Gemini
 - preserves canonical LaTeX as `output`
 - uses the model only for input-side style generation
 
-3. [noisy_builder.py](D:\1\noisy_builder.py)
+3. [noisy_builder.py](noisy_builder.py)
 - derives rule-based `noisy` samples from `clean` baselines
 - now includes surface cleaning and post-filtering
 
@@ -44,7 +44,7 @@ Current architecture is:
 - not used for the current dataset generation loop
 - reserved for future post-SFT local evaluation
 
-5. [tavily_client.py](D:\1\tavily_client.py)
+5. [tavily_client.py](tavily_client.py)
 - used for real-web expression and noise reference collection
 
 ---
@@ -55,13 +55,13 @@ The formula base pipeline is fixed and usable.
 
 Important files:
 
-- [mine_sympy.py](D:\1\mine_sympy.py)
-- [formulas_clean_120.json](D:\1\formulas_clean_120.json)
-- [formulas_clean_300.json](D:\1\formulas_clean_300.json)
+- [mine_sympy.py](mine_sympy.py)
+- [formulas_clean_120.json](formulas_clean_120.json)
+- [formulas_clean_300.json](formulas_clean_300.json)
 
 Current large formula base:
 
-- [formulas_clean_300.json](D:\1\formulas_clean_300.json)
+- [formulas_clean_300.json](formulas_clean_300.json)
 - total formulas: `300`
 
 Current category distribution:
@@ -86,12 +86,12 @@ This matches the intended domain ratios:
 
 ### First clean baseline
 
-- [train_clean_v1_120.jsonl](D:\1\train_clean_v1_120.jsonl)
+- [train_clean_v1_120.jsonl](train_clean_v1_120.jsonl)
 - total records: `360`
 
 ### Expanded clean set
 
-- [train_clean_v1_300.jsonl](D:\1\train_clean_v1_300.jsonl)
+- [train_clean_v1_300.jsonl](train_clean_v1_300.jsonl)
 - total records: `900`
 
 Current `train_clean_v1_300.jsonl` distribution:
@@ -121,7 +121,7 @@ Current judgment:
 
 #### `noisy_v1`
 
-- [train_noisy_v1_100.jsonl](D:\1\train_noisy_v1_100.jsonl)
+- [train_noisy_v1_100.jsonl](train_noisy_v1_100.jsonl)
 
 Status:
 
@@ -131,7 +131,7 @@ Status:
 
 #### `noisy_v2`
 
-- [train_noisy_v2_100.jsonl](D:\1\train_noisy_v2_100.jsonl)
+- [train_noisy_v2_100.jsonl](train_noisy_v2_100.jsonl)
 
 Status:
 
@@ -140,7 +140,7 @@ Status:
 
 #### `noisy_v3`
 
-- [train_noisy_v3_100.jsonl](D:\1\train_noisy_v3_100.jsonl)
+- [train_noisy_v3_100.jsonl](train_noisy_v3_100.jsonl)
 
 Status:
 
@@ -152,7 +152,7 @@ Status:
 
 Current generator:
 
-- [noisy_builder.py](D:\1\noisy_builder.py)
+- [noisy_builder.py](noisy_builder.py)
 
 Key upgrades introduced in `v4`:
 
@@ -163,12 +163,12 @@ Key upgrades introduced in `v4`:
 
 Intermediate review asset:
 
-- [train_noisy_v4_300.jsonl](D:\1\train_noisy_v4_300.jsonl)
-- [noisy_v4_300_review_sync.md](D:\1\noisy_v4_300_review_sync.md)
+- [train_noisy_v4_300.jsonl](train_noisy_v4_300.jsonl)
+- [noisy_v4_300_review_sync.md](noisy_v4_300_review_sync.md)
 
 Current large noisy set:
 
-- [train_noisy_v4_900.jsonl](D:\1\train_noisy_v4_900.jsonl)
+- [train_noisy_v4_900.jsonl](train_noisy_v4_900.jsonl)
 - total records: `900`
 
 Current `train_noisy_v4_900.jsonl` category distribution:
@@ -209,9 +209,9 @@ Current judgment:
 
 ### Expression-style references
 
-- [expression_reference_sampler.py](D:\1\expression_reference_sampler.py)
-- [expression_reference_sample.json](D:\1\expression_reference_sample.json)
-- [expression_reference_sample.md](D:\1\expression_reference_sample.md)
+- [expression_reference_sampler.py](expression_reference_sampler.py)
+- [expression_reference_sample.json](expression_reference_sample.json)
+- [expression_reference_sample.md](expression_reference_sample.md)
 
 Purpose:
 
@@ -219,9 +219,9 @@ Purpose:
 
 ### Real-noise references
 
-- [noise_reference_sampler.py](D:\1\noise_reference_sampler.py)
-- [noise_reference_sample.json](D:\1\noise_reference_sample.json)
-- [noise_reference_sample.md](D:\1\noise_reference_sample.md)
+- [noise_reference_sampler.py](noise_reference_sampler.py)
+- [noise_reference_sample.json](noise_reference_sample.json)
+- [noise_reference_sample.md](noise_reference_sample.md)
 
 Purpose:
 
@@ -231,9 +231,9 @@ Purpose:
 
 ## 7. Review / Alignment Artifacts
 
-- [gemini_audit_cross_review.md](D:\1\gemini_audit_cross_review.md)
-- [gemini_noisy_v2_review_prompt.md](D:\1\gemini_noisy_v2_review_prompt.md)
-- [noisy_v4_300_review_sync.md](D:\1\noisy_v4_300_review_sync.md)
+- [gemini_audit_cross_review.md](gemini_audit_cross_review.md)
+- [gemini_noisy_v2_review_prompt.md](gemini_noisy_v2_review_prompt.md)
+- [noisy_v4_300_review_sync.md](noisy_v4_300_review_sync.md)
 
 These files capture:
 
@@ -276,7 +276,7 @@ It has entered the stage of:
 
 Recommended order from this point:
 
-1. External review of [train_noisy_v4_900.jsonl](D:\1\train_noisy_v4_900.jsonl)
+1. External review of [train_noisy_v4_900.jsonl](train_noisy_v4_900.jsonl)
 - verify it still looks stable at 900-scale
 - identify any remaining polish items
 

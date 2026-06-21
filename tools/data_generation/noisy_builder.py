@@ -506,8 +506,8 @@ def build_noisy_records(records: list[dict[str, Any]], count: int, seed: int) ->
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--src", default="train_clean_v1_120.jsonl")
-    parser.add_argument("--out", default="train_noisy_v4_100.jsonl")
+    parser.add_argument("--src", default="archive/phase1/data/train_clean_v1_120.jsonl")
+    parser.add_argument("--out", default="archive/phase1/data/train_noisy_v4_100.jsonl")
     parser.add_argument("--count", type=int, default=100)
     parser.add_argument("--seed", type=int, default=42)
     return parser.parse_args()

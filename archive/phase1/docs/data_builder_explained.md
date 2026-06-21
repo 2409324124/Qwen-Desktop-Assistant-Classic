@@ -1,6 +1,6 @@
 # `data_builder.py` 阅读说明
 
-这份说明文档对应的是当前最新版的 [data_builder.py](D:\1\data_builder.py)。
+这份说明文档对应的是当前最新版的 [data_builder.py](data_builder.py)。
 
 和上一版最大的区别是：
 
@@ -243,7 +243,7 @@ python data_builder.py \
 
 如果你准备正式接 Gemini，主要改这一个位置：
 
-[data_builder.py](D:\1\data_builder.py)
+[data_builder.py](data_builder.py)
 
 具体是：
 

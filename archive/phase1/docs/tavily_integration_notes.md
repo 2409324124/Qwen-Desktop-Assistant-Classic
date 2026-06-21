@@ -25,8 +25,8 @@ Tavily 不是训练数据生成的主模型提供方。
 
 ## 2. 当前已准备好的文件
 
-- [tavily_client.py](D:\1\tavily_client.py)
-- [`.env.example`](D:\1\.env.example)
+- [tavily_client.py](tavily_client.py)
+- [`.env.example`](.env.example)
 
 `tavily_client.py` 当前已经具备：
 
@@ -40,7 +40,7 @@ Tavily 不是训练数据生成的主模型提供方。
 
 ## 3. 环境变量
 
-请在本地 [`.env`](D:\1\.env) 中加入：
+请在本地 [`.env`](.env) 中加入：
 
 ```env
 TAVILY_API_KEY=你的真实key
@@ -61,7 +61,7 @@ TAVILY_TIMEOUT=60
 命令行 smoke test：
 
 ```powershell
-D:\1\latex\python.exe tavily_client.py "latest Tavily API search docs"
+latex\python.exe tavily_client.py "latest Tavily API search docs"
 ```
 
 Python 代码调用：

@@ -6,9 +6,9 @@ The phase-1 validation stack is now materially complete.
 
 Current frozen validation datasets:
 
-- [train_clean_v1_500.jsonl](D:\1\train_clean_v1_500.jsonl): `1500`
-- [train_noisy_v4_900.jsonl](D:\1\train_noisy_v4_900.jsonl): `900`
-- [train_hard_v5_600.jsonl](D:\1\train_hard_v5_600.jsonl): `600`
+- [train_clean_v1_500.jsonl](train_clean_v1_500.jsonl): `1500`
+- [train_noisy_v4_900.jsonl](train_noisy_v4_900.jsonl): `900`
+- [train_hard_v5_600.jsonl](train_hard_v5_600.jsonl): `600`
 
 Important status judgment:
 
@@ -36,23 +36,23 @@ So the project has now fully met the originally planned phase-1 validation sampl
 
 Current architecture is stable and should not be re-opened casually.
 
-1. [mine_sympy.py](D:\1\mine_sympy.py)
+1. [mine_sympy.py](mine_sympy.py)
 - generates canonical formula records
 - includes `standard_latex`
 - includes `sympy_expr`
 - uses defensive parsing and stores parse failures instead of crashing
 
-2. [data_builder.py](D:\1\data_builder.py)
+2. [data_builder.py](data_builder.py)
 - builds `clean` training data
 - uses Gemini for input-style generation
 - preserves canonical LaTeX as `output`
 - does not delegate ground-truth formula generation to Gemini
 
-3. [noisy_builder.py](D:\1\noisy_builder.py)
+3. [noisy_builder.py](noisy_builder.py)
 - derives rule-based `noisy` from `clean`
 - includes cleaned surface mapping, corruption controls, and post-filtering
 
-4. [hard_builder.py](D:\1\hard_builder.py)
+4. [hard_builder.py](hard_builder.py)
 - derives rule-based `hard` from `clean`
 - emphasizes structure collapse, nested damage, shorthand anchors, and harder recovery paths
 
@@ -60,7 +60,7 @@ Current architecture is stable and should not be re-opened casually.
 - reserved for post-SFT local evaluation
 - not the main dataset-generation backend
 
-6. [tavily_client.py](D:\1\tavily_client.py)
+6. [tavily_client.py](tavily_client.py)
 - used for real-web reference collection
 - supported prompt and rule refinement for `clean` and `noisy`
 
@@ -70,7 +70,7 @@ Current architecture is stable and should not be re-opened casually.
 
 Current large formula base:
 
-- [formulas_clean_300.json](D:\1\formulas_clean_300.json)
+- [formulas_clean_300.json](formulas_clean_300.json)
 - total formulas: `300`
 
 Category distribution:
@@ -97,7 +97,7 @@ This still matches the intended domain ratio:
 
 Current main file:
 
-- [train_clean_v1_500.jsonl](D:\1\train_clean_v1_500.jsonl)
+- [train_clean_v1_500.jsonl](train_clean_v1_500.jsonl)
 
 Current size:
 
@@ -127,7 +127,7 @@ Current judgment:
 
 Frozen main file:
 
-- [train_noisy_v4_900.jsonl](D:\1\train_noisy_v4_900.jsonl)
+- [train_noisy_v4_900.jsonl](train_noisy_v4_900.jsonl)
 
 Current size:
 
@@ -142,7 +142,7 @@ Current judgment:
 
 Frozen main file:
 
-- [train_hard_v5_600.jsonl](D:\1\train_hard_v5_600.jsonl)
+- [train_hard_v5_600.jsonl](train_hard_v5_600.jsonl)
 
 Current size:
 
@@ -173,8 +173,8 @@ Current judgment:
 
 ### Frozen
 
-- [train_noisy_v4_900.jsonl](D:\1\train_noisy_v4_900.jsonl)
-- [train_hard_v5_600.jsonl](D:\1\train_hard_v5_600.jsonl)
+- [train_noisy_v4_900.jsonl](train_noisy_v4_900.jsonl)
+- [train_hard_v5_600.jsonl](train_hard_v5_600.jsonl)
 
 These two are ready to be treated as phase-1 formal validation datasets.
 
@@ -272,9 +272,9 @@ The most natural next step is:
 
 At the time of this document:
 
-- [train_clean_v1_500.jsonl](D:\1\train_clean_v1_500.jsonl) exists
-- [train_noisy_v4_900.jsonl](D:\1\train_noisy_v4_900.jsonl) exists
-- [train_hard_v5_600.jsonl](D:\1\train_hard_v5_600.jsonl) exists
+- [train_clean_v1_500.jsonl](train_clean_v1_500.jsonl) exists
+- [train_noisy_v4_900.jsonl](train_noisy_v4_900.jsonl) exists
+- [train_hard_v5_600.jsonl](train_hard_v5_600.jsonl) exists
 
 If another agent resumes work, the most efficient continuation path is:
 

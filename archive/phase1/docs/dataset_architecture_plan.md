@@ -245,8 +245,8 @@ clean : noisy : hard = 5 : 3 : 2
 
 当前已经生成并审阅过的：
 
-- [formulas_20_gemini.json](D:\1\formulas_20_gemini.json)
-- [train_gemini_20.jsonl](D:\1\train_gemini_20.jsonl)
+- [formulas_20_gemini.json](formulas_20_gemini.json)
+- [train_gemini_20.jsonl](train_gemini_20.jsonl)
 
 它们的定位不是正式训练主数据，而是：
 

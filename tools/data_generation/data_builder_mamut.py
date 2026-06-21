@@ -110,8 +110,8 @@ class MAMUTDataBuilder:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--src", default="formulas.json")
-    parser.add_argument("--out", default="train.jsonl")
+    parser.add_argument("--src", default="archive/phase1/data/formulas.json")
+    parser.add_argument("--out", default="archive/phase1/data/train.jsonl")
     parser.add_argument("--equiv", type=int, default=3, help="Number of equivalent (true) versions")
     parser.add_argument("--ffactor", type=int, default=2, help="Factor of false versions per true version")
     args = parser.parse_args()

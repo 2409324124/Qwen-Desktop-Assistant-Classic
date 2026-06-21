@@ -11,9 +11,9 @@ from training.prompts import SYSTEM_PROMPT
 
 
 DEFAULT_SOURCES: tuple[tuple[str, str], ...] = (
-    ("clean", "train_clean_v1_500.jsonl"),
-    ("noisy", "train_noisy_v4_900.jsonl"),
-    ("hard", "train_hard_v5_600.jsonl"),
+    ("clean", "data/frozen/phase1/train_clean_v1_500.jsonl"),
+    ("noisy", "data/frozen/phase1/train_noisy_v4_900.jsonl"),
+    ("hard", "data/frozen/phase1/train_hard_v5_600.jsonl"),
 )
 
 TRAIN_ONLY_SOURCES: tuple[tuple[str, str], ...] = (
@@ -82,7 +82,8 @@ def load_sources(repo_root: Path, sources: tuple[tuple[str, str], ...] = DEFAULT
             cloned["canonical_output"] = canonical_output
             metadata = dict(cloned.get("metadata") or {})
             metadata["dataset_layer"] = layer
-            metadata["source_file"] = relative_path
+            metadata["source_file"] = Path(relative_path).name
+            metadata["source_path"] = relative_path
             cloned["metadata"] = metadata
             combined.append(cloned)
     return combined

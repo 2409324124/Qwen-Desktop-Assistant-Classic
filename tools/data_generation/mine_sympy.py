@@ -278,7 +278,7 @@ def generate_formulas(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--count", type=int, default=1000)
-    parser.add_argument("--out", default="formulas_dataset_1000.json")
+    parser.add_argument("--out", default="archive/phase1/data/formulas_dataset_1000.json")
     parser.add_argument(
         "--category-ratios",
         default=None,

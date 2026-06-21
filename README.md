@@ -1,21 +1,8 @@
-# Qwen-Desktop-Assistant-Classic
+# Qwen3 4B LaTeX Correction SFT
 
-A lightweight local desktop assistant that bridges **Ollama** and a classic Windows-style workflow. The app provides global hotkey activation, selected-text capture, and a nostalgic Windows 2000-inspired Tkinter UI.
+This repository contains a reproducible Qwen3 4B SFT workflow for restoring noisy, colloquial, or pseudocode-like math descriptions into canonical LaTeX formulas. It also keeps the original local desktop assistant that started the project.
 
-This repository now also contains the training and evaluation workflow for a Qwen3 4B LaTeX formula-correction SFT model.
-
-## Highlights
-
-- **Global Hotkey** (`Alt + Shift + Q`): summon the assistant from any application.
-- **Smart Clipboard Capture**: copy selected text and send it to the local model workflow.
-- **Manual Input**: type directly into the prompt box when clipboard capture is not desired.
-- **Classic UI**: Tkinter interface styled around a Windows 2000 palette and layout.
-- **Local First**: desktop assistant inference runs through a local Ollama endpoint by default.
-- **LaTeX SFT Workflow**: reproducible Qwen3 4B LoRA training, clean evaluation, and release artifacts live under [`training/`](training/README.md).
-
-## LaTeX Correction SFT Release
-
-The current SFT target is formula restoration: converting noisy, colloquial, or pseudocode-like math descriptions into canonical LaTeX formulas.
+## Release
 
 | item | value |
 | --- | --- |
@@ -25,16 +12,14 @@ The current SFT target is formula restoration: converting noisy, colloquial, or 
 | Evaluation split | `latex_formula_eval_clean`, 292 examples |
 | Primary metric | Semantic accuracy via the local LaTeX AST matcher |
 
-### Clean Eval Results
-
 | model | exact accuracy | semantic accuracy | parse coverage |
 | --- | ---: | ---: | ---: |
 | Base Qwen3-4B-Instruct-2507 | 2.40% | 13.36% | 36.99% |
 | Qwen3-4B LaTeX Correction LoRA v3 | 83.22% | 98.97% | 100.00% |
 
-The base model often responds with explanatory text or malformed/truncated LaTeX. The SFT model is trained to return formula-only output in the repository's canonical LaTeX dialect.
+The SFT model is trained to return formula-only output in the repository's canonical LaTeX dialect: standard fractions, `bmatrix` matrices, and braced superscripts/subscripts.
 
-### Model Artifacts
+## Model Artifacts
 
 The release is split by runtime format:
 
@@ -43,30 +28,47 @@ The release is split by runtime format:
 - GGUF Q4_K_M model: [xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m)
   - Use this for llama.cpp, Ollama, LM Studio, and other GGUF local-inference runtimes.
 
-The older aggregate release remains useful as an audit trail for adapters and reports, but the two repositories above are the clean model download targets.
+## Repository Layout
+
+```text
+.
+├── data/frozen/phase1/      # frozen source JSONL files used to build train/eval splits
+├── training/                # dataset preparation, LLaMA-Factory configs, inference, evaluation
+├── tests/                   # unit tests for dataset, config, postprocess, and semantic evaluation
+├── tools/data_generation/   # historical data generation and sampling utilities
+├── archive/phase1/          # historical phase-1 datasets, reviews, audits, and handoff notes
+├── main.py                  # original Tkinter desktop assistant
+├── ollama_client.py         # local Ollama streaming client
+└── summon.py / show.py      # desktop assistant helper scripts
+```
+
+Generated files are intentionally ignored: `training/data/`, `saves/`, and `reports/`.
 
 ## Training Workflow
 
-The complete model-training path is documented in [`training/README.md`](training/README.md). It covers:
+The complete training and evaluation path is documented in [`training/README.md`](training/README.md). It covers:
 
-- canonicalizing and cleaning the formula dataset
-- generating the fixed clean evaluation split
-- running smoke and full LoRA training with LLaMA-Factory
+- canonicalizing and cleaning the frozen formula dataset
+- generating fixed train/eval splits for LLaMA-Factory
+- running smoke and full LoRA training
 - running base-model and LoRA inference baselines
 - evaluating exact, canonical, symbol-fidelity, semantic, and parse-coverage metrics
+- exporting BF16 and GGUF release artifacts
 
-## Getting Started
+## Desktop Assistant
+
+The original desktop assistant is still available as a lightweight local Ollama client with a classic Tkinter UI.
 
 ### Prerequisites
 
 1. Install [Ollama](https://ollama.com/).
-2. Pull a local Qwen model for the desktop assistant:
+2. Pull a local Qwen model:
 
 ```bash
 ollama pull qwen2.5:1.5b
 ```
 
-### Installation
+### Install and Run
 
 ```bash
 git clone git@github.com:2409324124/Qwen-Desktop-Assistant-Classic.git
@@ -74,22 +76,10 @@ cd Qwen-Desktop-Assistant-Classic
 conda create -n qwen-assistant python=3.10
 conda activate qwen-assistant
 pip install httpx pyperclip pynput
-```
-
-### Usage
-
-```bash
 python main.py
 ```
 
-The window starts hidden. Select text in another application, press `Alt + Shift + Q`, and the assistant will open with the captured context.
-
-## Components
-
-- `main.py`: Tkinter UI and hotkey listener.
-- `ollama_client.py`: async Ollama API client for streaming responses.
-- `summon.py`: helper script for hotkey troubleshooting.
-- `training/`: dataset preparation, LoRA configs, inference, and evaluation utilities for the LaTeX SFT workflow.
+The window starts hidden. Select text in another application, press `Alt + Shift + Q`, and the assistant opens with the captured context.
 
 ## License
 

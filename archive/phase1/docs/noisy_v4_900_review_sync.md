@@ -10,19 +10,19 @@ The point is not to redesign the project, but to evaluate whether the current no
 
 Primary file to review:
 
-- [train_noisy_v4_900.jsonl](D:\1\train_noisy_v4_900.jsonl)
+- [train_noisy_v4_900.jsonl](train_noisy_v4_900.jsonl)
 
 Current generator:
 
-- [noisy_builder.py](D:\1\noisy_builder.py)
+- [noisy_builder.py](noisy_builder.py)
 
 Supporting upstream clean set:
 
-- [train_clean_v1_300.jsonl](D:\1\train_clean_v1_300.jsonl)
+- [train_clean_v1_300.jsonl](train_clean_v1_300.jsonl)
 
 Supporting formula base:
 
-- [formulas_clean_300.json](D:\1\formulas_clean_300.json)
+- [formulas_clean_300.json](formulas_clean_300.json)
 
 ---
 

@@ -5,39 +5,37 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from tavily_client import build_tavily_client
+from tools.data_generation.tavily_client import build_tavily_client
 
 
+# 小规模 prompt 校准研究集。
+# 先从这些代表性公式入手，避免一上来把检索面铺太大。
 DEFAULT_TARGET_FORMULAS = [
     "Softmax Function",
     "ReLU Activation Function",
-    "Limit Definition of Derivative",
     "Fundamental Theorem of Calculus",
+    "Gaussian Integral",
     "Coulomb's Law",
+    "Schrodinger Equation",
     "Rotation Matrix",
     "Jacobian Matrix",
-    "Law of Sines",
-    "Mean Squared Error",
-    "Gradient Descent Update",
+    "Pythagorean Theorem",
+    "Euler's Formula",
 ]
 
 
-NOISE_QUERY_TEMPLATES = {
-    "messy_nl": [
-        "{name} formula how do I type this",
-        "{name} 这个公式怎么打",
+QUERY_TEMPLATES = {
+    "beginner": [
+        "{name} how people describe this formula in plain language",
+        "{name} 口语 怎么说 公式",
     ],
-    "plain_text": [
-        "{name} plain text formula notation",
-        "{name} keyboard formula input",
+    "programmer": [
+        "{name} how to type formula in plain text",
+        "{name} keyboard notation formula",
     ],
-    "latex_help": [
-        "{name} latex help input notation",
-        "{name} latex 写法 求助",
-    ],
-    "mixed_language": [
-        "{name} 中文 英文 混合 公式 写法",
-        "{name} formula notes shorthand mixed language",
+    "researcher": [
+        "{name} shorthand notation notes formula",
+        "{name} 中英 公式 速记",
     ],
 }
 
@@ -50,7 +48,10 @@ def load_formulas(src_path: str) -> list[dict[str, Any]]:
     return data
 
 
-def choose_target_formulas(formulas: list[dict[str, Any]], names: list[str]) -> list[dict[str, Any]]:
+def choose_target_formulas(
+    formulas: list[dict[str, Any]],
+    names: list[str],
+) -> list[dict[str, Any]]:
     by_name: dict[str, dict[str, Any]] = {}
     for formula in formulas:
         name = formula.get("name")
@@ -68,18 +69,22 @@ def choose_target_formulas(formulas: list[dict[str, Any]], names: list[str]) -> 
 def build_queries(formula: dict[str, Any]) -> list[dict[str, str]]:
     name = formula["name"]
     queries: list[dict[str, str]] = []
-    for noise_type, templates in NOISE_QUERY_TEMPLATES.items():
+    for style, templates in QUERY_TEMPLATES.items():
         for template in templates:
             queries.append(
                 {
-                    "noise_type": noise_type,
+                    "style": style,
                     "query": template.format(name=name),
                 }
             )
     return queries
 
 
-async def sample_formula_noise_references(client, formula: dict[str, Any], max_results: int) -> dict[str, Any]:
+async def sample_formula_references(
+    client,
+    formula: dict[str, Any],
+    max_results: int,
+) -> dict[str, Any]:
     queries = build_queries(formula)
     sampled_queries: list[dict[str, Any]] = []
 
@@ -94,7 +99,7 @@ async def sample_formula_noise_references(client, formula: dict[str, Any], max_r
         )
         sampled_queries.append(
             {
-                "noise_type": query_obj["noise_type"],
+                "style": query_obj["style"],
                 "query": query_obj["query"],
                 "answer": response.get("answer"),
                 "results": [
@@ -119,9 +124,9 @@ async def sample_formula_noise_references(client, formula: dict[str, Any], max_r
 
 def write_markdown_summary(path: str, references: list[dict[str, Any]]) -> None:
     lines: list[str] = []
-    lines.append("# 真实噪声表达采样摘要")
+    lines.append("# 公式真实表达采样摘要")
     lines.append("")
-    lines.append("这份文档用于提炼 noisy 层规则，不直接作为训练数据。")
+    lines.append("这份文档用于给 prompt 调优提供真实网页表达参考，不直接作为训练数据。")
     lines.append("")
 
     category_counts = Counter(item["category"] for item in references)
@@ -139,7 +144,7 @@ def write_markdown_summary(path: str, references: list[dict[str, Any]]) -> None:
         lines.append("")
 
         for query in item["queries"]:
-            lines.append(f"### {query['noise_type']} | {query['query']}")
+            lines.append(f"### {query['style']} | {query['query']}")
             lines.append("")
             if query.get("answer"):
                 lines.append(f"- Answer Summary: {query['answer']}")
@@ -159,10 +164,10 @@ def write_markdown_summary(path: str, references: list[dict[str, Any]]) -> None:
 
 async def async_main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--src", default="formulas_clean_120.json")
-    parser.add_argument("--out-json", default="noise_reference_sample.json")
-    parser.add_argument("--out-md", default="noise_reference_sample.md")
-    parser.add_argument("--max-results", type=int, default=3)
+    parser.add_argument("--src", default="archive/phase1/data/formulas_clean_120.json")
+    parser.add_argument("--out-json", default="expression_reference_sample.json")
+    parser.add_argument("--out-md", default="expression_reference_sample.md")
+    parser.add_argument("--max-results", type=int, default=4)
     args = parser.parse_args()
 
     formulas = load_formulas(args.src)
@@ -171,7 +176,7 @@ async def async_main() -> None:
 
     references: list[dict[str, Any]] = []
     for formula in targets:
-        references.append(await sample_formula_noise_references(client, formula, args.max_results))
+        references.append(await sample_formula_references(client, formula, args.max_results))
 
     Path(args.out_json).write_text(
         json.dumps(references, ensure_ascii=False, indent=2),

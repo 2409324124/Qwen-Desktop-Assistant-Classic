@@ -2,7 +2,7 @@
 
 这份文档用于定义 `noisy` 层训练数据的第一版规则，不直接作为训练数据本身。
 
-它的目标是把我们从 [noise_reference_sample.md](D:\1\noise_reference_sample.md) 和 [noise_reference_sample.json](D:\1\noise_reference_sample.json) 中看到的真实网页噪声，整理成可执行的生成策略。
+它的目标是把我们从 [noise_reference_sample.md](noise_reference_sample.md) 和 [noise_reference_sample.json](noise_reference_sample.json) 中看到的真实网页噪声，整理成可执行的生成策略。
 
 ---
 
