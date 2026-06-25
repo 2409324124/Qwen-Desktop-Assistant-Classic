@@ -59,6 +59,32 @@ class LatexEvaluationTests(unittest.TestCase):
         self.assertEqual(results["match_levels"]["true_mismatch"], 1)
         self.assertEqual(len(results["failures"]), 1)
 
+    def test_evaluate_pairs_reports_math_only_and_format_compliance_separately(self) -> None:
+        results = evaluate_pairs(
+            [
+                {
+                    "input": "Coulomb force: F = k_e * q1q2 / d^2",
+                    "expected": r"F = k_{e} \frac{q_{1} q_{2}}{d^{2}}",
+                    "prediction": r"\text{Coulomb force: } F = k_{e} \frac{q_{1} q_{2}}{d^{2}}",
+                    "metadata": {"dataset_layer": "clean", "formula_name": "Coulomb's Law"},
+                },
+                {
+                    "input": "softmax exp over sum exp [j, sum j, xi_j]",
+                    "expected": r"\text{Softmax}(\xi_{j}) = \frac{\exp(\xi_{j})}{\sum_{j} \exp(\xi_{j})}",
+                    "prediction": r"\text{Softmax}(x_{i}) = \frac{\exp(x_{i})}{\sum_{j} \exp(x_{j})}",
+                    "metadata": {"dataset_layer": "hard", "formula_name": "Softmax Function"},
+                },
+            ]
+        )
+
+        self.assertEqual(results["math_match"], 1)
+        self.assertEqual(results["format_compliance_match"], 0)
+        self.assertEqual(results["math_accuracy"], 0.5)
+        self.assertEqual(results["format_compliance_accuracy"], 0.0)
+        self.assertEqual(results["math_match_levels"]["contains_correct_formula"], 1)
+        self.assertEqual(results["math_match_levels"]["math_mismatch"], 1)
+        self.assertEqual(len(results["math_failures"]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,6 @@
 import unittest
 
-from training.latex_semantics import canonicalize_latex, compare_latex, parse_latex
+from training.latex_semantics import canonicalize_latex, compare_latex, compare_latex_math_only, parse_latex
 
 
 class LatexCanonicalizationTests(unittest.TestCase):
@@ -86,6 +86,51 @@ class LatexCanonicalizationTests(unittest.TestCase):
 
         self.assertFalse(collapsed.semantic_match)
         self.assertFalse(replaced_constant.semantic_match)
+
+    def test_math_only_accepts_equivalent_layout_and_operator_forms(self) -> None:
+        cases = (
+            (r"\Delta S \ge 0", r"\Delta S \geq 0"),
+            (r"\int_{-\infty}^{\infty} e^{-x^{2}} dx = \sqrt{\pi}", r"\int_{-\infty}^{\infty} \exp(-x^{2}) \, \mathrm{d}x = \sqrt{\pi}"),
+            (r"(\frac{v}{u})' = \frac{v'u - vu'}{u^{2}}", r"\left(\frac{v}{u}\right)^{\prime} = \frac{v^{\prime} u - v u^{\prime}}{u^{2}}"),
+            (r"S_{j} = \frac{j}{2}(a_{1} + a_{j})", r"S_{j} = \frac{j(a_{1} + a_{j})}{2}"),
+        )
+
+        for expected, prediction in cases:
+            with self.subTest(prediction=prediction):
+                result = compare_latex_math_only(expected, prediction, input_text=expected)
+                self.assertTrue(result.math_match)
+                self.assertFalse(result.format_compliant)
+
+    def test_math_only_accepts_correct_formula_with_extra_prefix_but_marks_format_violation(self) -> None:
+        result = compare_latex_math_only(
+            r"F = k_{e} \frac{q_{1} q_{2}}{d^{2}}",
+            r"\text{Coulomb force: } F = k_{e} \frac{q_{1} q_{2}}{d^{2}}",
+            input_text="Coulomb force: F = k_e * q1q2 / d^2",
+        )
+
+        self.assertTrue(result.math_match)
+        self.assertFalse(result.format_compliant)
+        self.assertEqual(result.match_level, "contains_correct_formula")
+
+    def test_math_only_accepts_matrix_without_label_but_marks_format_violation(self) -> None:
+        result = compare_latex_math_only(
+            r"\Sigma = \begin{bmatrix} \sigma_{\phi}^{2} & \rho\sigma_{\phi}\sigma_{\gamma} \\ \rho\sigma_{\phi}\sigma_{\gamma} & \sigma_{\gamma}^{2} \end{bmatrix}",
+            r"\begin{bmatrix} \sigma_{\phi}^{2} & \rho\sigma_{\phi}\sigma_{\gamma} \\ \rho\sigma_{\phi}\sigma_{\gamma} & \sigma_{\gamma}^{2} \end{bmatrix}",
+            input_text="Cov Mat: Sigma. 2x2. Diag: sigma_phi^2, sigma_gamma^2.",
+        )
+
+        self.assertTrue(result.math_match)
+        self.assertFalse(result.format_compliant)
+        self.assertEqual(result.match_level, "contains_correct_formula")
+
+    def test_math_only_rejects_variable_drift_when_input_names_variables(self) -> None:
+        result = compare_latex_math_only(
+            r"\text{Softmax}(\xi_{j}) = \frac{\exp(\xi_{j})}{\sum_{j} \exp(\xi_{j})}",
+            r"\text{Softmax}(x_{i}) = \frac{\exp(x_{i})}{\sum_{j} \exp(x_{j})}",
+            input_text="softmax exp over sum exp [j, sum j, xi_j]",
+        )
+
+        self.assertFalse(result.math_match)
 
 
 if __name__ == "__main__":

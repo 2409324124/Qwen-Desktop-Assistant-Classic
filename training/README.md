@@ -99,7 +99,15 @@ python -m training.evaluate_latex \
   --json reports/qwen3-4b-latex-correction-v3-eval.json
 ```
 
-`run_lora_inference` defaults to `training/data/latex_formula_eval_clean.jsonl`. `semantic_accuracy` is the primary metric; the report also retains exact, canonical, symbol-fidelity, parse-coverage, per-layer, and per-formula-family metrics.
+`run_lora_inference` defaults to `training/data/latex_formula_eval_clean.jsonl`. `math_accuracy` is the primary metric. It counts mathematically equivalent formulas even when harmless layout choices differ, while still rejecting variable drift when the user input explicitly names variables. `format_compliance_accuracy` is reported separately for exact canonical-dialect adherence. The report also retains exact, canonical, symbol-fidelity, legacy semantic, parse-coverage, per-layer, and per-formula-family metrics.
+
+Current clean-eval results:
+
+| model | math accuracy | format compliance | exact accuracy | parse coverage |
+| --- | ---: | ---: | ---: | ---: |
+| Base Qwen3-4B-Instruct-2507 | 13.36% | 2.40% | 2.40% | 36.99% |
+| DeepSeek V4 Pro baseline | 69.86% | 41.78% | 21.23% | 97.95% |
+| Qwen3-4B LaTeX Correction LoRA v3 | 98.97% | 83.22% | 83.22% | 100.00% |
 
 ## 5. Export
 

@@ -10,14 +10,17 @@ This repository contains a reproducible Qwen3 4B SFT workflow for restoring nois
 | Fine-tuning method | LoRA, rank 64, alpha 128 |
 | Training framework | LLaMA-Factory |
 | Evaluation split | `latex_formula_eval_clean`, 292 examples |
-| Primary metric | Semantic accuracy via the local LaTeX AST matcher |
+| Primary metric | Math-only accuracy via the local LaTeX AST matcher |
 
-| model | exact accuracy | semantic accuracy | parse coverage |
-| --- | ---: | ---: | ---: |
-| Base Qwen3-4B-Instruct-2507 | 2.40% | 13.36% | 36.99% |
-| Qwen3-4B LaTeX Correction LoRA v3 | 83.22% | 98.97% | 100.00% |
+| model | math accuracy | format compliance | exact accuracy | parse coverage |
+| --- | ---: | ---: | ---: | ---: |
+| Base Qwen3-4B-Instruct-2507 | 13.36% | 2.40% | 2.40% | 36.99% |
+| DeepSeek V4 Pro baseline | 69.86% | 41.78% | 21.23% | 97.95% |
+| Qwen3-4B LaTeX Correction LoRA v3 | 98.97% | 83.22% | 83.22% | 100.00% |
 
-The SFT model is trained to return formula-only output in the repository's canonical LaTeX dialect: standard fractions, `bmatrix` matrices, and braced superscripts/subscripts.
+The SFT model is trained to return formula-only output in the repository's canonical LaTeX dialect: standard fractions, `bmatrix` matrices, and braced superscripts/subscripts. The current inference prompt uses a two-section system message with a role definition followed by concrete formatting examples.
+
+`math_accuracy` is the primary score: it checks whether the mathematical structure is correct while allowing harmless presentation differences. `format_compliance_accuracy` remains separate and stricter, measuring whether the output follows the exact canonical dialect expected by the desktop assistant workflow.
 
 ## Model Artifacts
 

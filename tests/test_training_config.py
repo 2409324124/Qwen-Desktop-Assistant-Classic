@@ -17,6 +17,12 @@ class TrainingConfigurationTests(unittest.TestCase):
         self.assertIn(r"\begin{bmatrix}", SYSTEM_PROMPT)
         self.assertIn(r"x_{i}", SYSTEM_PROMPT)
         self.assertIn("只输出公式本身", SYSTEM_PROMPT)
+        self.assertIn("角色：", SYSTEM_PROMPT)
+        self.assertIn("范例：", SYSTEM_PROMPT)
+        self.assertIn("不要使用 display math 包装", SYSTEM_PROMPT)
+        self.assertIn("输入：softmax exp xi over sum exp xj", SYSTEM_PROMPT)
+        self.assertIn(r"\text{Softmax}(\xi_{i})", SYSTEM_PROMPT)
+        self.assertIn("输入：2 by 2 Hessian matrix", SYSTEM_PROMPT)
 
     def test_full_training_config_targets_the_3090_profile(self) -> None:
         config = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_sft.yaml").read_text(encoding="utf-8"))

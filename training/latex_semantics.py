@@ -132,6 +132,15 @@ class LatexComparison:
     reason: str
 
 
+@dataclass(frozen=True)
+class LatexMathComparison:
+    math_match: bool
+    format_compliant: bool
+    parse_success: bool
+    match_level: str
+    reason: str
+
+
 _STYLE_COMMANDS = {"mathbf", "boldsymbol", "mathrm", "mathcal", "mathbb", "mathit", "textrm"}
 _MODIFIER_COMMANDS = {"hat", "bar", "vec", "tilde", "dot", "ddot"}
 _GREEK_VARIABLES = {
@@ -630,6 +639,200 @@ def _format_key(value: str, *, ignore_style: bool) -> str:
     if ignore_style:
         value = _unwrap_style_commands(value)
     return re.sub(r"\s+", "", canonicalize_latex(value, strip_font_styles=ignore_style))
+
+
+def _strip_display_math(value: str) -> str:
+    stripped = value.strip()
+    if stripped.startswith(r"\[") and stripped.endswith(r"\]"):
+        return stripped[2:-2].strip()
+    if stripped.startswith("$$") and stripped.endswith("$$"):
+        return stripped[2:-2].strip()
+    return stripped
+
+
+def _replace_exp_calls(value: str) -> str:
+    previous = None
+    while value != previous:
+        previous = value
+        value = re.sub(r"\\exp\s*\(([^()]*)\)", lambda match: f"e^{{{match.group(1).strip()}}}", value)
+        value = re.sub(r"\\exp\s*\{([^{}]*)\}", lambda match: f"e^{{{match.group(1).strip()}}}", value)
+    return value
+
+
+def _normalize_math_latex(value: str) -> str:
+    normalized = _strip_display_math(value)
+    normalized = normalized.replace(r"\geq", r"\ge").replace(r"\leq", r"\le")
+    normalized = normalized.replace(r"\mathrm{d}", "d").replace(r"\operatorname{d}", "d")
+    normalized = normalized.replace(r"^{\prime}", "'").replace(r"^\prime", "'").replace(r"\prime", "'")
+    normalized = normalized.replace(r"\operatorname", r"\text")
+    normalized = re.sub(r"\\mathrm\{([A-Za-z][A-Za-z ]+)\}", r"\\text{\1}", normalized)
+    normalized = _replace_exp_calls(normalized)
+    return normalized
+
+
+def _find_top_level_equals(value: str) -> int | None:
+    depth = 0
+    index = 0
+    while index < len(value):
+        char = value[index]
+        if char in "{[(":
+            depth += 1
+        elif char in "}])" and depth > 0:
+            depth -= 1
+        elif char == "=" and depth == 0:
+            return index
+        index += 1
+    return None
+
+
+def _relation_sides(value: str) -> tuple[str, str] | None:
+    index = _find_top_level_equals(value)
+    if index is None:
+        return None
+    left = value[:index].strip()
+    right = value[index + 1 :].strip()
+    if not left or not right:
+        return None
+    return left, right
+
+
+def _text_group_at_start(value: str) -> tuple[str, int] | None:
+    stripped = value.lstrip()
+    offset = len(value) - len(stripped)
+    for command in (r"\text", r"\operatorname", r"\mathrm"):
+        prefix = command + "{"
+        if stripped.startswith(prefix):
+            group_start = offset + len(command)
+            group_end = _find_matching_brace(value, group_start)
+            return value[group_start + 1 : group_end], group_end + 1
+    return None
+
+
+def _prediction_candidates(value: str) -> list[tuple[str, str]]:
+    candidates: list[tuple[str, str]] = []
+
+    def add(candidate: str, reason: str) -> None:
+        candidate = candidate.strip()
+        if candidate and candidate not in {existing for existing, _ in candidates}:
+            candidates.append((candidate, reason))
+
+    stripped = _strip_display_math(value)
+    add(stripped, "math_equivalent")
+    for line in stripped.splitlines():
+        add(line, "contains_correct_formula")
+
+    text_group = _text_group_at_start(stripped)
+    if text_group is not None:
+        text, end = text_group
+        rest = stripped[end:].strip()
+        if text.rstrip().endswith(":"):
+            add(rest, "contains_correct_formula")
+        if rest.startswith("="):
+            add(rest[1:].strip(), "contains_correct_formula")
+
+    relation = _relation_sides(stripped)
+    if relation is not None:
+        left, right = relation
+        if re.fullmatch(r"\\(?:text|operatorname|mathrm)\{[^{}]+\}", left.strip()):
+            add(right, "contains_correct_formula")
+        if left.strip().startswith(r"\text{") and ":" in left:
+            add(right, "contains_correct_formula")
+
+    return candidates
+
+
+def _input_has_explicit_variables(input_text: str) -> bool:
+    if re.search(r"[A-Za-z]\\?_[A-Za-z0-9]", input_text):
+        return True
+    if re.search(r"\b(?:alpha|beta|gamma|delta|epsilon|theta|lambda|mu|xi|rho|sigma|phi|psi|omega|hbar)\b", input_text):
+        return True
+    if re.search(r"\b[A-Za-z][0-9]\b", input_text):
+        return True
+    if re.search(r"\b[A-Za-z]\s*(?:=|\\+|-|\*|/|\^|prime|hat|bar)", input_text):
+        return True
+    return False
+
+
+def _math_ast_match(expected: str, prediction: str, *, allow_rename: bool, formula_name: str | None) -> bool:
+    expected_ast = _normalize_math_ast(parse_latex(_normalize_math_latex(expected)))
+    prediction_ast = _normalize_math_ast(parse_latex(_normalize_math_latex(prediction)))
+    if _ast_equal(expected_ast, prediction_ast, allow_rename=False, formula_name=formula_name):
+        return True
+    return allow_rename and _ast_equal(expected_ast, prediction_ast, allow_rename=True, formula_name=formula_name)
+
+
+def _normalize_math_ast(node: LatexNode) -> LatexNode:
+    children = tuple(_normalize_math_ast(child) for child in node.children)
+    normalized = LatexNode(node.kind, node.value, children)
+    if normalized.kind == "div" and len(normalized.children) == 2:
+        numerator, denominator = normalized.children
+        inverse = LatexNode("reciprocal", children=(denominator,))
+        if numerator.kind == "mul":
+            return LatexNode("mul", children=(*numerator.children, inverse))
+        return LatexNode("mul", children=(numerator, inverse))
+    if normalized.kind == "mul":
+        flattened: list[LatexNode] = []
+        for child in normalized.children:
+            if child.kind == "mul":
+                flattened.extend(child.children)
+            else:
+                flattened.append(child)
+        return LatexNode("mul", children=tuple(flattened))
+    return normalized
+
+
+def _math_format_key(value: str) -> str:
+    normalized = _normalize_math_latex(value)
+    normalized = normalized.replace(r"\cdot", "").replace(r"\times", "")
+    normalized = normalized.replace(r"\,", "").replace(r"\;", "").replace(r"\quad", "")
+    normalized = normalized.replace(r"\left", "").replace(r"\right", "")
+    normalized = normalized.replace(r"\mathrm", r"\text").replace(r"\operatorname", r"\text")
+    normalized = re.sub(r"\s+", "", canonicalize_latex(normalized, strip_font_styles=True))
+    return normalized
+
+
+def compare_latex_math_only(
+    expected: str,
+    prediction: str,
+    *,
+    formula_name: str | None = None,
+    input_text: str = "",
+) -> LatexMathComparison:
+    strict = compare_latex(expected, prediction, formula_name=formula_name)
+    if strict.semantic_match:
+        return LatexMathComparison(True, strict.symbol_fidelity_match, strict.parse_success, strict.match_level, strict.reason)
+
+    allow_rename = not _input_has_explicit_variables(input_text)
+    expected_candidates: list[tuple[str, str]] = [(expected, "math_equivalent")]
+    relation = _relation_sides(expected)
+    if relation is not None:
+        _, expected_right = relation
+        if expected_right.startswith(r"\begin{bmatrix}"):
+            expected_candidates.append((expected_right, "contains_correct_formula"))
+
+    parse_error: str | None = None
+    for expected_candidate, expected_reason in expected_candidates:
+        expected_normalized = _normalize_math_latex(expected_candidate)
+        for prediction_candidate, prediction_reason in _prediction_candidates(prediction):
+            prediction_normalized = _normalize_math_latex(prediction_candidate)
+            if _math_format_key(expected_normalized) == _math_format_key(prediction_normalized):
+                level = "math_equivalent" if expected_reason == prediction_reason == "math_equivalent" else "contains_correct_formula"
+                return LatexMathComparison(True, False, True, level, level)
+            try:
+                if _math_ast_match(
+                    expected_normalized,
+                    prediction_normalized,
+                    allow_rename=allow_rename,
+                    formula_name=formula_name,
+                ):
+                    level = "math_equivalent" if expected_reason == prediction_reason == "math_equivalent" else "contains_correct_formula"
+                    return LatexMathComparison(True, False, True, level, level)
+            except ValueError as exc:
+                parse_error = str(exc)
+
+    if parse_error is not None:
+        return LatexMathComparison(False, False, False, "parse_error", parse_error)
+    return LatexMathComparison(False, False, True, "math_mismatch", "math_mismatch")
 
 
 def compare_latex(expected: str, prediction: str, *, formula_name: str | None = None) -> LatexComparison:
