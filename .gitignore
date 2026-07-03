@@ -17,5 +17,6 @@ Thumbs.db
 
 # Training outputs
 training/data/
+benchmarks/
 saves/
 reports/

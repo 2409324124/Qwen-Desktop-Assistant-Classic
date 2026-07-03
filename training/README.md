@@ -124,3 +124,84 @@ saves/qwen3-4b-latex-correction/merged/sft-v3-bf16
 ```
 
 Use llama.cpp tooling to convert the BF16 export to GGUF and quantize it for local inference. The published release keeps BF16 and GGUF artifacts in separate Hugging Face repositories.
+
+## 6. External Benchmarks
+
+External benchmark data and reports are generated under ignored directories (`benchmarks/` and `reports/`). Downloading datasets and installing benchmark packages are manual steps.
+
+### LaTeXC / LaTeX-130K
+
+Prepare the data manually, then convert it into the repository's JSONL inference format:
+
+```bash
+python -m training.prepare_latexc_benchmark \
+  --input /path/to/LaTeXC/data \
+  --output benchmarks/latexc_eval.jsonl
+```
+
+If automatic field detection fails, rerun with explicit field names:
+
+```bash
+python -m training.prepare_latexc_benchmark \
+  --input /path/to/LaTeXC/data \
+  --output benchmarks/latexc_eval.jsonl \
+  --source-field noisy \
+  --target-field corrected
+```
+
+Smoke inference first:
+
+```bash
+python -m training.run_lora_inference \
+  --adapter saves/qwen3-4b-latex-correction/lora/sft-v3 \
+  --eval-file benchmarks/latexc_eval.jsonl \
+  --out reports/latexc-v3-smoke-predictions.jsonl \
+  --limit 100
+```
+
+Evaluate the smoke run with the paper-style correction metrics:
+
+```bash
+python -m training.evaluate_text_correction \
+  --predictions reports/latexc-v3-smoke-predictions.jsonl \
+  --report reports/latexc-v3-smoke-eval.md \
+  --json reports/latexc-v3-smoke-eval.json
+```
+
+For the full LaTeXC run, remove `--limit` and write to `reports/latexc-v3-predictions.jsonl`. `evaluate_text_correction` reports Exact Match, normalized Exact Match, character-level BLEU-4, and whitespace-insensitive CER.
+
+### GSM8K and Hendrycks MATH
+
+Use `lm-evaluation-harness` against both the base model and the merged BF16 SFT model to check whether the LoRA damaged general math reasoning. Keep prompts and harness settings identical between the two runs.
+
+```bash
+lm_eval --model hf \
+  --model_args pretrained=Qwen/Qwen3-4B-Instruct-2507,trust_remote_code=True \
+  --tasks gsm8k \
+  --batch_size auto \
+  --output_path reports/lm-eval-qwen3-4b-base-gsm8k.json
+```
+
+```bash
+lm_eval --model hf \
+  --model_args pretrained=saves/qwen3-4b-latex-correction/merged/sft-v3-bf16,trust_remote_code=True \
+  --tasks gsm8k \
+  --batch_size auto \
+  --output_path reports/lm-eval-qwen3-4b-sft-v3-gsm8k.json
+```
+
+```bash
+lm_eval --model hf \
+  --model_args pretrained=Qwen/Qwen3-4B-Instruct-2507,trust_remote_code=True \
+  --tasks hendrycks_math \
+  --batch_size auto \
+  --output_path reports/lm-eval-qwen3-4b-base-hendrycks-math.json
+```
+
+```bash
+lm_eval --model hf \
+  --model_args pretrained=saves/qwen3-4b-latex-correction/merged/sft-v3-bf16,trust_remote_code=True \
+  --tasks hendrycks_math \
+  --batch_size auto \
+  --output_path reports/lm-eval-qwen3-4b-sft-v3-hendrycks-math.json
+```

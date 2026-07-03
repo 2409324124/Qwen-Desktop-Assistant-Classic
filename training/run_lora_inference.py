@@ -8,6 +8,23 @@ from training.latex_postprocess import postprocess_latex
 from training.prompts import SYSTEM_PROMPT
 
 
+def load_eval_lines(eval_file: Path, limit: int | None = None) -> list[str]:
+    with eval_file.open("r", encoding="utf-8") as source:
+        lines = [line for line in source if line.strip()]
+    if limit is not None:
+        if limit < 0:
+            raise ValueError("--limit must be non-negative")
+        lines = lines[:limit]
+    return lines
+
+
+def expected_from_record(record: dict) -> str:
+    expected = record.get("expected", record.get("output", ""))
+    if not expected:
+        raise ValueError(f"Eval record is missing expected/output: {record}")
+    return str(expected)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run LoRA inference over the fixed eval split.")
     parser.add_argument("--model", default="Qwen/Qwen3-4B-Instruct-2507")
@@ -15,6 +32,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--eval-file", type=Path, default=Path("training/data/latex_formula_eval_clean.jsonl"))
     parser.add_argument("--out", type=Path, default=Path("reports/qwen3-4b-latex-correction-predictions.jsonl"))
     parser.add_argument("--max-new-tokens", type=int, default=256)
+    parser.add_argument("--limit", type=int, default=None, help="Optional maximum number of records for smoke runs.")
     parser.add_argument("--no-postprocess", action="store_true", help="Write raw decoded model output without repairs.")
     return parser.parse_args()
 
@@ -36,8 +54,7 @@ def main() -> None:
     model.eval()
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    with args.eval_file.open("r", encoding="utf-8") as source:
-        lines = [line for line in source if line.strip()]
+    lines = load_eval_lines(args.eval_file, args.limit)
 
     with args.out.open("w", encoding="utf-8") as sink:
         for line in tqdm(lines, desc="Generating", unit="formula"):
@@ -61,7 +78,7 @@ def main() -> None:
             prediction = raw_prediction if args.no_postprocess else postprocess_latex(raw_prediction)
             payload = {
                 "input": record["input"],
-                "expected": record["output"],
+                "expected": expected_from_record(record),
                 "prediction": prediction,
                 "metadata": record.get("metadata", {}),
             }
