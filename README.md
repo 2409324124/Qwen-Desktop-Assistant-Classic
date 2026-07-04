@@ -22,18 +22,56 @@ The SFT model is trained to return formula-only output in the repository's canon
 
 `math_accuracy` is the primary score: it checks whether the mathematical structure is correct while allowing harmless presentation differences. `format_compliance_accuracy` remains separate and stricter, measuring whether the output follows the exact canonical dialect expected by the desktop assistant workflow.
 
-## General Capability Preservation
+## Result Interpretation
 
-The SFT run was also checked with external `lm-eval` benchmarks to ensure the LaTeX specialization did not cause broad capability regression. The full run below uses the merged BF16 SFT v3 model, evaluated on an RTX 3090 with `lm-eval` after smoke-testing both the base and SFT models.
+### 1. Did the SFT work?
 
-| Benchmark | SFT v3 result | reference base score | preservation result |
-| --- | ---: | ---: | --- |
-| GSM8K | 81.35% flexible / 68.16% strict | not rerun full | math reasoning preserved in smoke and full SFT run |
-| MATH / Hendrycks | 0.06% | not rerun full | task format is much stricter than the LaTeX SFT target |
-| MMLU | 70.68% | ~66.5% official/reference | no regression; higher than reference |
-| HumanEval | 71.95% pass@1 | ~68.9% official/reference | no regression; higher than reference |
+Yes. On the cleaned fixed eval split, LoRA v3 moved the task from a weak base-model behavior to a reliable formula-restoration model:
 
-The two most important regression checks for this release are MMLU and HumanEval. They cover broad factual knowledge and code-generation ability respectively, and both remained above the reference base scores after LoRA fine-tuning. Full local artifacts from the remote run are kept outside Git under `benchmark_artifacts/remote-20260704/`.
+- Base Qwen3-4B-Instruct-2507: 13.36% math accuracy, 2.40% exact accuracy.
+- DeepSeek V4 Pro API baseline: 69.86% math accuracy, 21.23% exact accuracy.
+- Qwen3-4B LaTeX Correction LoRA v3: 98.97% math accuracy, 83.22% exact accuracy.
+
+This is the intended SFT shape: the model learned the mapping from noisy descriptions to canonical LaTeX, not merely a looser natural-language explanation style.
+
+### 2. What happened to general math and coding ability?
+
+The merged BF16 SFT v3 model was also checked with external `lm-eval` benchmarks on an RTX 3090. These are not the primary task metrics, but they test whether the specialization destroyed broad abilities.
+
+| Benchmark | SFT v3 full-run result | What it checks | Interpretation |
+| --- | ---: | --- | --- |
+| GSM8K | 81.35% flexible / 68.16% strict | grade-school math reasoning | arithmetic reasoning remains usable after SFT |
+| MATH / Hendrycks | 0.06% exact match | competition-style generated answers | this zero-shot non-chat harness is a poor fit for the formula-restoration SFT and should not be used as the main success metric |
+| MMLU | 70.68% | broad 57-subject knowledge | no obvious general-knowledge collapse |
+| HumanEval | 71.95% pass@1 | Python code generation | no obvious coding collapse |
+
+The most important preservation checks here are MMLU and HumanEval: despite specializing a 4B model for strict LaTeX output, both remain strong for this model size. The low Hendrycks MATH result is best read as a prompt/harness mismatch for this release, not as a contradiction of the task-specific LaTeX math result.
+
+### 3. Why is the LaTeX output accurate?
+
+The strongest gains came from reducing output entropy before training:
+
+- The frozen source data is split into clean, noisy, hard, and targeted layers, then quality-reviewed before splitting.
+- Training targets use deterministic `canonical_output`, not free-form original labels.
+- Canonicalization removes avoidable dialect choices: fractions use `\frac{...}{...}`, matrices use `bmatrix`, and superscripts/subscripts are braced.
+- The system prompt is stored per sample and defines a narrow formula-only role plus concrete formatting examples.
+- The LoRA profile targets all linear layers with rank 64 / alpha 128, BF16, low learning rate `1.5e-5`, and clean eval monitoring.
+- The evaluator separates math correctness from formatting compliance, so semantic success and canonical-dialect success can be diagnosed independently.
+
+In short, the model is good because the dataset no longer asks it to guess one of many valid LaTeX dialects. The SFT turns a strong general model into a narrow canonical transducer for this desktop assistant workflow.
+
+### 4. External model context
+
+These figures are context, not a single leaderboard: benchmark variants, prompts, chat templates, and harnesses differ. OpenAI describes GPT-4o as matching GPT-4 Turbo-level text and coding performance, while the Qwen model card reports stronger official scores on newer variants such as MMLU-Pro and MMLU-Redux. Our release should be judged primarily by its local LaTeX restoration task, then by preservation checks.
+
+| Model / source | Reported or measured signal | Notes |
+| --- | --- | --- |
+| Qwen3-4B LaTeX Correction LoRA v3 | 98.97% math accuracy on local clean LaTeX eval; 70.68% MMLU; 71.95% HumanEval | This repository's measured release numbers |
+| DeepSeek V4 Pro API baseline | 69.86% math accuracy on the same local LaTeX eval | Strong general model, but weaker canonical-format adherence on this task |
+| [Qwen/Qwen3-4B-Instruct-2507 official card](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) | MMLU-Pro 69.6, MMLU-Redux 84.2, MultiPL-E 76.8 | Different benchmark variants from our `lm-eval` full run |
+| [GPT-4o official positioning](https://openai.com/index/hello-gpt-4o/) | GPT-4 Turbo-level text and code performance | Frontier context only; not rerun in this repository's harness |
+
+Full local artifacts from the remote run are kept outside Git under `benchmark_artifacts/remote-20260704/`.
 
 ## Model Artifacts
 
