@@ -62,14 +62,14 @@ In short, the model is good because the dataset no longer asks it to guess one o
 
 ### 4. External model context
 
-These figures are context, not a single leaderboard: benchmark variants, prompts, chat templates, and harnesses differ. OpenAI describes GPT-4o as matching GPT-4 Turbo-level text and coding performance, while the Qwen model card reports stronger official scores on newer variants such as MMLU-Pro and MMLU-Redux. Our release should be judged primarily by its local LaTeX restoration task, then by preservation checks.
+These figures are context, not a single leaderboard: benchmark variants, prompts, chat templates, and harnesses differ. OpenAI describes GPT-4o as matching GPT-4 Turbo-level text and coding performance, public summaries report GPT-4o around 88.7 on standard MMLU, and the Qwen model card reports stronger official scores on newer variants such as MMLU-Pro and MMLU-Redux. Our release should be judged primarily by its local LaTeX restoration task, then by preservation checks.
 
 | Model / source | Reported or measured signal | Notes |
 | --- | --- | --- |
 | Qwen3-4B LaTeX Correction LoRA v3 | 98.97% math accuracy on local clean LaTeX eval; 70.68% MMLU; 71.95% HumanEval | This repository's measured release numbers |
 | DeepSeek V4 Pro API baseline | 69.86% math accuracy on the same local LaTeX eval | Strong general model, but weaker canonical-format adherence on this task |
 | [Qwen/Qwen3-4B-Instruct-2507 official card](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) | MMLU-Pro 69.6, MMLU-Redux 84.2, MultiPL-E 76.8 | Different benchmark variants from our `lm-eval` full run |
-| [GPT-4o official positioning](https://openai.com/index/hello-gpt-4o/) | GPT-4 Turbo-level text and code performance | Frontier context only; not rerun in this repository's harness |
+| [GPT-4o official positioning](https://openai.com/index/hello-gpt-4o/) plus public MMLU summaries | GPT-4 Turbo-level text/code; about 88.7 on MMLU | Frontier context only; not rerun in this repository's harness |
 
 Full local artifacts from the remote run are kept outside Git under `benchmark_artifacts/remote-20260704/`.
 
