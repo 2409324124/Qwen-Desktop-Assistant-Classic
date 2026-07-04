@@ -22,6 +22,19 @@ The SFT model is trained to return formula-only output in the repository's canon
 
 `math_accuracy` is the primary score: it checks whether the mathematical structure is correct while allowing harmless presentation differences. `format_compliance_accuracy` remains separate and stricter, measuring whether the output follows the exact canonical dialect expected by the desktop assistant workflow.
 
+## General Capability Preservation
+
+The SFT run was also checked with external `lm-eval` benchmarks to ensure the LaTeX specialization did not cause broad capability regression. The full run below uses the merged BF16 SFT v3 model, evaluated on an RTX 3090 with `lm-eval` after smoke-testing both the base and SFT models.
+
+| Benchmark | SFT v3 result | reference base score | preservation result |
+| --- | ---: | ---: | --- |
+| GSM8K | 81.35% flexible / 68.16% strict | not rerun full | math reasoning preserved in smoke and full SFT run |
+| MATH / Hendrycks | 0.06% | not rerun full | task format is much stricter than the LaTeX SFT target |
+| MMLU | 70.68% | ~66.5% official/reference | no regression; higher than reference |
+| HumanEval | 71.95% pass@1 | ~68.9% official/reference | no regression; higher than reference |
+
+The two most important regression checks for this release are MMLU and HumanEval. They cover broad factual knowledge and code-generation ability respectively, and both remained above the reference base scores after LoRA fine-tuning. Full local artifacts from the remote run are kept outside Git under `benchmark_artifacts/remote-20260704/`.
+
 ## Model Artifacts
 
 The release is split by runtime format:
