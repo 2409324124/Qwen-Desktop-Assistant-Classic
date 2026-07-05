@@ -1,0 +1,3 @@
+label	model	tasks	log	out	rc
+sft_v3	saves/qwen3-4b-latex-correction/merged/sft-v3-bf16	hendrycks_math500,aime25	reports/lm-eval-modern-math-sft-v3-20260704-192355.log	reports/lm-eval-modern-math-sft-v3-20260704-192355	0
+sft_v3_gpqa	saves/qwen3-4b-latex-correction/merged/sft-v3-bf16	gpqa_diamond_cot_zeroshot	reports/lm-eval-modern-math-sft-v3-gpqa-20260705-030007.log	reports/lm-eval-modern-math-sft-v3-gpqa-20260705-030007	0
