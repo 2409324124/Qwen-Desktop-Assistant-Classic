@@ -34,7 +34,23 @@ Yes. On the cleaned fixed eval split, LoRA v3 moved the task from a weak base-mo
 
 This is the intended SFT shape: the model learned the mapping from noisy descriptions to canonical LaTeX, not merely a looser natural-language explanation style.
 
-### 2. What happened to general abilities?
+### 2. What changed versus the base model?
+
+The local LaTeX evaluation is the strictest apples-to-apples comparison because the base model and SFT v3 were evaluated on the same 292-example `latex_formula_eval_clean` split with the same evaluator. General benchmark rows use the SFT v3 `lm-eval` run and published Qwen model-card numbers for the base model, so they are reference comparisons rather than same-harness A/B tests.
+
+| Area | Base Qwen3-4B-Instruct-2507 | SFT v3 | Delta / interpretation |
+| --- | ---: | ---: | --- |
+| Local LaTeX math accuracy | 13.36% | 98.97% | Massive gain; the main task is solved for this eval split |
+| Local exact / format accuracy | 2.40% | 83.22% | Massive gain; the canonical LaTeX dialect was learned |
+| Local parse coverage | 36.99% | 100.00% | Outputs became consistently parseable by the project evaluator |
+| MMLU-Pro | 69.6% published | 63.54% measured | About 6.1 points lower, but broad STEM/reasoning did not collapse |
+| IFEval | 83.4% published | 80.96% strict / 83.73% loose | Instruction following is broadly preserved |
+| GPQA | 62.0% published | 29.19% measured | Weaker in this run or not harness-comparable; not a science-QA release |
+| MATH-500 | not listed on base card | 0.00% measured | Extraction-sensitive diagnostic; audit required before interpreting math ability |
+
+The key tradeoff is intentional: SFT v3 gives up some general-purpose benchmark headroom to become a much stronger canonical formula-restoration model. It should be selected when the application needs stable formula-only LaTeX, not when the application needs a general reasoning assistant.
+
+### 3. What happened to general abilities?
 
 The merged BF16 SFT v3 model was evaluated with external `lm-eval` benchmarks on an RTX 3090. The table below contains completed full-size runs that are clean enough to cite as current preservation evidence, plus one MATH-500 exact-match result that is retained as an extraction-sensitive diagnostic.
 
@@ -110,7 +126,7 @@ Remote artifact roots for follow-up analysis:
 - `/mnt/RC10/qwen-latex/Qwen-Desktop-Assistant-Classic/reports/sft-v3-split-resume-20260706-011507`
 - `/mnt/RC10/qwen-latex/Qwen-Desktop-Assistant-Classic/reports/sft-v3-vllm-formal-20260706-110320`
 
-### 3. Why is the LaTeX output accurate?
+### 4. Why is the LaTeX output accurate?
 
 The strongest gains came from reducing output entropy before training:
 
@@ -123,21 +139,21 @@ The strongest gains came from reducing output entropy before training:
 
 In short, the model is good because the dataset no longer asks it to guess one of many valid LaTeX dialects. The SFT turns a strong general model into a narrow canonical transducer for this desktop assistant workflow.
 
-### 4. External model context
+### 5. External small-model context
 
 These figures are context, not a single leaderboard: benchmark variants, prompts, chat templates, answer extraction, reasoning budget, and tool access differ. Our release should be judged primarily by its local LaTeX restoration task, then by preservation checks.
 
 The control rows below use published model-card or vendor benchmark numbers only. No extra control model was downloaded or run locally for this comparison.
 
-#### Same-size and near-size controls
+| Model / source | Size / type | Strength | Weakness vs this release | Best use |
+| --- | --- | --- | --- | --- |
+| Qwen3-4B LaTeX Correction LoRA v3 | 4B non-thinking LoRA | Local LaTeX math 98.97%, exact 83.22%, MMLU-Pro 63.54% | GPQA and MATH-500 are not strengths in the current run | Canonical LaTeX formula restoration for the desktop assistant |
+| [Qwen3-4B-Instruct-2507](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) | 4B non-thinking base | More general: MMLU-Pro 69.6, GPQA 62.0, AIME25 47.4 | Weak on this repo's formula task: 13.36% math accuracy, 2.40% exact | General small-model assistant |
+| [Qwen3-4B-Thinking-2507](https://huggingface.co/Qwen/Qwen3-4B-Thinking-2507) | 4B thinking model | Strong reasoning: AIME25 81.3, GPQA 65.8, MMLU-Pro 74.0 | Thinking output is longer and not trained for this canonical formula dialect | Compact reasoning tasks |
+| [DeepSeek-R1-Distill-Qwen-7B](https://huggingface.co/deepseek-ai/DeepSeek-R1) | 7B reasoning distill | MATH-500 92.8, AIME2024 55.5, GPQA Diamond 49.1 | Larger and not a LaTeX-correction model | Math reasoning when format control is secondary |
+| [DeepSeek-R1-Distill-Llama-8B](https://huggingface.co/deepseek-ai/DeepSeek-R1) | 8B reasoning distill | MATH-500 89.1, AIME2024 50.4, GPQA Diamond 49.0 | Larger and outside the Qwen ecosystem | Open reasoning baseline |
 
-| Model / source | Scale | AIME | MATH-500 | GPQA Diamond / GPQA | Other signal | Notes |
-| --- | ---: | ---: | ---: | ---: | --- | --- |
-| Qwen3-4B LaTeX Correction LoRA v3 | 4B | AIME25 36.67% diagnostic | MATH-500 exact 0.00%, audit pending | GPQA `acc_norm` 29.19% | MMLU-Pro 63.54%, BBH 49.09%, IFEval strict 80.96%, MuSR 41.01%, local LaTeX math 98.97% | This repository's measured BF16 SFT v3 run; extraction-sensitive rows are flagged |
-| [Qwen3-4B-Instruct-2507 official card](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) | 4B | AIME25 47.4 | - | GPQA 62.0 | MMLU-Pro 69.6, MultiPL-E 76.8 | Official non-thinking base-family reference; different harness |
-| [Qwen3-4B-Thinking-2507 official card](https://huggingface.co/Qwen/Qwen3-4B-Thinking-2507) | 4B | AIME25 81.3 | - | GPQA 65.8 | MMLU-Pro 74.0, LiveCodeBench 55.2 | Same size but reasoning-specialized thinking model |
-| [DeepSeek-R1-Distill-Qwen-7B](https://huggingface.co/deepseek-ai/DeepSeek-R1) | 7B | AIME2024 55.5 | 92.8 | 49.1 | LiveCodeBench 37.6 | Distilled reasoning model, not a formula-correction SFT |
-| [DeepSeek-R1-Distill-Llama-8B](https://huggingface.co/deepseek-ai/DeepSeek-R1) | 8B | AIME2024 50.4 | 89.1 | 49.0 | LiveCodeBench 39.6 | Near-size open reasoning control |
+This model is not trying to beat thinking or R1-distilled models at long-chain reasoning. Its advantage is narrower: 4B scale, formula-only behavior, and high compliance with one canonical LaTeX dialect. For general reasoning, Qwen3-4B-Thinking or DeepSeek-R1-Distill are better choices; for this desktop assistant's formula-restoration workflow, the base model and general reasoning models lack the same output stability.
 
 #### Larger open-weight and frontier controls
 
@@ -151,18 +167,18 @@ The control rows below use published model-card or vendor benchmark numbers only
 | Gemini 2.5 Pro / Qwen reference table | closed | AIME25 88.0 | - | GPQA 86.4 | Frontier reasoning context |
 | Claude 4 Opus Thinking / Qwen reference table | closed | AIME25 75.5 | - | GPQA 79.6 | Frontier reasoning context |
 
-### 5. Benchmark caveats and next controls
+### 6. Capability tradeoffs and caveats
 
 The benchmark story is mixed in a useful way:
 
-- Strength: the main LaTeX task is clearly solved for this dataset: 98.97% math accuracy and 83.22% exact canonical-format accuracy on the cleaned 292-example eval split.
-- Strength: IFEval strict 80.96% / loose 83.73% shows strong instruction-following retention after a narrow LaTeX SFT.
-- Strength: GPQA `acc_norm` 29.19% and MuSR `acc_norm` 41.01% are full-run preservation signals, not just smoke tests.
-- Strength: MMLU-Pro 63.54% is a strong broad STEM/reasoning preservation signal for a 4B non-thinking formula SFT, especially with math at 84.23%.
-- Mixed: BBH CoT zeroshot 49.09% is useful but uneven: symbolic/simple reasoning tasks are strong, while Dyck languages and longer tracking tasks are weak.
-- Diagnostic signal: MMLU 70.68% and HumanEval 71.95% are promising for a specialized 4B LoRA, but remain marked diagnostic until rerun under the current vLLM formal protocol.
-- Diagnostic signal: AIME25 36.67% shows non-trivial contest-math retention, but the sample count is small and extraction-sensitive.
-- Weakness: MATH-500 exact-match remains unusable as a capability estimate until sample audit separates mathematical errors from final-answer extraction or formatting failures.
+- Improved: the main LaTeX task is clearly solved for this dataset: 13.36% to 98.97% math accuracy, and 2.40% to 83.22% exact canonical-format accuracy.
+- Improved: formula-only output is much more stable, parse coverage reaches 100%, and the model follows the repository's canonical fraction, matrix, and superscript/subscript rules.
+- Preserved: IFEval strict 80.96% / loose 83.73% shows strong instruction-following retention after a narrow LaTeX SFT.
+- Preserved: MMLU-Pro 63.54% is a useful broad STEM/reasoning preservation signal for a 4B non-thinking formula SFT, especially with math at 84.23%.
+- Mixed: BBH CoT zeroshot 49.09% is uneven; symbolic/simple reasoning tasks are strong, while Dyck languages and longer tracking tasks are weak.
+- Regressed or unclear: GPQA `acc_norm` 29.19% is far below the base model's published GPQA reference and should not be marketed as a strength.
+- Unclear: MATH-500 exact-match remains unusable as a capability estimate until sample audit separates mathematical errors from final-answer extraction or formatting failures.
+- Diagnostic: MMLU 70.68%, HumanEval 71.95%, and AIME25 36.67% are useful signals, but they are not current vLLM full-protocol results.
 - Benchmark issue: official Qwen and DeepSeek numbers use different prompts, reasoning budgets, sampling, and sometimes thinking-mode models. The tables above are reference controls, not apples-to-apples leaderboard claims.
 - Next benchmark controls: audit logged MATH-500 and BBH samples first. Do not download more control models by default; use published model-card numbers unless a same-harness rerun is explicitly needed and the model is already cached or manually staged.
 
