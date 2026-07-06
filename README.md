@@ -36,7 +36,7 @@ This is the intended SFT shape: the model learned the mapping from noisy descrip
 
 ### 2. What happened to general abilities?
 
-The merged BF16 SFT v3 model is being evaluated with external `lm-eval` benchmarks on an RTX 3090. The table below contains only completed full-size runs that are clean enough to cite as current preservation evidence.
+The merged BF16 SFT v3 model was evaluated with external `lm-eval` benchmarks on an RTX 3090. The table below contains completed full-size runs that are clean enough to cite as current preservation evidence, plus one MATH-500 exact-match result that is retained as an extraction-sensitive diagnostic.
 
 | Benchmark | Metric | SFT v3 result | Samples | Status |
 | --- | --- | ---: | ---: | --- |
@@ -44,6 +44,9 @@ The merged BF16 SFT v3 model is being evaluated with external `lm-eval` benchmar
 | IFEval | instruction-level strict / loose | 86.93% / 88.85% | 541 | full official run |
 | GPQA | `acc_norm` | 29.19% | 448 | full official run |
 | MuSR | `acc_norm` | 41.01% | 756 | full official run |
+| MMLU-Pro | `exact_match`, custom extract, 5-shot | 63.54% ± 0.42% | 12,032 | vLLM full official run |
+| BBH CoT zeroshot | `exact_match`, flexible extract | 49.09% ± 0.51% | 6,511 | vLLM full official run |
+| MATH-500 / `hendrycks_math500` | `exact_match` | 0.00% | 500 | vLLM full run; needs sample audit before capability interpretation |
 
 These results show that the LaTeX SFT did not simply turn the base model into a brittle formatter: instruction following remains strong, and multi-choice science/reasoning benchmarks still produce meaningful non-random scores. They should not be read as a claim that this LoRA is a general reasoning model; it is a formula-restoration model with preservation checks.
 
@@ -56,11 +59,50 @@ The following runs are diagnostic only. They used earlier harnesses, limited sam
 | HumanEval | 71.95% pass@1 | 164 | earlier preservation run; useful but outside current vLLM benchmark set |
 | AIME25 | 36.67% exact match | 30 | small benchmark; sensitive to prompt and extraction |
 | Hendrycks MATH | 0.06% exact match | 5,000 | known prompt/extraction mismatch for this release |
-| MATH-500 / `hendrycks_math500` | 0.20% exact match | 500 | superseded by the current vLLM full rerun |
 | MMLU-Pro | 54.14% | 50 | pilot limit run only |
 | BBH | 80.19% flexible extract | 20 | pilot limit run only |
 
-Current paper-grade rerun in progress: vLLM full-size `MMLU-Pro`, `BBH`, and `MATH-500`, with `--log_samples` enabled. These numbers should replace the diagnostic rows only after completion and sample audit.
+The vLLM full run was launched with `--log_samples`, so failure cases can be audited after the headline metrics. The first priority is MATH-500: a 0% official exact-match score is almost certainly not enough evidence by itself to distinguish mathematical failure from final-answer extraction or formatting failure.
+
+MMLU-Pro strongest areas:
+
+| area | score | samples |
+| --- | ---: | ---: |
+| math | 84.23% | 1,351 |
+| biology | 82.01% | 717 |
+| economics | 75.71% | 844 |
+| chemistry | 70.85% | 1,132 |
+| physics | 70.28% | 1,299 |
+
+MMLU-Pro weakest areas:
+
+| area | score | samples |
+| --- | ---: | ---: |
+| law | 32.24% | 1,101 |
+| engineering | 40.56% | 969 |
+| history | 48.82% | 381 |
+| philosophy | 52.71% | 499 |
+| other | 54.00% | 924 |
+
+BBH strongest areas:
+
+| area | score | samples |
+| --- | ---: | ---: |
+| boolean expressions | 95.60% | 250 |
+| tracking shuffled objects, 3 objects | 92.40% | 250 |
+| reasoning about colored objects | 90.40% | 250 |
+| penguins in a table | 87.67% | 146 |
+| object counting | 86.80% | 250 |
+
+BBH weakest areas:
+
+| area | score | samples |
+| --- | ---: | ---: |
+| Dyck languages | 0.00% | 250 |
+| tracking shuffled objects, 7 objects | 10.80% | 250 |
+| temporal sequences | 11.20% | 250 |
+| geometric shapes | 12.80% | 250 |
+| tracking shuffled objects, 5 objects | 21.20% | 250 |
 
 Remote artifact roots for follow-up analysis:
 
@@ -89,7 +131,7 @@ These figures are context, not a single leaderboard: benchmark variants, prompts
 
 | Model / source | Scale | AIME | MATH-500 | GPQA Diamond / GPQA | Other signal | Notes |
 | --- | ---: | ---: | ---: | ---: | --- | --- |
-| Qwen3-4B LaTeX Correction LoRA v3 | 4B | AIME25 36.67% diagnostic | MATH-500 formal vLLM rerun pending | GPQA `acc_norm` 29.19% | IFEval strict 80.96%, MuSR 41.01%, local LaTeX math 98.97% | This repository's measured BF16 SFT v3 run; non-formal preservation rows are diagnostic |
+| Qwen3-4B LaTeX Correction LoRA v3 | 4B | AIME25 36.67% diagnostic | MATH-500 exact 0.00%, audit pending | GPQA `acc_norm` 29.19% | MMLU-Pro 63.54%, BBH 49.09%, IFEval strict 80.96%, MuSR 41.01%, local LaTeX math 98.97% | This repository's measured BF16 SFT v3 run; extraction-sensitive rows are flagged |
 | [Qwen3-4B-Instruct-2507 official card](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) | 4B | AIME25 47.4 | - | GPQA 62.0 | MMLU-Pro 69.6, MultiPL-E 76.8 | Official non-thinking base-family reference; different harness |
 | [Qwen3-4B-Thinking-2507 official card](https://huggingface.co/Qwen/Qwen3-4B-Thinking-2507) | 4B | AIME25 81.3 | - | GPQA 65.8 | MMLU-Pro 74.0, LiveCodeBench 55.2 | Same size but reasoning-specialized thinking model |
 | [DeepSeek-R1-Distill-Qwen-7B](https://huggingface.co/deepseek-ai/DeepSeek-R1) | 7B | AIME2024 55.5 | 92.8 | 49.1 | LiveCodeBench 37.6 | Distilled reasoning model, not a formula-correction SFT |
@@ -114,13 +156,15 @@ The benchmark story is mixed in a useful way:
 - Strength: the main LaTeX task is clearly solved for this dataset: 98.97% math accuracy and 83.22% exact canonical-format accuracy on the cleaned 292-example eval split.
 - Strength: IFEval strict 80.96% / loose 83.73% shows strong instruction-following retention after a narrow LaTeX SFT.
 - Strength: GPQA `acc_norm` 29.19% and MuSR `acc_norm` 41.01% are full-run preservation signals, not just smoke tests.
+- Strength: MMLU-Pro 63.54% is a strong broad STEM/reasoning preservation signal for a 4B non-thinking formula SFT, especially with math at 84.23%.
+- Mixed: BBH CoT zeroshot 49.09% is useful but uneven: symbolic/simple reasoning tasks are strong, while Dyck languages and longer tracking tasks are weak.
 - Diagnostic signal: MMLU 70.68% and HumanEval 71.95% are promising for a specialized 4B LoRA, but remain marked diagnostic until rerun under the current vLLM formal protocol.
 - Diagnostic signal: AIME25 36.67% shows non-trivial contest-math retention, but the sample count is small and extraction-sensitive.
-- Weakness: older Hendrycks MATH and MATH-500 exact-match results are not credible capability estimates for this release until the current vLLM full rerun and sample audit complete.
+- Weakness: MATH-500 exact-match remains unusable as a capability estimate until sample audit separates mathematical errors from final-answer extraction or formatting failures.
 - Benchmark issue: official Qwen and DeepSeek numbers use different prompts, reasoning budgets, sampling, and sometimes thinking-mode models. The tables above are reference controls, not apples-to-apples leaderboard claims.
-- Next benchmark controls: finish the vLLM full rerun for MMLU-Pro, BBH, and MATH-500; audit logged samples to separate math errors from answer-extraction errors; add LaTeX-130K/CER/BLEU/EM once that dataset is locally staged.
+- Next benchmark controls: audit logged MATH-500 and BBH samples; run a small set of same-harness controls only if needed, prioritizing Base Qwen3-4B-Instruct and Qwen3-4B-Thinking over unrelated larger models.
 
-Full local artifacts from the remote runs are kept under `benchmark_artifacts/remote-20260704/` and `benchmark_artifacts/remote-20260705-modern-math/`.
+Full local artifacts from the remote runs are kept under `benchmark_artifacts/remote-20260704/`, `benchmark_artifacts/remote-20260705-modern-math/`, and `benchmark_artifacts/remote-20260706-vllm-formal/`.
 
 ## Model Artifacts
 
