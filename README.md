@@ -12,6 +12,22 @@ This repository contains a reproducible Qwen3 4B SFT workflow for restoring nois
 | Evaluation split | `latex_formula_eval_clean`, 292 examples |
 | Primary metric | Math-only accuracy via the local LaTeX AST matcher |
 
+### Training Recipe
+
+| item | value |
+| --- | --- |
+| Base checkpoint | `Qwen/Qwen3-4B-Instruct-2507` |
+| LoRA rank / alpha / dropout | `r=64`, `alpha=128`, `dropout=0.05` |
+| LoRA target modules | `all` linear layers |
+| Precision / attention | BF16, FlashAttention-2 |
+| Epochs / global steps | 3.0 epochs, 495 optimizer steps |
+| Batch shape | per-device batch 4, gradient accumulation 4, effective batch 16 |
+| Sequence length | `cutoff_len=1024` |
+| Learning rate schedule | `1.5e-5`, cosine decay, warmup ratio `0.05` |
+| Eval / save cadence | eval every 100 steps, save every 100 steps, keep best by `eval_loss` |
+| Best checkpoint | `checkpoint-495`, `eval_loss=0.03259` |
+| Final train metrics | `train_loss=0.1066`, runtime 26m15s |
+
 | model | math accuracy | format compliance | exact accuracy | parse coverage |
 | --- | ---: | ---: | ---: | ---: |
 | Base Qwen3-4B-Instruct-2507 | 13.36% | 2.40% | 2.40% | 36.99% |
@@ -193,6 +209,13 @@ The release is split by runtime format:
 - GGUF Q4_K_M model: [xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m)
   - Use this for llama.cpp, Ollama, LM Studio, and other GGUF local-inference runtimes.
 
+Download examples:
+
+```bash
+huggingface-cli download xu2409324124/qwen3-4b-latex-correction-v3-bf16 --local-dir models/qwen3-4b-latex-correction-v3-bf16
+huggingface-cli download xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m --include "*.gguf" --local-dir models/qwen3-4b-latex-correction-v3-gguf-q4-k-m
+```
+
 ## Repository Layout
 
 ```text
@@ -227,10 +250,13 @@ The original desktop assistant is still available as a lightweight local Ollama 
 ### Prerequisites
 
 1. Install [Ollama](https://ollama.com/).
-2. Pull a local Qwen model:
+2. Download the GGUF release from this project and create the Ollama alias used by the desktop client:
 
 ```bash
-ollama pull qwen2.5:1.5b
+huggingface-cli download xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m --include "*.gguf" --local-dir models/qwen3-4b-latex-correction-v3-gguf-q4-k-m
+GGUF=$(find "$PWD/models/qwen3-4b-latex-correction-v3-gguf-q4-k-m" -name "*.gguf" | head -n 1)
+printf 'FROM %s\nPARAMETER temperature 0.1\n' "$GGUF" > Modelfile
+ollama create qwen3-latex-correction:v3-q4-k-m -f Modelfile
 ```
 
 ### Install and Run

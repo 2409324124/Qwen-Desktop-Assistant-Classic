@@ -2,7 +2,7 @@ import httpx
 import json
 
 class OllamaClient:
-    def __init__(self, base_url: str = "http://localhost:11434", model: str = "qwen2.5:1.5b"):
+    def __init__(self, base_url: str = "http://localhost:11434", model: str = "qwen3-latex-correction:v3-q4-k-m"):
         self.base_url = base_url
         self.model = model
 
