@@ -9,6 +9,12 @@ from training.evaluate_text_correction import (
     evaluate_text_correction,
     normalized_match,
 )
+from training.audit_lm_eval_samples import (
+    audit_samples,
+    classify_failure,
+    last_boxed_content,
+    looks_truncated,
+)
 from training.prepare_latexc_benchmark import LatexcConversionError, convert_latexc, detect_fields
 from training.prepare_dataset import load_jsonl, write_jsonl
 from training.run_lora_inference import expected_from_record, load_eval_lines
@@ -105,6 +111,45 @@ class ExternalBenchmarkTests(unittest.TestCase):
             self.assertEqual(expected_from_record({"output": "B"}), "B")
             with self.assertRaises(ValueError):
                 expected_from_record({"input": "missing"})
+
+    def test_lm_eval_sample_audit_detects_extraction_and_truncation_cases(self) -> None:
+        self.assertEqual(last_boxed_content(r"final \boxed{\frac{1}{2}}."), r"\frac{1}{2}")
+        self.assertTrue(looks_truncated("Final answer: x ="))
+
+        extraction_row = {
+            "target": r"\frac{1}{2}",
+            "filtered_resps": [r"The final answer is $\frac{1}{2}$."],
+            "exact_match": 0,
+        }
+        truncation_row = {
+            "target": "42",
+            "filtered_resps": ["We compute the value and get 4 +"],
+            "exact_match": 0,
+        }
+
+        self.assertEqual(classify_failure(extraction_row), "target_text_present_extraction_issue")
+        self.assertEqual(classify_failure(truncation_row), "truncated_or_no_complete_final")
+
+    def test_lm_eval_sample_audit_reads_jsonl_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "samples_hendrycks_math500_2026.jsonl"
+            path.write_text(
+                "\n".join(
+                    json.dumps(row)
+                    for row in (
+                        {"target": "A", "filtered_resps": ["A"], "exact_match": 1},
+                        {"target": "B", "filtered_resps": ["C"], "exact_match": 0},
+                    )
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            results = audit_samples([path])
+
+        self.assertEqual(results["total"], 2)
+        self.assertEqual(results["categories"]["official_correct"], 1)
+        self.assertEqual(results["categories"]["no_explicit_final_answer"], 1)
 
 
 if __name__ == "__main__":
