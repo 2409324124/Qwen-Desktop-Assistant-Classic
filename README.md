@@ -127,6 +127,8 @@ In short, the model is good because the dataset no longer asks it to guess one o
 
 These figures are context, not a single leaderboard: benchmark variants, prompts, chat templates, answer extraction, reasoning budget, and tool access differ. Our release should be judged primarily by its local LaTeX restoration task, then by preservation checks.
 
+The control rows below use published model-card or vendor benchmark numbers only. No extra control model was downloaded or run locally for this comparison.
+
 #### Same-size and near-size controls
 
 | Model / source | Scale | AIME | MATH-500 | GPQA Diamond / GPQA | Other signal | Notes |
@@ -162,7 +164,7 @@ The benchmark story is mixed in a useful way:
 - Diagnostic signal: AIME25 36.67% shows non-trivial contest-math retention, but the sample count is small and extraction-sensitive.
 - Weakness: MATH-500 exact-match remains unusable as a capability estimate until sample audit separates mathematical errors from final-answer extraction or formatting failures.
 - Benchmark issue: official Qwen and DeepSeek numbers use different prompts, reasoning budgets, sampling, and sometimes thinking-mode models. The tables above are reference controls, not apples-to-apples leaderboard claims.
-- Next benchmark controls: audit logged MATH-500 and BBH samples; run a small set of same-harness controls only if needed, prioritizing Base Qwen3-4B-Instruct and Qwen3-4B-Thinking over unrelated larger models.
+- Next benchmark controls: audit logged MATH-500 and BBH samples first. Do not download more control models by default; use published model-card numbers unless a same-harness rerun is explicitly needed and the model is already cached or manually staged.
 
 Full local artifacts from the remote runs are kept under `benchmark_artifacts/remote-20260704/`, `benchmark_artifacts/remote-20260705-modern-math/`, and `benchmark_artifacts/remote-20260706-vllm-formal/`.
 
