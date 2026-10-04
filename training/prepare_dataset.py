@@ -13,6 +13,7 @@ from training.latex_semantics import canonicalize_latex_faithful
 from training.prompts import SYSTEM_PROMPT
 from training.review_dataset import review_records, normalized_text
 from training.formula_grouping import prepare_grouping_records, GROUPING_VERSION
+from training.component_allocation import allocate_components, ALLOCATION_VERSION
 
 DATA_VERSION = "v5"
 
@@ -150,7 +151,7 @@ def dedupe_records(records: list[dict[str, Any]]) -> tuple[list[dict[str, Any]],
     return deduped, duplicates
 
 
-def split_grouped_records(records, *, eval_ratio=0.1, test_ratio=0.1, seed=42, connections=None):
+def split_grouped_records(records, *, eval_ratio=0.1, test_ratio=0.1, seed=42, connections=None, allocation_report=None):
     if not (0 < eval_ratio < 1 and 0 <= test_ratio < 1 and eval_ratio + test_ratio < 1):
         raise ValueError('eval/test ratios must leave a positive train fraction')
     parent = list(range(len(records)))
@@ -190,19 +191,17 @@ def split_grouped_records(records, *, eval_ratio=0.1, test_ratio=0.1, seed=42, c
         for row in group:
             for source in _lineage_rows(row):source['metadata']['formula_group_id']=group_id
         grouped.append(sorted(group,key=lambda r:r['metadata']['source_id']))
-    rng=random.Random(seed)
-    grouped.sort(key=lambda g:g[0]['metadata']['formula_group_id']); rng.shuffle(grouped)
-    n=len(grouped); dev=round(n*eval_ratio); test=round(n*test_ratio)
-    if n>=3:
-        dev=max(1,dev); test=max(1,test) if test_ratio else 0
-    while dev+test>=n and dev+test:
-        if test>=dev:test-=1
-        else:dev-=1
+    grouped.sort(key=lambda g:g[0]['metadata']['formula_group_id'])
+    assignment, allocation = allocate_components(grouped, eval_ratio=eval_ratio, test_ratio=test_ratio, seed=seed)
+    if allocation_report is not None: allocation_report.update(allocation)
     splits=[[],[],[]]; group_counts=[0,0,0]
-    for index,group in enumerate(grouped):
-        split=1 if index<dev else 2 if index<dev+test else 0
-        for row in group:row['metadata']['split']=('train','eval','test')[split]
+    for group in grouped:
+        name=assignment[group[0]['metadata']['formula_group_id']]
+        split=('train','eval','test').index(name)
+        for row in group:
+            row['metadata'].update(split=name, allocation_rule_version=ALLOCATION_VERSION)
         splits[split].extend(group);group_counts[split]+=1
+    rng=random.Random(seed)
     for split in splits:rng.shuffle(split)
     leakage={}
     for label in ('input','equation','source','family','lineage','structure','template','near_family'):
@@ -297,6 +296,7 @@ def build_datasets(
                   'training/latex_postprocess.py', 'training/latex_semantics.py', 'training/evaluate_latex.py', 'training/prompts.py',
                   'training/dataset_quality.py', 'training/canonicalize_dataset.py',
                   'training/formula_grouping.py','training/formula_structure.py','training/formula_families.json',
+                  'training/component_allocation.py',
                   'tools/data_generation/data_builder.py', 'tools/data_generation/noisy_builder.py',
                   'tools/data_generation/hard_builder.py', 'tools/data_generation/mine_sympy.py')
     source_code_sha256 = {path: hashlib.sha256((code_root / path).read_bytes()).hexdigest()
@@ -331,14 +331,16 @@ def build_datasets(
                 decision[field]=meta.get(field)
     records, duplicate_count = dedupe_records(ready_records)
     connections=[]
+    allocation={}
     train, eval_records, test_records, leakage, group_counts = split_grouped_records(
-        records, eval_ratio=eval_ratio, test_ratio=0.1, seed=seed,connections=connections)
+        records, eval_ratio=eval_ratio, test_ratio=0.1, seed=seed,connections=connections,allocation_report=allocation)
     grouped=defaultdict(list)
     for row in records:grouped[row['metadata']['formula_group_id']].append(row)
     group_manifest=[]
     for group_id,members in sorted(grouped.items()):
         keys={key for row in members for key in _group_keys(row)}
         group_manifest.append({'formula_group_id':group_id,'split':members[0]['metadata']['split'],
+                               'categories':dict(sorted(Counter(r['metadata'].get('category','unknown') for r in members).items())),
                                'records':len(members),'source_records':sum(len(_lineage_rows(r)) for r in members),
                                'formula_names':sorted(value for kind,value in keys if kind=='family'),
                                'near_family_ids':sorted(value for kind,value in keys if kind=='near_family'),
@@ -373,14 +375,15 @@ def build_datasets(
         'source_code_sha256': source_code_sha256,
         'quality_overrides_sha256': overrides_sha256,
         'review_rule_sha256': review_rule_sha256,
-        'split_policy':'global connected source/structure/template/near-family groups; no category stratification',
+        'split_policy':'indivisible connected components; exact sample balance then category coverage, group balance and category balance',
+        'allocation':allocation,
         'grouping_rule_version':GROUPING_VERSION,
         'group_manifest':group_manifest,
         'connection_counts':dict(Counter(edge['basis'] for edge in connections)),
         'evaluation_metrics':{'status':'not_run','micro_math_accuracy':None,'macro_math_accuracy':None},
         'evaluation_note':'No new inference: per-sample and equal-per-group metrics require new held-out predictions; v3 exposure is historical.',
         'holdout_limitation':'Few held-out groups do not establish broad generalization; sizes differ and groups are never split to balance records.',
-        'requested_group_ratios': {'train':0.9-eval_ratio,'eval':eval_ratio,'test':0.1},
+        'requested_sample_ratios': allocation['requested_sample_ratios'],
         'historical_model_note': 'v3 trained on old data: these re-splits are not unseen tests for v3',
         'review_limitation': 'Conservative rule checks are not proof of all natural-language/input equivalence; quarantine needs manual review.',
         'source':summarize(source_records), 'targeted_source':summarize(targeted_records),
@@ -402,6 +405,14 @@ def build_datasets(
             "| 集合 | 组数 | 样本数 |", "| --- | ---: | ---: |"]
     for name,split in [('train',train),('eval',eval_records),('test',test_records)]:
         report.append(f"| {name} | {group_counts[name]} | {len(split)} |")
+    report += ["", "## 分配目标与类别覆盖", "",
+               "整组精确搜索：先最小化样本数相对目标的绝对偏差之和，再依次最小化缺失类别数、组数偏差和各类别样本数偏差。seed 仅用于同分方案选择与行顺序。",
+               f"分配规则：{ALLOCATION_VERSION}；各集合最少组数：{allocation['minimum_groups']}；目标值：{allocation['objective']}。",
+               "类别只作软目标；不会为了补齐类别拆开连通组。", "",
+               "| 类别 | train | eval | test |", "| --- | ---: | ---: | ---: |"]
+    category_counts=[summarize(split)['categories'] for split in (train,eval_records,test_records)]
+    for category in sorted({c for counts in category_counts for c in counts}):
+        report.append(f"| {category} | " + " | ".join(str(counts.get(category,0)) for counts in category_counts)+" |")
     report += ["", "## 逐组名单", "", "| 集合 | 组 ID | 样本数 | 近亲组 | 公式家族 |", "| --- | --- | ---: | --- | --- |"]
     for group in group_manifest:
         report.append(f"| {group['split']} | {group['formula_group_id']} | {group['records']} | {', '.join(group['near_family_ids'])} | {', '.join(group['formula_names'])} |")

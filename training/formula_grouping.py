@@ -5,7 +5,7 @@ from pathlib import Path
 
 from training.formula_structure import structural_signatures
 
-GROUPING_VERSION = 'v5-structure-near-1'
+GROUPING_VERSION = 'v5-structure-near-2'
 REGISTRY_PATH = Path(__file__).with_name('formula_families.json')
 
 

@@ -23,6 +23,27 @@ class FormulaStructureTests(unittest.TestCase):
             self.assertNotEqual(self.signature(left, 'template_signature'), self.signature(right, 'template_signature'))
         self.assertNotEqual(self.signature(r'\sum_{k=1}^{2}x_{k}', 'template_signature'), self.signature(r'\sum_{j=1}^{3}a_{j}', 'template_signature'))
 
+    def test_numeric_template_requires_a_coefficient_or_literal_integer_power_parent(self):
+        for left, right in [('x+2', 'a+3'), (r'\frac{x}{2}', r'\frac{a}{3}'),
+                            (r'\frac{x}{2*y^{2}}', r'\frac{a}{3*b^{3}}'),
+                            (r'\frac{2*x}{y+2}', r'\frac{3*a}{b+3}'),
+                            ('x^{y+2*z^{2}}', 'a^{b+3*c^{3}}'), ('2', '3')]:
+            self.assertNotEqual(self.signature(left, 'template_signature'), self.signature(right, 'template_signature'))
+        for left, right in [('2*x+4', '3*a+4'), ('2*(x+4)', '3*(a+4)'),
+                            (r'\frac{2*x}{y+4}', r'\frac{3*a}{b+4}'),
+                            ('x^{-2}', 'a^{-3}')]:
+            self.assertEqual(self.signature(left, 'template_signature'), self.signature(right, 'template_signature'))
+
+    def test_index_constants_are_alpha_variables_without_erasing_true_constants(self):
+        for left, right in [('x_i', 'a_j'), ('x_e', 'a_k'),
+                            ('x_i+y_i', 'a_j+b_j'), ('x_i+i', 'a_j+i'),
+                            ('x_e+e^{i}', 'a_k+e^{i}'), ('x_k+k', 'a_j+j')]:
+            self.assertEqual(self.signature(left), self.signature(right))
+        for left, right in [('x_i+y_i', 'a_j+b_k'), ('x_i+i', 'a_j+j'),
+                            ('x_e+e', 'a_j+j'), ('x_i+e^{i}', 'a_j+b^{k}')]:
+            self.assertNotEqual(self.signature(left), self.signature(right))
+        self.assertFalse(compare_latex_math_only('x_i', 'a_j').math_match)
+
     def test_constants_operator_types_order_and_matrix_types_survive(self):
         for left, right in [(r'e+x', 'a+b'), (r'i+x', 'a+b'), (r'\pi+x', 'a+b'), ('A+B=AB', 'A+B=BA'), (r'a\times b+a', r'b\times a+a'), (r'a\times b', r'a\odot b'), (r'a\times(b\times c)', r'(a\times b)\times c')]:
             self.assertNotEqual(self.signature(left), self.signature(right))
