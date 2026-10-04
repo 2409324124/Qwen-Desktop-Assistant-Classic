@@ -7,10 +7,12 @@ This repository contains a reproducible Qwen3 4B SFT workflow for restoring nois
 | item | value |
 | --- | --- |
 | Base model | `Qwen/Qwen3-4B-Instruct-2507` |
-| Fine-tuning method | LoRA, rank 64, alpha 128 |
+| Fine-tuning method | LoRA SFT, `r=64`, `alpha=128`, `dropout=0.05`, target `all` linear layers |
+| Training length | 3.0 epochs, 495 optimizer steps |
 | Training framework | LLaMA-Factory |
 | Evaluation split | `latex_formula_eval_clean`, 292 examples |
 | Primary metric | Math-only accuracy via the local LaTeX AST matcher |
+| Release models | BF16: [`xu2409324124/qwen3-4b-latex-correction-v3-bf16`](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-bf16); GGUF Q4_K_M: [`xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m`](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m) |
 
 ### Training Recipe
 
@@ -38,25 +40,33 @@ The SFT model is trained to return formula-only output in the repository's canon
 
 `math_accuracy` is the primary score: it checks whether the mathematical structure is correct while allowing harmless presentation differences. `format_compliance_accuracy` remains separate and stricter, measuring whether the output follows the exact canonical dialect expected by the desktop assistant workflow.
 
-## Result Interpretation
+## v5 formula structure and related-family isolation
+
+The current preparation pipeline uses full structural/template signatures and an explicit registry covering all 58 source templates. Related formulas are assigned together; Symbol Boundary is a separate diagnostic. v4's zero-overlap checks covered only its registered names, source and text keys, and did not establish absence of related-formula leakage. See [v5 protocol and limits](training/DATA_V5.md) and [the generated group audit](training/data/v5/group_audit.md). No new training or model accuracy is claimed.
+
+## v4 data audit and offline re-evaluation
+
+The figures above are historical permissive scores, not independent generalization evidence. The 2026-10 audit found incorrect BCE labels, ambiguous/colliding symbols, formula leakage, and permissive free-variable renaming. See [the v4 protocol](training/DATA_V4.md) and the generated [paired offline report](reports/offline-v4/comparison.md). Frozen sources and historical predictions are retained.
+
+## Result Interpretation (historical scores)
 
 ### 1. Did the SFT work?
 
-Yes. On the cleaned fixed eval split, LoRA v3 moved the task from a weak base-model behavior to a reliable formula-restoration model:
+The original report recorded the following results on the old fixed split with the old permissive evaluator. Label errors and train/eval leakage prevent interpreting them as independent reliability evidence:
 
 - Base Qwen3-4B-Instruct-2507: 13.36% math accuracy, 2.40% exact accuracy.
 - DeepSeek V4 Pro API baseline: 69.86% math accuracy, 21.23% exact accuracy.
 - Qwen3-4B LaTeX Correction LoRA v3: 98.97% math accuracy, 83.22% exact accuracy.
 
-This is the intended SFT shape: the model learned the mapping from noisy descriptions to canonical LaTeX, not merely a looser natural-language explanation style.
+The revised evaluator preserves free symbols, operator types and scope. Historical scores alone do not establish whether the model learned transferable formula restoration.
 
 ### 2. What changed versus the base model?
 
-The local LaTeX evaluation is the strictest apples-to-apples comparison because the base model and SFT v3 were evaluated on the same 292-example `latex_formula_eval_clean` split with the same evaluator. General benchmark rows use the SFT v3 `lm-eval` run and published Qwen model-card numbers for the base model, so they are reference comparisons rather than same-harness A/B tests.
+The historical local LaTeX evaluation used the same 292-example `latex_formula_eval_clean` split with the same evaluator. General benchmark rows use the SFT v3 `lm-eval` run and published Qwen model-card numbers for the base model, so they are reference comparisons rather than same-harness A/B tests.
 
 | Area | Base Qwen3-4B-Instruct-2507 | SFT v3 | Delta / interpretation |
 | --- | ---: | ---: | --- |
-| Local LaTeX math accuracy | 13.36% | 98.97% | Massive gain; the main task is solved for this eval split |
+| Local LaTeX math accuracy | 13.36% | 98.97% | Historical permissive score; leakage and label errors require revised evaluation |
 | Local exact / format accuracy | 2.40% | 83.22% | Massive gain; the canonical LaTeX dialect was learned |
 | Local parse coverage | 36.99% | 100.00% | Outputs became consistently parseable by the project evaluator |
 | MMLU-Pro | 69.6% published | 63.54% measured | About 6.1 points lower, but broad STEM/reasoning did not collapse |
@@ -64,7 +74,7 @@ The local LaTeX evaluation is the strictest apples-to-apples comparison because 
 | GPQA | 62.0% published | 29.19% measured | Weaker in this run or not harness-comparable; not a science-QA release |
 | MATH-500 | not listed on base card | 0.00% measured | Extraction-sensitive diagnostic; audit required before interpreting math ability |
 
-The key tradeoff is intentional: SFT v3 gives up some general-purpose benchmark headroom to become a much stronger canonical formula-restoration model. It should be selected when the application needs stable formula-only LaTeX, not when the application needs a general reasoning assistant.
+The runs suggest a task-specific change in behavior, but unmatched benchmark protocols and extraction failures do not establish a causal capability tradeoff. Training overfitting or forgetting requires comparable independent evaluations across checkpoints.
 
 ### 3. What happened to general abilities?
 
@@ -187,7 +197,7 @@ This model is not trying to beat thinking or R1-distilled models at long-chain r
 
 The benchmark story is mixed in a useful way:
 
-- Improved: the main LaTeX task is clearly solved for this dataset: 13.36% to 98.97% math accuracy, and 2.40% to 83.22% exact canonical-format accuracy.
+- Historical: the old evaluator reported 13.36% to 98.97% math accuracy and 2.40% to 83.22% exact accuracy. These are retained for comparison; the v4 audit invalidates a claim that the task was solved.
 - Improved: formula-only output is much more stable, parse coverage reaches 100%, and the model follows the repository's canonical fraction, matrix, and superscript/subscript rules.
 - Preserved: IFEval strict 80.96% / loose 83.73% shows strong instruction-following retention after a narrow LaTeX SFT.
 - Preserved: MMLU-Pro 63.54% is a useful broad STEM/reasoning preservation signal for a 4B non-thinking formula SFT, especially with math at 84.23%.
@@ -203,6 +213,8 @@ Full local artifacts from the remote runs are kept under `benchmark_artifacts/re
 ## Model Artifacts
 
 The release is split by runtime format:
+
+Both artifacts come from the same v3 LoRA SFT run: `r=64`, `alpha=128`, `dropout=0.05`, all linear layers targeted, 3.0 epochs, and 495 optimizer steps. The BF16 repository is the merged full-precision release; the GGUF repository is the quantized local-inference release used by the desktop assistant.
 
 - Full BF16 merged model: [xu2409324124/qwen3-4b-latex-correction-v3-bf16](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-bf16)
   - Use this for Transformers, vLLM-compatible conversion, further fine-tuning, or producing new quantizations.
@@ -250,7 +262,9 @@ The original desktop assistant is still available as a lightweight local Ollama 
 ### Prerequisites
 
 1. Install [Ollama](https://ollama.com/).
-2. Download the GGUF release from this project and create the Ollama alias used by the desktop client:
+2. Download this project's GGUF release, not the original base Qwen checkpoint, and create the Ollama alias used by the desktop client. This is the quantized v3 SFT model trained with LoRA `r=64` for 495 optimizer steps over 3.0 epochs:
+
+   Model link: [xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m)
 
 ```bash
 huggingface-cli download xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m --include "*.gguf" --local-dir models/qwen3-4b-latex-correction-v3-gguf-q4-k-m

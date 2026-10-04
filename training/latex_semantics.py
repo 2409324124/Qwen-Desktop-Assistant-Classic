@@ -114,6 +114,28 @@ def canonicalize_latex(value: str, *, strip_font_styles: bool = True) -> str:
     return normalized
 
 
+def canonicalize_latex_faithful(value: str) -> str:
+    """Normalize the output dialect without erasing symbol/type/operator meaning.
+
+    Font commands, determinant/norm environments, explicit products and all
+    operand groups survive. The legacy canonicalizer remains historical only.
+    """
+    normalized = value.strip()
+    normalized = re.sub(r"\\(?:left|right)\b", '', normalized)
+    for command in _SPACING_COMMANDS:
+        if command[-1].isalpha():
+            normalized = re.sub(re.escape(command) + r"\b", ' ', normalized)
+        else:
+            normalized = normalized.replace(command, ' ')
+    for environment in ('matrix', 'pmatrix', 'Bmatrix'):
+        normalized = normalized.replace(rf"\begin{{{environment}}}", r"\begin{bmatrix}")
+        normalized = normalized.replace(rf"\end{{{environment}}}", r"\end{bmatrix}")
+    normalized = _brace_scripts(_canonicalize_groups(normalized))
+    normalized = re.sub(r"[ \t\r\f\v]+", ' ', normalized)
+    normalized = re.sub(r"\s*\\\\\s*", lambda _: " \\\\ ", normalized)
+    return normalized.strip()
+
+
 @dataclass(frozen=True)
 class LatexNode:
     kind: str
@@ -139,6 +161,7 @@ class LatexMathComparison:
     parse_success: bool
     match_level: str
     reason: str
+    verification_status: str = "verified"
 
 
 _STYLE_COMMANDS = {"mathbf", "boldsymbol", "mathrm", "mathcal", "mathbb", "mathit", "textrm"}
@@ -190,21 +213,20 @@ def _unwrap_style_commands(value: str) -> str:
 Token = tuple[str, str]
 
 
-def _tokenize(value: str) -> list[Token]:
-    value = _unwrap_style_commands(canonicalize_latex(value))
+def _tokenize(value: str, *, faithful: bool = False) -> list[Token]:
+    value = canonicalize_latex_faithful(value) if faithful else canonicalize_latex(value)
+    if not faithful:
+        value = _unwrap_style_commands(value)
     tokens: list[Token] = []
     index = 0
     while index < len(value):
         if value[index].isspace():
             index += 1
             continue
-        if value.startswith(r"\begin{bmatrix}", index):
-            tokens.append(("BEGIN_MATRIX", "bmatrix"))
-            index += len(r"\begin{bmatrix}")
-            continue
-        if value.startswith(r"\end{bmatrix}", index):
-            tokens.append(("END_MATRIX", "bmatrix"))
-            index += len(r"\end{bmatrix}")
+        matrix = re.match(r"\\(begin|end)\{(bmatrix|vmatrix|Vmatrix)\}", value[index:])
+        if matrix:
+            tokens.append(("BEGIN_MATRIX" if matrix[1] == "begin" else "END_MATRIX", matrix[2]))
+            index += len(matrix[0])
             continue
         if value.startswith(r"\\", index):
             tokens.append(("ROW", r"\\"))
@@ -218,7 +240,9 @@ def _tokenize(value: str) -> list[Token]:
                 index += len(match.group(0))
                 if command in {"text", "operatorname"} and index < len(value) and value[index] == "{":
                     group_end = _find_matching_brace(value, index)
-                    name = re.sub(r"\s+", "", value[index + 1 : group_end]).lower()
+                    name = re.sub(r"\s+", "", value[index + 1 : group_end])
+                    if not faithful:
+                        name = name.lower()
                     tokens.append(("NAME", "@" + name))
                     index = group_end + 1
                 else:
@@ -245,9 +269,10 @@ def _tokenize(value: str) -> list[Token]:
 
 
 class _LatexParser:
-    def __init__(self, tokens: list[Token]):
+    def __init__(self, tokens: list[Token], *, faithful: bool = False):
         self.tokens = tokens
         self.index = 0
+        self.faithful = faithful
 
     def parse(self) -> LatexNode:
         if not self.tokens:
@@ -345,6 +370,8 @@ class _LatexParser:
         while self._peek_kind() in {"_", "^"}:
             operator = self._consume()[0]
             argument = self._parse_script_argument()
+            if self.faithful and ((operator == "_" and subscript is not None) or (operator == "^" and superscript is not None)):
+                raise ValueError("Repeated script changes or invalidates the expression")
             if operator == "_":
                 subscript = argument
             else:
@@ -354,6 +381,15 @@ class _LatexParser:
                 "scripts",
                 children=(node, subscript or LatexNode("empty"), superscript or LatexNode("empty")),
             )
+        if self.faithful and node.kind == "scripts" and node.children[0].value in {r"\sum", r"\prod", r"\lim"}:
+            lower = node.children[1]
+            if node.children[0].value == r"\lim" and (lower.kind != "relation" or lower.value != "to" or len(lower.children) != 2):
+                raise ValueError("Unsupported limit-variable declaration")
+            variable = lower.children[0] if lower.kind == "relation" else lower
+            if variable.kind != "symbol" or not _renamable_symbol(variable.value):
+                raise ValueError("Unsupported bound-variable declaration")
+            body = self._parse_multiplication()
+            return LatexNode("binder", variable.value, (node.children[0], lower, node.children[2], body))
         while self._peek_kind() in {"'", "!"}:
             operator = self._consume()[0]
             node = LatexNode("prime" if operator == "'" else "factorial", children=(node,))
@@ -387,6 +423,8 @@ class _LatexParser:
             if command in _MODIFIER_COMMANDS:
                 argument = self._parse_group() if self._peek_kind() == "{" else self._parse_primary()
                 return LatexNode("modifier", command, (argument,))
+            if self.faithful and command in _STYLE_COMMANDS:
+                return LatexNode("style", command, (self._parse_group(),))
             return LatexNode("symbol", "\\" + command)
         if kind in {"{", "(", "["}:
             opening = self._consume()[0]
@@ -402,7 +440,7 @@ class _LatexParser:
         raise ValueError(f"Expected expression, found {kind} ({value!r})")
 
     def _parse_matrix(self) -> LatexNode:
-        self._consume("BEGIN_MATRIX")
+        environment = self._consume("BEGIN_MATRIX")[1]
         rows: list[LatexNode] = []
         entries: list[LatexNode] = []
         while self._peek_kind() != "END_MATRIX":
@@ -417,11 +455,16 @@ class _LatexParser:
                 continue
             if self._peek_kind() != "END_MATRIX":
                 raise ValueError(f"Unexpected matrix token: {self._peek_value()!r}")
-        self._consume("END_MATRIX")
+        if self._consume("END_MATRIX")[1] != environment:
+            raise ValueError("Mismatched matrix environment")
         rows.append(LatexNode("row", children=tuple(entries)))
-        return LatexNode("matrix", children=tuple(rows))
+        if self.faithful and len({len(row.children) for row in rows}) != 1:
+            raise ValueError("Matrix rows must have equal widths")
+        return LatexNode("matrix", environment, tuple(rows))
 
     def _starts_primary(self) -> bool:
+        if self.faithful and self._peek_kind() == "COMMAND" and self._peek_value() in {"ge", "le", "neq", "approx", "to"}:
+            return False
         return self._peek_kind() in {"NUMBER", "SYMBOL", "NAME", "COMMAND", "{", "(", "[", "|", "BEGIN_MATRIX"}
 
 
@@ -429,9 +472,9 @@ def parse_latex(value: str) -> LatexNode:
     return _normalize_ast(_LatexParser(_tokenize(value)).parse())
 
 
-def _normalize_ast(node: LatexNode) -> LatexNode:
-    children = tuple(_normalize_ast(child) for child in node.children)
-    if node.kind in {"add", "mul"}:
+def _normalize_ast(node: LatexNode, *, faithful: bool = False) -> LatexNode:
+    children = tuple(_normalize_ast(child, faithful=faithful) for child in node.children)
+    if node.kind == "add" or (node.kind == "mul" and not (faithful and node.value)):
         flattened: list[LatexNode] = []
         for child in children:
             if child.kind == node.kind and child.value == node.value:
@@ -527,7 +570,7 @@ def _equivalent(
                 mapping,
                 reverse,
             )
-    commutative = left.kind == "add" or (left.kind == "mul" and commutative_multiplication)
+    commutative = left.kind == "add" or (left.kind == "mul" and commutative_multiplication and left.value not in {"times", "odot"})
     if commutative:
         return _equivalent_commutative(
             left.children,
@@ -791,6 +834,47 @@ def _math_format_key(value: str) -> str:
     return normalized
 
 
+def _faithful_ast(value: str) -> LatexNode:
+    # Parsing binds only a declared index within its operator's operand. Free
+    # symbols, including e/i, never participate in the historical rename map.
+    tree = _normalize_ast(_LatexParser(_tokenize(_normalize_math_latex(value), faithful=True), faithful=True).parse(), faithful=True)
+
+    def bind(node: LatexNode, scope: tuple[str, ...] = ()) -> LatexNode:
+        if node.kind == "symbol" and node.value in scope:
+            return LatexNode("symbol", "@bound:" + str(scope[::-1].index(node.value)))
+        if node.kind == "binder":
+            operator, lower, upper, body = node.children
+            local = (*scope, node.value)
+            # Initialization/bound expressions stay in the enclosing scope.
+            if lower.kind == "relation":
+                lower = LatexNode("relation", lower.value, (bind(lower.children[0], local), bind(lower.children[1], scope)))
+            else:
+                lower = bind(lower, local)
+            return LatexNode("binder", children=(operator, lower, bind(upper, scope), bind(body, local)))
+        children = tuple(bind(child, scope) for child in node.children)
+        result = LatexNode(node.kind, node.value, children)
+        if node.kind == "style" and node.value in {"mathrm", "mathit", "textrm"}:
+            return children[0]
+        if node.kind == "div" and children[1].kind == "number":
+            result = LatexNode("mul", children=(children[0], LatexNode("reciprocal", children=(children[1],))))
+        if result.kind == "mul" and not result.value:
+            flattened = []
+            for child in result.children:
+                if child.kind == "mul" and not child.value:
+                    flattened.extend(child.children)
+                else:
+                    flattened.append(child)
+            scalars = [child for child in flattened if child.kind == "number" or (child.kind == "reciprocal" and child.children[0].kind == "number")]
+            others = [child for child in flattened if child not in scalars]
+            result = LatexNode("mul", children=tuple(sorted(scalars, key=repr) + others))
+        return result
+
+    return bind(tree)
+
+
+_SCALAR_FORMULAS = {"Product Rule", "Mean Squared Error", "Coulomb's Law", "Normal Distribution PDF", "Softmax Function"}
+
+
 def compare_latex_math_only(
     expected: str,
     prediction: str,
@@ -798,52 +882,43 @@ def compare_latex_math_only(
     formula_name: str | None = None,
     input_text: str = "",
 ) -> LatexMathComparison:
+    """Verify the complete expression, preserving free symbols and scope.
+
+    Unsupported or unmatched expressions are unverified, not proven incorrect.
+    input_text remains accepted for API compatibility; it cannot authorize renaming.
+    """
+    candidate = _strip_display_math(prediction)
+    prefixed = False
+    try:
+        text_group = _text_group_at_start(candidate)
+        if text_group is not None and text_group[0].rstrip().endswith(":"):
+            candidate = candidate[text_group[1]:].strip()
+            prefixed = True
+        left, right = _faithful_ast(expected), _faithful_ast(candidate)
+    except (ValueError, IndexError, RecursionError) as exc:
+        return LatexMathComparison(False, False, False, "parse_error", str(exc), "unverified")
+    matched, _, _ = _equivalent(
+        left, right, allow_rename=False,
+        commutative_multiplication=formula_name in _SCALAR_FORMULAS,
+        mapping={}, reverse={},
+    )
+    if not matched:
+        return LatexMathComparison(False, False, True, "math_mismatch", "Equivalence was not established under symbol/type/scope-preserving rules", "unverified")
     strict = compare_latex(expected, prediction, formula_name=formula_name)
-    if strict.semantic_match:
-        return LatexMathComparison(True, strict.symbol_fidelity_match, strict.parse_success, strict.match_level, strict.reason)
-
-    allow_rename = not _input_has_explicit_variables(input_text)
-    expected_candidates: list[tuple[str, str]] = [(expected, "math_equivalent")]
-    relation = _relation_sides(expected)
-    if relation is not None:
-        _, expected_right = relation
-        if expected_right.startswith(r"\begin{bmatrix}"):
-            expected_candidates.append((expected_right, "contains_correct_formula"))
-
-    parse_error: str | None = None
-    for expected_candidate, expected_reason in expected_candidates:
-        expected_normalized = _normalize_math_latex(expected_candidate)
-        for prediction_candidate, prediction_reason in _prediction_candidates(prediction):
-            prediction_normalized = _normalize_math_latex(prediction_candidate)
-            if _math_format_key(expected_normalized) == _math_format_key(prediction_normalized):
-                level = "math_equivalent" if expected_reason == prediction_reason == "math_equivalent" else "contains_correct_formula"
-                return LatexMathComparison(True, False, True, level, level)
-            try:
-                if _math_ast_match(
-                    expected_normalized,
-                    prediction_normalized,
-                    allow_rename=allow_rename,
-                    formula_name=formula_name,
-                ):
-                    level = "math_equivalent" if expected_reason == prediction_reason == "math_equivalent" else "contains_correct_formula"
-                    return LatexMathComparison(True, False, True, level, level)
-            except ValueError as exc:
-                parse_error = str(exc)
-
-    if parse_error is not None:
-        return LatexMathComparison(False, False, False, "parse_error", parse_error)
-    return LatexMathComparison(False, False, True, "math_mismatch", "math_mismatch")
+    format_compliant = strict.symbol_fidelity_match and not prefixed
+    level = "contains_correct_formula" if prefixed else (strict.match_level if format_compliant else "math_equivalent")
+    return LatexMathComparison(True, format_compliant, True, level, level)
 
 
 def compare_latex(expected: str, prediction: str, *, formula_name: str | None = None) -> LatexComparison:
     exact = prediction.strip() == expected.strip()
-    canonical = _format_key(expected, ignore_style=False) == _format_key(prediction, ignore_style=False)
-    style_insensitive = _format_key(expected, ignore_style=True) == _format_key(prediction, ignore_style=True)
     try:
+        canonical = _format_key(expected, ignore_style=False) == _format_key(prediction, ignore_style=False)
+        style_insensitive = _format_key(expected, ignore_style=True) == _format_key(prediction, ignore_style=True)
         expected_ast = parse_latex(expected)
         prediction_ast = parse_latex(prediction)
     except ValueError as exc:
-        return LatexComparison(exact, canonical, False, False, False, "parse_error", str(exc))
+        return LatexComparison(exact, False, False, False, False, "parse_error", str(exc))
 
     symbol_fidelity = _ast_equal(expected_ast, prediction_ast, allow_rename=False, formula_name=formula_name)
     semantic = symbol_fidelity or _ast_equal(expected_ast, prediction_ast, allow_rename=True, formula_name=formula_name)

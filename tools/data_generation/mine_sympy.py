@@ -3,11 +3,11 @@ import json
 import random
 import re
 import sys
+import string
+import hashlib
 from collections import Counter
 from typing import Optional
 
-from latex2sympy2 import latex2sympy
-from sympy import Eq
 
 
 TEXT_MACRO_RE = re.compile(r"\\text\{([^{}]*)\}")
@@ -44,6 +44,8 @@ def normalize_latex_for_sympy(latex_str: str) -> str:
 
 
 def safe_latex2sympy_expr(latex_str: str) -> tuple[Optional[str], Optional[str]]:
+    from latex2sympy2 import latex2sympy
+    from sympy import Eq
     normalized = normalize_latex_for_sympy(latex_str)
     errors: list[str] = []
 
@@ -72,7 +74,7 @@ def build_templates() -> list[dict[str, str]]:
     return [
         {"name": "Softmax Function", "category": "stats_ml", "latex": r"\text{{Softmax}}({x}_{{{i}}}) = \frac{{\exp({x}_{{{i}}})}}{{\sum_j \exp({x}_j)}}"},
         {"name": "Self-Attention Mechanism", "category": "stats_ml", "latex": r"\text{{Attention}}({Q}, {K}, {V}) = \text{{softmax}}\left(\frac{{{Q} {K}^T}}{{\sqrt{{d_k}}}}\right){V}"},
-        {"name": "Cross-Entropy Loss", "category": "stats_ml", "latex": r"\mathcal{{L}} = -\frac{{1}}{{{N}}} \sum_{{{i}=1}}^{{{N}}} {y}_{{{i}}} \log(\hat{{{y}}}_{{{i}}}) + (1 - {y}_{{{i}}}) \log(1 - \hat{{{y}}}_{{{i}}})"},
+        {"name": "Cross-Entropy Loss", "category": "stats_ml", "latex": r"\mathcal{{L}} = -\frac{{1}}{{{N}}} \sum_{{{i}=1}}^{{{N}}} \left[{y}_{{{i}}} \log(\hat{{{y}}}_{{{i}}}) + (1 - {y}_{{{i}}}) \log(1 - \hat{{{y}}}_{{{i}}})\right]"},
         {"name": "Gradient Descent Update", "category": "stats_ml", "latex": r"{theta}_{{{t}}} = {theta}_{{{t}-1}} - \eta \nabla J({theta}_{{{t}-1}})"},
         {"name": "Linear Layer with Activation", "category": "stats_ml", "latex": r"\hat{{{y}}} = \sigma({W} {x} + {b})"},
         {"name": "RMSNorm", "category": "stats_ml", "latex": r"\text{{RMSNorm}}({x}) = \frac{{{x}}}{{\sqrt{{\frac{{1}}{{d}} \sum_{{{i}=1}}^d {x}_{{{i}}}^2 + \epsilon}}}} \odot \gamma"},
@@ -196,13 +198,37 @@ def choose_next_category(
     return random.choice([category for category, items in templates_by_category.items() if items])
 
 
+def allocate_symbols(template: str) -> dict[str, str]:
+    fields = {name for _, name, _, _ in string.Formatter().parse(template) if name}
+    fixed = template
+    for name in fields:
+        fixed = fixed.replace('{' + name + '}', '')
+    used = set(re.findall(r"\\[A-Za-z]+|(?<![A-Za-z\\])[A-Za-z](?![A-Za-z])", fixed))
+    pools = {
+        'scalar': ['x', 'y', 'z', 'u', 'v', r'\theta', r'\alpha', r'\phi', r'\xi', r'\gamma'],
+        'index': ['n', 'k', 'j', 'l', 'q'],
+        'time': ['t', r'\tau', 'T'],
+        'bound': ['N', 'M', 'T'],
+        'mass': ['m', 'M', 'm_0', 'M_0', r'\mu'],
+    }
+    kinds = {**dict.fromkeys(('x','y','z','u','v','theta'), 'scalar'),
+             **dict.fromkeys(('n','k','i'), 'index'), 't': 'time', 'N': 'bound',
+             **dict.fromkeys(('m','m1','m2'), 'mass')}
+    result = {}
+    for name in sorted(fields):
+        candidates = pools[kinds[name]] if name in kinds else [name]
+        available = [symbol for symbol in candidates if symbol not in used]
+        if not available:
+            raise ValueError(f'No collision-free symbols for {name}')
+        result[name] = random.choice(available)
+        used.add(result[name])
+    return result
+
+
 def generate_formulas(
     count: int = 1000,
     category_ratios: Optional[dict[str, float]] = None,
 ) -> list[dict[str, object]]:
-    vars_x = ["x", "y", "z", "u", "v", r"\theta", r"\alpha", r"\phi", r"\xi", r"\gamma"]
-    vars_n = ["n", "k", "m", "i", "j", "T", "N", "M"]
-    vars_mass = ["m", "M", "m_0", "M_0", r"\mu"]
     templates = build_templates()
     category_ratios = category_ratios or DEFAULT_CATEGORY_RATIOS.copy()
     category_targets = allocate_category_targets(count, category_ratios)
@@ -222,35 +248,8 @@ def generate_formulas(
         category = choose_next_category(category_targets, category_counts, templates_by_category)
         template = random.choice(templates_by_category[category])
 
-        vx, vy, vz, vu, vv = random.sample(vars_x, 5)
-        vn, vk, vi, vt = random.sample(vars_n, 4)
-        m1, m2 = random.sample(vars_mass, 2)
-
-        try:
-            latex_str = template["latex"].format(
-                x=vx,
-                y=vy,
-                z=vz,
-                u=vu,
-                v=vv,
-                n=vn,
-                k=vk,
-                i=vi,
-                t=vt,
-                theta=random.choice([r"\theta", r"\phi", r"\alpha", r"\omega"]),
-                m=random.choice(vars_mass),
-                m1=m1,
-                m2=m2,
-                r=random.choice(["r", "d", "R"]),
-                Q=random.choice(["Q", r"\mathbf{Q}"]),
-                K=random.choice(["K", r"\mathbf{K}"]),
-                V=random.choice(["V", r"\mathbf{V}"]),
-                W=random.choice(["W", "U", "V", r"\mathbf{W}"]),
-                b=random.choice(["b", "B", r"\beta"]),
-                N=random.choice(["N", "M", "T"]),
-            )
-        except KeyError:
-            continue
+        symbols = allocate_symbols(template['latex'])
+        latex_str = template['latex'].format(**symbols)
 
         if latex_str in seen:
             continue
@@ -262,6 +261,8 @@ def generate_formulas(
             "category": template["category"],
             "standard_latex": latex_str,
             "sympy_expr": sympy_expr,
+            "symbol_map": symbols,
+            "formula_id": "formula:" + hashlib.sha256((template["name"] + "\0" + latex_str).encode()).hexdigest(),
         }
         if parse_error:
             parse_failures += 1

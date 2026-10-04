@@ -253,6 +253,8 @@ class AsyncFormulaDatasetBuilder:
                     "output": formula["standard_latex"],
                     "metadata": {
                         "formula_name": formula.get("name"),
+                        "formula_id": formula.get("formula_id"),
+                        "symbol_map": formula.get("symbol_map", {}),
                         "category": formula.get("category"),
                         "sympy_expr": formula.get("sympy_expr"),
                         "perspective": perspective,

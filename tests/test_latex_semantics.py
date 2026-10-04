@@ -1,9 +1,64 @@
 import unittest
 
-from training.latex_semantics import canonicalize_latex, compare_latex, compare_latex_math_only, parse_latex
+from training.latex_semantics import canonicalize_latex, canonicalize_latex_faithful, compare_latex, compare_latex_math_only, parse_latex
 
 
 class LatexCanonicalizationTests(unittest.TestCase):
+    def test_primary_metric_preserves_free_symbols_constants_and_operators(self) -> None:
+        cases = (
+            ("x+y", "a+b"), (r"e^{x}", r"a^{x}"), (r"e^{ix}", r"e^{jx}"),
+            ("AB", "BA"), (r"a \times b", "ab"), (r"A \odot B", "AB"),
+            (r"\mathbb{R}", "R"), (r"\mathcal{L}", "L"),
+            (r"\begin{vmatrix}a&b\\c&d\end{vmatrix}", r"\begin{bmatrix}a&b\\c&d\end{bmatrix}"),
+            ("x=1", "x=1\nx=2"), ("x=1", "x=1\nx=1"),
+            (r"x^{2}", r"x^{1}^{2}"), (r"\text{Mass}", r"\text{mass}"),
+        )
+        for expected, prediction in cases:
+            with self.subTest(prediction=prediction):
+                self.assertFalse(compare_latex_math_only(expected, prediction).math_match)
+
+    def test_primary_metric_renames_only_locally_bound_variables(self) -> None:
+        expected = r"\sum_{i=1}^{N} x_{i}"
+        self.assertTrue(compare_latex_math_only(expected, r"\sum_{j=1}^{N} x_{j}").math_match)
+        self.assertFalse(compare_latex_math_only(expected, r"\sum_{j=1}^{M} x_{j}").math_match)
+        self.assertFalse(compare_latex_math_only(expected + "+i", r"\sum_{j=1}^{N} x_{j}+j").math_match)
+        self.assertFalse(compare_latex_math_only(r"\sum_{i=1}^{N} (x_{i}+j)", r"\sum_{j=1}^{N} (x_{j}+j)").math_match)
+
+    def test_primary_metric_marks_unsupported_formulas_unverified(self) -> None:
+        result = compare_latex_math_only(r"\frac{x}{y}", r"\frac{x}{")
+        self.assertFalse(result.math_match)
+        self.assertEqual(result.verification_status, "unverified")
+
+    def test_primary_metric_preserves_explicit_operator_order_even_in_scalar_family(self) -> None:
+        for operator in (r"\times", r"\odot"):
+            self.assertFalse(compare_latex_math_only("a" + operator + " b", "b" + operator + " a", formula_name="Product Rule").math_match)
+
+    def test_primary_metric_preserves_explicit_product_grouping(self) -> None:
+        # A cross product is not associative; unknown operator types provide
+        # no license to erase their parentheses.
+        for operator in (r"\times", r"\odot", r"\cdot"):
+            left = "a" + operator + "(b" + operator + " c)"
+            right = "(a" + operator + " b)" + operator + " c"
+            self.assertFalse(compare_latex_math_only(left, right).math_match)
+            self.assertTrue(compare_latex_math_only(left, left).math_match)
+
+    def test_primary_metric_preserves_determinant_but_accepts_layout_variations(self) -> None:
+        determinant = r"\begin{vmatrix}a&b\\c&d\end{vmatrix}"
+        self.assertTrue(compare_latex_math_only(determinant, r"\left[" + determinant + r"\right]").math_match)
+        self.assertTrue(compare_latex_math_only(r"x_i + y", r"y+x_{i}").math_match)
+
+    def test_safe_canonicalizer_preserves_types_fonts_operators_and_scope(self) -> None:
+        original = r"\mathbb{R} + \mathbf{x}_i + \begin{vmatrix}a&b\\c&d\end{vmatrix} + a\times(b\times c)"
+        normalized = canonicalize_latex_faithful(original)
+        self.assertIn(r"\mathbb{R}", normalized)
+        self.assertIn(r"\mathbf{x}_{i}", normalized)
+        self.assertIn(r"\begin{vmatrix}", normalized)
+        self.assertIn(r"a\times(b\times c)", normalized)
+        self.assertTrue(compare_latex_math_only(original, normalized).math_match)
+        self.assertEqual(canonicalize_latex_faithful(normalized), normalized)
+        self.assertEqual(canonicalize_latex_faithful(r"{a \over b} + x_i"), r"\frac{a}{b} + x_{i}")
+        self.assertIn(r"\leftarrow", canonicalize_latex_faithful(r"x\leftarrow y"))
+
     def test_canonicalize_latex_is_deterministic_and_idempotent(self) -> None:
         source = r"x_i^2 = {a \over b} + \begin{matrix} y_1 & z^3 \\ u & v \end{matrix}"
         expected = (
@@ -112,16 +167,16 @@ class LatexCanonicalizationTests(unittest.TestCase):
         self.assertFalse(result.format_compliant)
         self.assertEqual(result.match_level, "contains_correct_formula")
 
-    def test_math_only_accepts_matrix_without_label_but_marks_format_violation(self) -> None:
+    def test_math_only_does_not_drop_matrix_equation_label(self) -> None:
         result = compare_latex_math_only(
             r"\Sigma = \begin{bmatrix} \sigma_{\phi}^{2} & \rho\sigma_{\phi}\sigma_{\gamma} \\ \rho\sigma_{\phi}\sigma_{\gamma} & \sigma_{\gamma}^{2} \end{bmatrix}",
             r"\begin{bmatrix} \sigma_{\phi}^{2} & \rho\sigma_{\phi}\sigma_{\gamma} \\ \rho\sigma_{\phi}\sigma_{\gamma} & \sigma_{\gamma}^{2} \end{bmatrix}",
             input_text="Cov Mat: Sigma. 2x2. Diag: sigma_phi^2, sigma_gamma^2.",
         )
 
-        self.assertTrue(result.math_match)
+        self.assertFalse(result.math_match)
         self.assertFalse(result.format_compliant)
-        self.assertEqual(result.match_level, "contains_correct_formula")
+        self.assertEqual(result.verification_status, "unverified")
 
     def test_math_only_rejects_variable_drift_when_input_names_variables(self) -> None:
         result = compare_latex_math_only(

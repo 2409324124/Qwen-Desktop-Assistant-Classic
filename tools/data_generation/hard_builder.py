@@ -6,12 +6,9 @@ from typing import Any
 
 from tools.data_generation.noisy_builder import (
     FORMULA_NAME_SHORTCUTS,
-    AMBIGUOUS_SHORTCUT_CONTEXT,
-    dedupe_tail,
     formula_complexity,
     latex_to_ascii_fragment,
     load_jsonl,
-    maybe_apply_typo_noise,
     normalize_spaces,
     sanitize_surface_text,
     save_jsonl,
@@ -49,37 +46,8 @@ def is_named_formula(formula_name: str) -> bool:
 
 
 def extract_variable_anchor(output: str) -> str:
-    fragment = latex_to_ascii_fragment(output)
-    variables = re.findall(r"\b(?:[A-Za-z]+(?:_[A-Za-z0-9]+)?|[A-Za-z]\([A-Za-z0-9_, ]+\))\b", fragment)
-    filtered: list[str] = []
-    stopwords = {
-        "integral",
-        "sum",
-        "sqrt",
-        "infinity",
-        "partial",
-        "nabla",
-        "exp",
-        "sin",
-        "cos",
-        "tanh",
-        "max",
-        "min",
-        "log",
-    }
-    for token in variables:
-        token = token.strip()
-        lower = token.lower()
-        if lower in stopwords:
-            continue
-        if re.fullmatch(r"[A-Za-z]", token) or "_" in token or "(" in token:
-            filtered.append(token)
-
-    unique: list[str] = []
-    for token in filtered:
-        if token not in unique:
-            unique.append(token)
-    return ", ".join(unique[:3])
+    # A partial variable list cannot uniquely reconstruct a formula.
+    return latex_to_ascii_fragment(output)
 
 
 def score_record(record: dict[str, Any]) -> int:
@@ -134,131 +102,48 @@ def choose_hard_rule(record: dict[str, Any], rng: random.Random) -> str:
 
 def apply_structure_collapse(text: str, output: str, rng: random.Random) -> str:
     fragment = latex_to_ascii_fragment(output)
-    fragment = re.sub(r"\s+", " ", fragment)
-    fragment = re.sub(r"\b(integral|sum)\[([^\]]+)\]", r"\1 \2", fragment)
-    fragment = fragment.replace("(", " ").replace(")", " ")
-    fragment = fragment.replace("[", " ").replace("]", " ")
-    fragment = re.sub(r"\s*=\s*", " = ", fragment)
-    tokens = fragment.split()
-    if len(tokens) > 14:
-        start = rng.randint(0, max(0, len(tokens) - 14))
-        tokens = tokens[start : start + 14]
     prefix = rng.choice(("draft", "calc", "tmp", "derive", "推导", "先记这个"))
-    return normalize_spaces(f"{prefix}: {' '.join(tokens)}")
+    return normalize_spaces(f"{prefix}: {fragment}")
 
 
 def apply_fragment_anchor(text: str, output: str, formula_name: str, rng: random.Random) -> str:
-    fragment = latex_to_ascii_fragment(output)
-    short_fragment = " ".join(fragment.split()[:10])
-    anchor = AMBIGUOUS_SHORTCUT_CONTEXT.get(formula_name) or FORMULA_NAME_SHORTCUTS.get(formula_name) or formula_name or "that formula"
-    variable_anchor = extract_variable_anchor(output)
-    patterns = [
-        f"{anchor} -> {short_fragment}",
-        f"{short_fragment} ... {anchor}",
-        f"{anchor}, core part {short_fragment}",
-        f"{short_fragment} ({anchor})",
-        f"{anchor} [{variable_anchor}] -> {short_fragment}" if variable_anchor else f"{anchor} -> {short_fragment}",
-        f"{anchor} for {variable_anchor}: {short_fragment}" if variable_anchor else f"{short_fragment} ({anchor})",
-    ]
-    return normalize_spaces(rng.choice(patterns))
+    anchor = FORMULA_NAME_SHORTCUTS.get(formula_name, formula_name or "formula")
+    return normalize_spaces(f"{anchor}: {latex_to_ascii_fragment(output)}")
 
 
 def apply_operator_mix(text: str, output: str, rng: random.Random) -> str:
-    fragment = latex_to_ascii_fragment(output)
-    mutated = fragment.replace("=", rng.choice(("==", "~", "=>")), 1) if "=" in fragment else fragment
-    mutated = mutated.replace(" * ", rng.choice((" x ", " ", "*")))
-    mutated = mutated.replace(" / ", rng.choice(("/", " over ")))
-    mutated = mutated.replace(" + ", rng.choice((" plus ", " + ", " ")))
-    return maybe_apply_typo_noise(normalize_spaces(mutated), rng, strength=0.1)
+    # Preserve the operator spelling: cross/dot/elementwise are not synonyms.
+    return normalize_spaces(f"operator draft: {latex_to_ascii_fragment(output)}")
 
 
 def apply_symbol_dropout(text: str, output: str, rng: random.Random) -> str:
-    fragment = latex_to_ascii_fragment(output)
-    fragment = re.sub(r"_([A-Za-z0-9]+)", "", fragment)
-    fragment = fragment.replace("^2", "").replace("^3", "")
-    fragment = re.sub(r"\b(partial|derivative|nabla)\b", "", fragment)
-    fragment = re.sub(r"\s+", " ", fragment).strip()
-    return normalize_spaces(fragment)
+    # Retain the rule label, but remove only added prose rather than symbols.
+    return latex_to_ascii_fragment(output)
 
 
 def apply_dense_ascii(text: str, output: str, rng: random.Random) -> str:
-    fragment = latex_to_ascii_fragment(output)
-    tokens = re.findall(r"[A-Za-z0-9_+\-/*^=.]+", fragment)
-    if len(tokens) > 16:
-        tokens = tokens[:16]
-    compact = " ".join(tokens)
-    compact = compact.replace(" = ", "=").replace(" * ", "*").replace(" / ", "/")
-    return maybe_apply_typo_noise(normalize_spaces(compact), rng, strength=0.08)
+    # Compacting commands into adjacent letters can change their names.
+    return normalize_spaces(f"calc: {latex_to_ascii_fragment(output)}")
 
 
 def apply_contextual_shorthand(text: str, output: str, formula_name: str, rng: random.Random) -> str:
-    shortcut = AMBIGUOUS_SHORTCUT_CONTEXT.get(formula_name) or FORMULA_NAME_SHORTCUTS.get(formula_name) or formula_name or "formula"
-    fragment = latex_to_ascii_fragment(output)
-    variable_anchor = extract_variable_anchor(output)
-    tail = dedupe_tail(shortcut, fragment)
-    if tail:
-        tail = " ".join(tail.split()[:6])
-    zh_write = f"写个 {shortcut} [{variable_anchor}]".strip() if variable_anchor else f"写个 {shortcut}"
-    zh_note = f"记一下 {shortcut} [{variable_anchor}]".strip() if variable_anchor else f"记一下 {shortcut}"
-    patterns = [
-        f"{shortcut} [{variable_anchor}]" if variable_anchor else f"{shortcut} core",
-        f"{shortcut} main term {tail}".strip(),
-        f"need {shortcut} {variable_anchor}".strip(),
-        f"{shortcut} for {variable_anchor}".strip() if variable_anchor else f"{shortcut} main part",
-        f"{shortcut} ({variable_anchor})".strip() if variable_anchor else f"{shortcut} main part",
-        f"{shortcut} vars {variable_anchor}".strip() if variable_anchor else f"{shortcut} main part",
-        zh_write,
-        zh_note,
-    ]
-    return normalize_spaces(rng.choice(patterns))
+    shortcut = FORMULA_NAME_SHORTCUTS.get(formula_name, formula_name or "formula")
+    return normalize_spaces(f"记一下 {shortcut}: {latex_to_ascii_fragment(output)}")
 
 
 def apply_equation_truncation(text: str, output: str, formula_name: str, rng: random.Random) -> str:
-    fragment = latex_to_ascii_fragment(output)
-    variable_anchor = extract_variable_anchor(output)
-    named_formula = is_named_formula(formula_name)
-    if "=" in fragment:
-        left, right = fragment.split("=", 1)
-        if named_formula:
-            if rng.random() < 0.5:
-                return normalize_spaces(f"{left.strip()} = {variable_anchor}".strip())
-            return normalize_spaces(f"{FORMULA_NAME_SHORTCUTS.get(formula_name, formula_name)} = {right.strip()[:42]}")
-        left_tokens = " ".join(left.strip().split()[:8])
-        return normalize_spaces(f"{left_tokens} with {variable_anchor}".strip())
-    words = fragment.split()
-    if len(words) > 8:
-        base = " ".join(words[:8])
-        return normalize_spaces(f"{base} {variable_anchor}".strip())
-    return normalize_spaces(fragment)
+    # Truncation is limited to added commentary, never to the equation.
+    return normalize_spaces(f"draft: {latex_to_ascii_fragment(output)}")
 
 
 def apply_nested_break(text: str, output: str, rng: random.Random) -> str:
-    fragment = latex_to_ascii_fragment(output)
-    options: list[str] = []
-    for left, right in (("(", ")"), ("[", "]")):
-        right_positions = [m.start() for m in re.finditer(re.escape(right), fragment)]
-        if right_positions:
-            idx = right_positions[min(len(right_positions) // 2, len(right_positions) - 1)]
-            options.append(fragment[:idx] + fragment[idx + 1 :])
-    if options:
-        broken = rng.choice(options)
-    else:
-        broken = fragment[:-1] if len(fragment) > 8 else fragment
-    return normalize_spaces(broken)
+    # Incomplete outer wrapper; the full inner expression remains recoverable.
+    return "( " + latex_to_ascii_fragment(output)
 
 
 def apply_code_commentary(text: str, output: str, formula_name: str, rng: random.Random) -> str:
-    fragment = latex_to_ascii_fragment(output)
-    labels = ("TODO", "check", "draft", "note", "dbg", "求导", "先算", "注")
     shortcut = FORMULA_NAME_SHORTCUTS.get(formula_name, formula_name or "formula")
-    patterns = [
-        f"// {shortcut}: {fragment}",
-        f"{rng.choice(labels)} {shortcut} => {fragment}",
-        f"{fragment} // revisit",
-        f"{shortcut} ??? {fragment}",
-        f"// {rng.choice(labels)}: {shortcut} {fragment}",
-    ]
-    return maybe_apply_typo_noise(normalize_spaces(rng.choice(patterns)), rng, strength=0.06)
+    return normalize_spaces(f"// {rng.choice(('TODO', 'check', 'draft', 'note'))} {shortcut}: {latex_to_ascii_fragment(output)}")
 
 
 def is_low_quality_hard(text: str) -> bool:
@@ -275,9 +160,8 @@ def is_low_quality_hard(text: str) -> bool:
 
 
 def repair_low_quality_hard(output: str, formula_name: str) -> str:
-    context = AMBIGUOUS_SHORTCUT_CONTEXT.get(formula_name) or FORMULA_NAME_SHORTCUTS.get(formula_name) or "formula"
-    fragment = " ".join(latex_to_ascii_fragment(output).split()[:10])
-    return sanitize_surface_text(f"{context} {fragment}")
+    shortcut = FORMULA_NAME_SHORTCUTS.get(formula_name, formula_name or "formula")
+    return sanitize_surface_text(f"{shortcut}: {latex_to_ascii_fragment(output)}")
 
 
 def mutate_record(record: dict[str, Any], rng: random.Random) -> dict[str, Any]:
@@ -310,6 +194,8 @@ def mutate_record(record: dict[str, Any], rng: random.Random) -> dict[str, Any]:
             "hard_source_perspective": metadata.get("perspective"),
             "source_input": text,
             "generator": "RuleBasedHardBuilder",
+            "fidelity_policy": "complete_formula_surface_v1",
+            "noise_scope": "layout_and_filler",
         }
     )
 

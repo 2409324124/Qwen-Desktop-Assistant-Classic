@@ -20,7 +20,7 @@ class TrainingConfigurationTests(unittest.TestCase):
         self.assertIn("角色：", SYSTEM_PROMPT)
         self.assertIn("范例：", SYSTEM_PROMPT)
         self.assertIn("不要使用 display math 包装", SYSTEM_PROMPT)
-        self.assertIn("输入：softmax exp xi over sum exp xj", SYSTEM_PROMPT)
+        self.assertIn("输入：Softmax(xi_i) = exp(xi_i) / sum_j exp(xi_j)", SYSTEM_PROMPT)
         self.assertIn(r"\text{Softmax}(\xi_{i})", SYSTEM_PROMPT)
         self.assertIn("输入：2 by 2 Hessian matrix", SYSTEM_PROMPT)
 

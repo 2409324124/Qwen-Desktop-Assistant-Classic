@@ -13,7 +13,7 @@ from training.prepare_dataset import (
     dedupe_records,
     load_jsonl,
     load_sources,
-    split_records,
+    split_grouped_records,
     validate_records,
     write_jsonl,
 )
@@ -208,12 +208,15 @@ class TrainingDatasetTests(unittest.TestCase):
         with self.assertRaises(DatasetValidationError):
             validate_records([{"instruction": "restore", "input": "x"}], "bad.jsonl")
 
-    def test_split_preserves_layers_in_eval_when_possible(self) -> None:
+    def test_split_preserves_shared_targets_across_layers(self) -> None:
         records = []
         for layer in ("clean", "noisy", "hard"):
             records.extend(make_record(i, layer) for i in range(10))
 
-        train, eval_records = split_records(records, eval_ratio=0.2, seed=7)
+        for row in records:row['metadata']['source_id']=row['input']
+        train, eval_records, test, leakage, groups = split_grouped_records(records,eval_ratio=0.2,test_ratio=0,seed=7)
+        self.assertFalse(test)
+        self.assertTrue(all(n==0 for n in leakage.values()))
 
         self.assertEqual(len(train), 24)
         self.assertEqual(len(eval_records), 6)
@@ -228,7 +231,11 @@ class TrainingDatasetTests(unittest.TestCase):
         deduped, duplicate_count = dedupe_records([first, duplicate])
 
         self.assertEqual(duplicate_count, 1)
-        self.assertEqual(deduped, [first])
+        self.assertEqual(deduped[0]['input'], first['input'])
+        self.assertEqual(deduped[0]['output'], first['output'])
+        self.assertEqual(deduped[0]['metadata']['dataset_layer'], 'clean')
+        self.assertEqual(deduped[0]['metadata']['source_records'], [duplicate])
+        self.assertNotIn('source_records', first['metadata'])
 
     def test_jsonl_round_trip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -282,6 +289,7 @@ class TrainingDatasetTests(unittest.TestCase):
             records = []
             for idx in range(4):
                 record = make_record(idx, "clean")
+                record["metadata"]["formula_name"] = "Sample Mean"
                 record["canonical_output"] = f"x_{{{idx}}} = y_{{{idx}}}"
                 records.append(record)
             noisy = make_record(10, "noisy")
@@ -305,7 +313,7 @@ class TrainingDatasetTests(unittest.TestCase):
             self.assertEqual(summary["eval_clean"]["total"], len(clean_eval))
             self.assertNotIn("noisy", summary["eval_clean"]["layers"])
 
-    def test_targeted_records_are_train_only(self) -> None:
+    def test_targeted_records_use_the_shared_review_pipeline(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             out_dir = root / "training/data"
@@ -332,10 +340,11 @@ class TrainingDatasetTests(unittest.TestCase):
             train = load_jsonl(out_dir / "latex_formula_train.jsonl")
             eval_records = load_jsonl(out_dir / "latex_formula_eval.jsonl")
             clean_eval_records = load_jsonl(out_dir / "latex_formula_eval_clean.jsonl")
-            self.assertIn("targeted", summary["train"]["layers"])
-            self.assertNotIn("targeted", summary["eval"]["layers"])
-            self.assertEqual(len([record for record in train if record["metadata"]["dataset_layer"] == "targeted"]), 1)
-            self.assertEqual({record["metadata"]["dataset_layer"] for record in eval_records}, {"clean"})
+            test_records = load_jsonl(out_dir / "latex_formula_test.jsonl")
+            combined = train + eval_records + test_records
+            self.assertEqual(len([row for row in combined if row['metadata']['dataset_layer']=='targeted']), 1)
+            self.assertTrue(all(row['metadata'].get('formula_group_id') for row in combined))
+            self.assertTrue(all(value == 0 for value in summary['leakage'].values()))
             self.assertEqual(clean_eval_records, eval_records)
 
 

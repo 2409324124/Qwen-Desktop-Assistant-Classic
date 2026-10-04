@@ -1,6 +1,6 @@
 # Qwen3 4B LaTeX Correction Training
 
-This workflow trains and evaluates a LoRA adapter for LaTeX formula correction. The source data is frozen under `data/frozen/phase1/`; generated LLaMA-Factory datasets are written to `training/data/` and ignored by Git.
+This workflow trains and evaluates a LoRA adapter for LaTeX formula correction. The source data is frozen under `data/frozen/phase1/`; versioned LLaMA-Factory datasets are written to `training/data/v5/` and ignored by Git. See [the v5 grouping protocol](DATA_V5.md) and [historical v4 audit](DATA_V4.md); existing v3 configs and `training/data/*.jsonl` are historical and are not switched to v5 automatically.
 
 ## Release Artifacts
 
@@ -13,10 +13,9 @@ Keep BF16 safetensors and GGUF quantizations in separate repositories. The BF16 
 
 ## 1. Canonicalize Ground Truth
 
-The source JSONL files retain their original `output` and add a deterministic `canonical_output` used for training.
+Frozen JSONL sources must remain unchanged. The v5 preparation workflow rebuilds safe canonical targets in its versioned output directory; old cached canonical fields are retained only for provenance. The legacy read-only checker can diagnose those caches:
 
 ```bash
-python -m training.canonicalize_dataset --write
 python -m training.canonicalize_dataset --check
 ```
 
@@ -38,18 +37,40 @@ python -m training.prepare_dataset
 
 Generated files:
 
-- `training/data/latex_formula_train.jsonl`
-- `training/data/latex_formula_eval.jsonl`
-- `training/data/latex_formula_eval_clean.jsonl`
-- `training/data/dataset_summary.json`
-- `training/data/dataset_info.json`
-- `training/data/latex_formula_quarantine.jsonl`
+- `training/data/v5/latex_formula_train.jsonl`
+- `training/data/v5/latex_formula_eval.jsonl`
+- `training/data/v5/latex_formula_eval_clean.jsonl`
+- `training/data/v5/dataset_summary.json`
+- `training/data/v5/dataset_info.json`
+- `training/data/v5/latex_formula_quarantine.jsonl`
 
-The reviewed decisions in `training/dataset_quality_overrides.json` and the automatic low-information prompt filter are applied before deduplication and splitting. The v3 targeted records in `training/targeted_v3_train.jsonl` are train-only and never enter the fixed eval split.
+Frozen and targeted records share review, normalization and connected source/structure/template/near-family grouping. The explicit registry covers all 58 templates; unknown families or unverified signatures are quarantined. With seed 42 allocation targets 80/10/10 groups globally, without category stratification. Targeted records follow their group. Symbol Boundary records are diagnostic only. Output also includes `latex_formula_test.jsonl`, `latex_formula_diagnostic.jsonl`, `review_manifest.jsonl`, `group_manifest.jsonl`, `group_connections.jsonl` and `group_audit.md`; `eval_clean` aliases development. Per-sample and group-macro scoring are available for future predictions with group metadata.
+
+Historical v4 offline re-evaluation command (the saved results predate v5 parser changes; rerunning uses current scoring code). This is not an unseen v5 evaluation:
+
+```bash
+python -m training.reevaluate_offline --dataset-dir training/data/v4 --output-dir reports/offline-v4
+```
+
+`LaTeXC` / `LaTeX-130K` source attribution has not been verified; their generic conversion script does not establish provenance. They are not primary evidence for this re-evaluation.
 
 ## 3. LLaMA-Factory Training
 
 Use an isolated Python 3.11 environment with LLaMA-Factory and its training dependencies installed. The 3090 profile uses BF16 and FlashAttention-2.
+
+Final v3 LoRA configuration:
+
+| item | value |
+| --- | --- |
+| Base checkpoint | `Qwen/Qwen3-4B-Instruct-2507` |
+| LoRA rank / alpha / dropout | `r=64`, `alpha=128`, `dropout=0.05` |
+| LoRA target modules | `all` linear layers |
+| Epochs / optimizer steps | 3.0 epochs, 495 optimizer steps |
+| Batch shape | per-device batch 4, gradient accumulation 4, effective batch 16 |
+| Precision / attention | BF16, FlashAttention-2 |
+| Learning rate schedule | `1.5e-5`, cosine decay, warmup ratio `0.05` |
+| Eval / save cadence | eval every 100 steps, save every 100 steps |
+| Best checkpoint | `checkpoint-495`, selected by `eval_loss=0.03259` |
 
 Smoke test:
 
@@ -99,7 +120,7 @@ python -m training.evaluate_latex \
   --json reports/qwen3-4b-latex-correction-v3-eval.json
 ```
 
-`run_lora_inference` defaults to `training/data/latex_formula_eval_clean.jsonl`. `math_accuracy` is the primary metric. It counts mathematically equivalent formulas even when harmless layout choices differ, while still rejecting variable drift when the user input explicitly names variables. `format_compliance_accuracy` is reported separately for exact canonical-dialect adherence. The report also retains exact, canonical, symbol-fidelity, legacy semantic, parse-coverage, per-layer, and per-formula-family metrics.
+`run_lora_inference` still defaults to the historical `training/data/latex_formula_eval_clean.jsonl`; use `--eval-file training/data/v5/latex_formula_eval_clean.jsonl` explicitly for a future v5 run. `math_accuracy` is the primary metric. It counts mathematically equivalent formulas even when harmless layout choices differ, while still rejecting variable drift when the user input explicitly names variables. `format_compliance_accuracy` is reported separately for exact canonical-dialect adherence. The report also retains exact, canonical, symbol-fidelity, legacy semantic, parse-coverage, per-layer, and per-formula-family metrics.
 
 Current clean-eval results:
 

@@ -8,7 +8,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from training.latex_semantics import canonicalize_latex, parse_latex
+from training.latex_semantics import canonicalize_latex_faithful, parse_latex
 
 
 DEFAULT_SOURCE_FILES = (
@@ -31,7 +31,7 @@ def canonicalize_records(records: list[dict[str, Any]]) -> tuple[list[dict[str, 
         output = cloned.get("output")
         if not isinstance(output, str) or not output.strip():
             raise ValueError(f"record {index}: missing non-empty output")
-        canonical = canonicalize_latex(output)
+        canonical = canonicalize_latex_faithful(output)
         previous = cloned.get("canonical_output")
         if previous != canonical:
             changed += 1
