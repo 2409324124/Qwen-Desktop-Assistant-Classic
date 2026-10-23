@@ -30,6 +30,10 @@ jobs:
         working-directory: packages/cli
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            packages/cli
+            src/latex_sft/core/resources
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
