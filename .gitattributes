@@ -1,0 +1,7 @@
+# Audited bytes must not depend on checkout newline settings.
+archive/protocols/** -text
+src/latex_sft/core/resources/latex-correction.txt -text
+data/frozen/** -text
+training/reviews/** -text
+training/data/** -text
+reports/** -text

@@ -21,3 +21,12 @@ benchmarks/
 saves/
 reports/
 benchmark_artifacts/
+
+# Package/build outputs
+.venv/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+node_modules/
+*.tgz

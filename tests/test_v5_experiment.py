@@ -22,7 +22,8 @@ class V5ExperimentTests(unittest.TestCase):
         self.no_model_check = lambda revision: None
         self.data = self.root/'training/data/v5'; self.data.mkdir(parents=True)
         for name in workflow.PROTOCOL_FILES:
-            path = self.root/name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text('fixture protocol')
+            path = self.root/name; path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes((workflow.ROOT/name).read_bytes())
         for relative in workflow.PROFILES.values():
             (self.root/relative).write_bytes((workflow.ROOT/relative).read_bytes())
         source = self.root/'source.jsonl'; source.write_text('frozen')

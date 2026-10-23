@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "latex-sft"
+version = "0.1.0"
+description = "Auditable LaTeX repair data, formula fidelity scoring, and SFT experiments"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["PyYAML>=6", "tqdm>=4.66", "sympy>=1.12"]
+
+[project.optional-dependencies]
+dev = ["build>=1.2"]
+generation = ["aiohttp>=3.9"]
+inference = ["torch>=2.2", "transformers>=4.51", "peft>=0.15", "accelerate>=1.0", "huggingface-hub>=0.30"]
+training = ["llamafactory>=0.9.3", "torch>=2.2", "transformers>=4.51", "peft>=0.15", "accelerate>=1.0", "datasets>=3.0"]
+benchmark = ["lm-eval[vllm]>=0.4.9"]
+
+[project.scripts]
+latex-sft = "latex_sft.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"latex_sft.core" = ["resources/*.txt"]
+"latex_sft.data" = ["*.json"]

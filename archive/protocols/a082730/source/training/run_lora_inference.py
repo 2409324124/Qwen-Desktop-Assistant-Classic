@@ -1,0 +1,102 @@
+import argparse
+import json
+from pathlib import Path
+
+from tqdm.auto import tqdm
+
+from training.latex_postprocess import postprocess_latex
+from training.prompts import SYSTEM_PROMPT
+
+
+def load_eval_lines(eval_file: Path, limit: int | None = None) -> list[str]:
+    with eval_file.open("r", encoding="utf-8") as source:
+        lines = [line for line in source if line.strip()]
+    if limit is not None:
+        if limit < 0:
+            raise ValueError("--limit must be non-negative")
+        lines = lines[:limit]
+    return lines
+
+
+def expected_from_record(record: dict) -> str:
+    expected = record.get("expected", record.get("output", ""))
+    if not expected:
+        raise ValueError(f"Eval record is missing expected/output: {record}")
+    return str(expected)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run LoRA inference over the fixed eval split.")
+    parser.add_argument("--model", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--revision", default=None, help="Immutable base-model revision for reproducible experiments.")
+    parser.add_argument("--adapter", default=None, help="Optional LoRA adapter path. Omit for base-model baseline.")
+    parser.add_argument("--eval-file", type=Path, default=Path("training/data/v5/latex_formula_eval_clean.jsonl"))
+    parser.add_argument("--out", type=Path, default=Path("reports/qwen3-4b-latex-correction-predictions.jsonl"))
+    parser.add_argument("--max-new-tokens", type=int, default=256)
+    parser.add_argument("--limit", type=int, default=None, help="Optional maximum number of records for smoke runs.")
+    parser.add_argument("--no-postprocess", action="store_true", help="Write raw decoded model output without repairs.")
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    if args.out.exists():
+        raise FileExistsError(f"Refusing to overwrite predictions: {args.out}")
+    lines = load_eval_lines(args.eval_file, args.limit)
+    if not lines:
+        raise ValueError("Evaluation data is empty")
+    from peft import PeftModel
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    import torch
+
+    tokenizer = AutoTokenizer.from_pretrained(args.model, revision=args.revision, trust_remote_code=True)
+    base = AutoModelForCausalLM.from_pretrained(
+        args.model,
+        revision=args.revision,
+        torch_dtype=torch.bfloat16,
+        device_map="auto",
+        trust_remote_code=True,
+    )
+    model = PeftModel.from_pretrained(base, args.adapter) if args.adapter else base
+    model.eval()
+
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    with args.out.open("x", encoding="utf-8") as sink:
+        for line in tqdm(lines, desc="Generating", unit="formula"):
+            record = json.loads(line)
+            messages = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": record["input"]},
+            ]
+            prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+            with torch.no_grad():
+                generated = model.generate(
+                    **inputs,
+                    max_new_tokens=args.max_new_tokens,
+                    do_sample=False,
+                    temperature=None,
+                    top_p=None,
+                )
+            new_tokens = generated[0][inputs["input_ids"].shape[-1] :]
+            raw_prediction = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+            prediction = raw_prediction if args.no_postprocess else postprocess_latex(raw_prediction)
+            payload = {
+                "input": record["input"],
+                "expected": expected_from_record(record),
+                "prediction": prediction,
+                "raw_prediction": raw_prediction,
+                "postprocessed": prediction != raw_prediction,
+                "generated_tokens": len(new_tokens),
+                "hit_token_limit": len(new_tokens) >= args.max_new_tokens,
+                "metadata": record.get("metadata", {}),
+            }
+            sink.write(
+                json.dumps(payload, ensure_ascii=False)
+                + "\n"
+            )
+            sink.flush()
+
+
+if __name__ == "__main__":
+    main()

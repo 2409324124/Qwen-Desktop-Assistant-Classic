@@ -1,0 +1,367 @@
+from latex_sft.paths import repository_root
+import argparse
+import json
+import hashlib
+from copy import deepcopy
+import random
+from collections import defaultdict, Counter
+from pathlib import Path
+from typing import Any
+
+from latex_sft.data.dataset_quality import load_quality_overrides
+from latex_sft.core.postprocess import postprocess_latex
+from latex_sft.core.semantics import canonicalize_latex_faithful
+from latex_sft.core.prompts import SYSTEM_PROMPT
+from latex_sft.data.review_dataset import review_records, normalized_text
+from latex_sft.data.formula_grouping import prepare_grouping_records, GROUPING_VERSION
+from latex_sft.data.component_allocation import allocate_components, ALLOCATION_VERSION
+
+DATA_VERSION = "v5"
+
+
+DEFAULT_SOURCES: tuple[tuple[str, str], ...] = (
+    ("clean", "data/frozen/phase1/train_clean_v1_500.jsonl"),
+    ("noisy", "data/frozen/phase1/train_noisy_v4_900.jsonl"),
+    ("hard", "data/frozen/phase1/train_hard_v5_600.jsonl"),
+)
+
+TRAIN_ONLY_SOURCES: tuple[tuple[str, str], ...] = (
+    ("targeted", "training/targeted_v3_train.jsonl"),
+)
+
+
+from .io import DatasetValidationError, load_jsonl, write_jsonl
+from .records import lineage_rows, group_keys, dedupe_records, summarize
+from .components import connected_components
+from .provenance import EXECUTION_PROTOCOL_VERSION, current_source_paths
+
+# Preserve legacy imports; canonical modules use public names.
+_lineage_rows = lineage_rows
+_group_keys = group_keys
+
+
+def validate_records(records: list[dict[str, Any]], source_name: str) -> None:
+    seen_pairs: set[tuple[str, str]] = set()
+    for index, record in enumerate(records, 1):
+        for key in ("instruction", "input", "output"):
+            value = record.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise DatasetValidationError(f"{source_name}:{index}: missing non-empty '{key}'")
+
+        metadata = record.get("metadata")
+        if metadata is not None and not isinstance(metadata, dict):
+            raise DatasetValidationError(f"{source_name}:{index}: metadata must be an object when present")
+
+        pair = (record["input"].strip(), record["output"].strip())
+        seen_pairs.add(pair)
+
+
+def load_sources(repo_root: Path, sources: tuple[tuple[str, str], ...] = DEFAULT_SOURCES) -> list[dict[str, Any]]:
+    combined: list[dict[str, Any]] = []
+    for layer, relative_path in sources:
+        path = repo_root / relative_path
+        records = load_jsonl(path)
+        validate_records(records, relative_path)
+        physical_lines = [i for i,line in enumerate(path.read_text(encoding="utf-8").splitlines(),1) if line.strip()]
+        for index, record in zip(physical_lines, records):
+            # Cached historical canonical outputs may have lost fonts or types.
+            # Rebuild from the source label; preserve the cache only as provenance.
+            canonical_output = canonicalize_latex_faithful(postprocess_latex(record['output']))
+            cloned = dict(record)
+            cloned["instruction"] = SYSTEM_PROMPT
+            cloned["output"] = canonical_output
+            cloned["canonical_output"] = canonical_output
+            metadata = dict(cloned.get("metadata") or {})
+            metadata["original_output"] = record["output"]
+            metadata["original_canonical_output"] = record.get("canonical_output")
+            metadata["source_id"] = f"{relative_path}:{index}"
+            metadata["source_line"] = index
+            metadata["source_sha256"] = hashlib.sha256(json.dumps(record, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+            metadata["dataset_layer"] = layer
+            metadata["source_file"] = Path(relative_path).name
+            metadata["source_path"] = relative_path
+            cloned["metadata"] = metadata
+            combined.append(cloned)
+    return combined
+
+
+def split_grouped_records(records, *, eval_ratio=0.1, test_ratio=0.1, seed=42, connections=None, allocation_report=None):
+    if not (0 < eval_ratio < 1 and 0 <= test_ratio < 1 and eval_ratio + test_ratio < 1):
+        raise ValueError('eval/test ratios must leave a positive train fraction')
+    def record_edge(anchor, index, key):
+        if connections is not None:
+            connections.append({'left_source_id':records[anchor]['metadata']['source_id'],
+                                'right_source_id':records[index]['metadata']['source_id'],
+                                'basis':key[0],'identity':key[1]})
+
+    def record_duplicates(index):
+        row = records[index]
+        if connections is not None:
+            for source in row['metadata'].get('source_records',[]):
+                connections.append({'left_source_id':row['metadata']['source_id'],
+                                    'right_source_id':source['metadata'].get('source_id'),
+                                    'basis':'duplicate_input_output',
+                                    'identity':hashlib.sha256((normalized_text(row['input'])+'\0'+normalized_text(row['output'])).encode()).hexdigest()})
+
+    groups = connected_components(
+        records, group_keys,
+        order=sorted(range(len(records)), key=lambda i: records[i]['metadata']['source_id']),
+        on_edge=record_edge, on_item=record_duplicates,
+    )
+    grouped=[]
+    for group in groups:
+        identities=sorted({f'{kind}:{value}' for row in group for kind,value in group_keys(row)
+                           if kind in {'family','near_family'}})
+        if not identities:
+            identities=sorted({f'{kind}:{value}' for row in group for kind,value in group_keys(row)})
+        group_id='formula:'+hashlib.sha256('\n'.join(identities).encode()).hexdigest()[:20]
+        for row in group:
+            for source in lineage_rows(row):source['metadata']['formula_group_id']=group_id
+        grouped.append(sorted(group,key=lambda r:r['metadata']['source_id']))
+    grouped.sort(key=lambda g:g[0]['metadata']['formula_group_id'])
+    assignment, allocation = allocate_components(grouped, eval_ratio=eval_ratio, test_ratio=test_ratio, seed=seed)
+    if allocation_report is not None: allocation_report.update(allocation)
+    splits=[[],[],[]]; group_counts=[0,0,0]
+    for group in grouped:
+        name=assignment[group[0]['metadata']['formula_group_id']]
+        split=('train','eval','test').index(name)
+        for row in group:
+            row['metadata'].update(split=name, allocation_rule_version=ALLOCATION_VERSION)
+        splits[split].extend(group);group_counts[split]+=1
+    rng=random.Random(seed)
+    for split in splits:rng.shuffle(split)
+    leakage={}
+    for label in ('input','equation','source','family','lineage','structure','template','near_family'):
+        sets=[{value for row in split for kind,value in group_keys(row) if kind==label} for split in splits]
+        leakage[label+'_overlap']=sum(len(sets[a]&sets[b]) for a,b in ((0,1),(0,2),(1,2)))
+    for label,getter in {
+        'target':lambda r:[normalized_text(r['output'])],
+        'original_target':lambda r:[normalized_text(s['metadata'].get('original_output',s['output'])) for s in lineage_rows(r)],
+        'group':lambda r:[r['metadata']['formula_group_id']],
+        'source_input':lambda r:[normalized_text(s['metadata']['source_input']) for s in lineage_rows(r) if s['metadata'].get('source_input')],
+    }.items():
+        sets=[{v for row in split for v in getter(row) if v} for split in splits]
+        leakage[label+'_overlap']=sum(len(sets[a]&sets[b]) for a,b in ((0,1),(0,2),(1,2)))
+    if any(leakage.values()):raise DatasetValidationError(f'cross-split leakage: {leakage}')
+    return (*splits,leakage,dict(zip(('train','eval','test'),group_counts)))
+
+
+
+def dataset_info() -> dict[str, Any]:
+    columns = {"prompt": "input", "response": "output", "system": "instruction"}
+    return {
+        "latex_formula_train": {
+            "file_name": "latex_formula_train.jsonl",
+            "formatting": "alpaca",
+            "columns": columns,
+        },
+        "latex_formula_eval": {
+            "file_name": "latex_formula_eval.jsonl",
+            "formatting": "alpaca",
+            "columns": columns,
+        },
+        "latex_formula_eval_clean": {
+            "file_name": "latex_formula_eval_clean.jsonl",
+            "formatting": "alpaca",
+            "columns": columns,
+        },
+    }
+
+
+def build_datasets(
+    repo_root: Path,
+    out_dir: Path,
+    eval_ratio: float,
+    seed: int,
+    *,
+    sources: tuple[tuple[str, str], ...] = DEFAULT_SOURCES,
+    train_only_sources: tuple[tuple[str, str], ...] = TRAIN_ONLY_SOURCES,
+    quality_overrides: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    existing_summary=out_dir/'dataset_summary.json'
+    if existing_summary.exists():
+        existing=json.loads(existing_summary.read_text(encoding='utf-8'))
+        if existing.get('data_version')!=DATA_VERSION:
+            raise DatasetValidationError('Refusing to overwrite a historical dataset version; select a new output directory')
+    elif out_dir.exists() and any(out_dir.glob('latex_formula_*.jsonl')):
+        raise DatasetValidationError('Refusing to overwrite unversioned historical dataset files')
+    source_records = load_sources(repo_root, sources)
+    targeted_records = load_sources(repo_root, train_only_sources) if train_only_sources else []
+    all_records = source_records + targeted_records
+    overrides_path = repo_root / "training/dataset_quality_overrides.json"
+    overrides = load_quality_overrides(overrides_path) if quality_overrides is None else quality_overrides
+    # Historical overrides are evidence, not permission to guess missing symbols.
+    # Retain reviewed exclusions. Only explicitly written product-rule symbols
+    # have an unambiguous replacement independent of the formula name.
+    by_selector = {(o['source_file'],o['input'],o['formula_name']):o for o in overrides}
+    for row in all_records:
+        m = row['metadata']
+        o = by_selector.get((m['source_file'],row['input'],m.get('formula_name','')))
+        if o and o['action'] == 'exclude':
+            m['quality_override_action'] = 'exclude'
+            m['quality_override_reason'] = o.get('reason','')
+        elif o and o['action'] == 'replace_output' and row['input'] == "Prod rule: (fg)' = f'g + fg'":
+            m['reviewed_explicit_replacement'] = o['output']
+    source_artifacts_sha256 = {
+        path: hashlib.sha256((repo_root / path).read_bytes()).hexdigest()
+        for _, path in (*sources, *train_only_sources)
+    }
+    if quality_overrides is None and overrides_path.exists():
+        source_artifacts_sha256['training/dataset_quality_overrides.json'] = hashlib.sha256(overrides_path.read_bytes()).hexdigest()
+    package_root = Path(__file__).resolve().parents[1]
+    source_code_sha256 = {
+        'src/latex_sft/' + path.relative_to(package_root).as_posix():
+            hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in current_source_paths()
+    }
+    overrides_sha256 = hashlib.sha256(json.dumps(overrides, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+    review_rule_sha256 = hashlib.sha256(json.dumps(
+        {'source_code_sha256': source_code_sha256, 'quality_overrides_sha256': overrides_sha256},
+        sort_keys=True).encode()).hexdigest()
+    quality_records, quarantined_records, manifest = review_records(all_records)
+    ready_records, grouping_held, diagnostic_records = prepare_grouping_records(quality_records)
+    quarantined_records.extend(grouping_held)
+    for row in quarantined_records:
+        row['metadata'].update(data_version=DATA_VERSION,evaluation_role='quarantine',grouping_rule_version=GROUPING_VERSION)
+        row['metadata'].setdefault('grouping_status','skipped_quality_quarantine')
+    grouped_by_source={r['metadata']['source_id']:r for r in ready_records+grouping_held+diagnostic_records}
+    for decision in manifest:
+        decision['data_version']=DATA_VERSION
+        decision['grouping_rule_version']=GROUPING_VERSION
+        decision['evaluation_role']='quarantine'
+        decision['grouping_status']='skipped_quality_quarantine'
+        row=grouped_by_source.get(decision['source_id'])
+        if row:
+            meta=row['metadata']
+            decision['quality_action']=decision['action']
+            decision['grouping_status']=meta['grouping_status']
+            if meta['grouping_status']=='quarantined':decision['action']='quarantine'
+            if meta['grouping_status']=='diagnostic':decision['action']='diagnostic'
+            decision['grouping_reasons']=meta['grouping_reasons']
+            decision['reasons']=list(dict.fromkeys(decision['reasons']+meta['grouping_reasons']))
+            decision['reason']='; '.join(decision['reasons'])
+            for field in ('near_family_id','structural_signature','template_signature','grouping_rule_version','family_registry_version','evaluation_role'):
+                decision[field]=meta.get(field)
+    records, duplicate_count = dedupe_records(ready_records)
+    connections=[]
+    allocation={}
+    train, eval_records, test_records, leakage, group_counts = split_grouped_records(
+        records, eval_ratio=eval_ratio, test_ratio=0.1, seed=seed,connections=connections,allocation_report=allocation)
+    grouped=defaultdict(list)
+    for row in records:grouped[row['metadata']['formula_group_id']].append(row)
+    group_manifest=[]
+    for group_id,members in sorted(grouped.items()):
+        keys={key for row in members for key in group_keys(row)}
+        group_manifest.append({'formula_group_id':group_id,'split':members[0]['metadata']['split'],
+                               'categories':dict(sorted(Counter(r['metadata'].get('category','unknown') for r in members).items())),
+                               'records':len(members),'source_records':sum(len(lineage_rows(r)) for r in members),
+                               'formula_names':sorted(value for kind,value in keys if kind=='family'),
+                               'near_family_ids':sorted(value for kind,value in keys if kind=='near_family'),
+                               'source_ids':sorted(value for kind,value in keys if kind=='source'),
+                               'structural_signatures':sorted(value for kind,value in keys if kind=='structure'),
+                               'template_signatures':sorted(value for kind,value in keys if kind=='template')})
+    write_jsonl(out_dir/'group_manifest.jsonl',group_manifest)
+    write_jsonl(out_dir/'group_connections.jsonl',connections)
+    paths = {}
+    for name, split in [('train',train),('eval',eval_records),('eval_clean',eval_records),
+                        ('test',test_records),('quarantine',quarantined_records),('diagnostic',diagnostic_records)]:
+        validate_records(split, name + ' split')
+        path = out_dir / f'latex_formula_{name}.jsonl'
+        write_jsonl(path,split); paths[name+'_path'] = str(path)
+    assignment = {row['metadata']['source_id']:row['metadata']['formula_group_id'] for row in records}
+    for row in records:
+        for source_id in row['metadata'].get('duplicate_source_ids',[]):
+            assignment[source_id] = row['metadata']['formula_group_id']
+    source_metadata = {row['metadata']['source_id']: row['metadata'] for row in all_records}
+    for decision in manifest:
+        decision['formula_group_id'] = assignment.get(decision['source_id'])
+        original_meta = source_metadata[decision['source_id']]
+        decision['source_record_sha256'] = original_meta.get('source_sha256')
+        decision['source_artifact_sha256'] = source_artifacts_sha256.get(original_meta.get('source_path'))
+        decision['review_rule_sha256'] = review_rule_sha256
+    write_jsonl(out_dir/'review_manifest.jsonl', manifest)
+    quality_counts = Counter(d['action'] for d in manifest)
+    reason_counts = Counter(reason for d in manifest if d['action']=='quarantine' for reason in d['reasons'])
+    summary = {
+        'execution_protocol_version': EXECUTION_PROTOCOL_VERSION,
+        'data_version': DATA_VERSION, 'seed': seed,
+        'source_artifacts_sha256': source_artifacts_sha256,
+        'source_code_sha256': source_code_sha256,
+        'quality_overrides_sha256': overrides_sha256,
+        'review_rule_sha256': review_rule_sha256,
+        'split_policy':'indivisible connected components; exact sample balance then category coverage, group balance and category balance',
+        'allocation':allocation,
+        'grouping_rule_version':GROUPING_VERSION,
+        'group_manifest':group_manifest,
+        'connection_counts':dict(Counter(edge['basis'] for edge in connections)),
+        'evaluation_metrics':{'status':'not_run','micro_math_accuracy':None,'macro_math_accuracy':None},
+        'evaluation_note':'No new inference: per-sample and equal-per-group metrics require new held-out predictions; v3 exposure is historical.',
+        'holdout_limitation':'Few held-out groups do not establish broad generalization; sizes differ and groups are never split to balance records.',
+        'requested_sample_ratios': allocation['requested_sample_ratios'],
+        'historical_model_note': 'v3 trained on old data: these re-splits are not unseen tests for v3',
+        'review_limitation': 'Conservative rule checks are not proof of all natural-language/input equivalence; quarantine needs manual review.',
+        'source':summarize(source_records), 'targeted_source':summarize(targeted_records),
+        'quality_review':dict(quality_counts), 'quarantine_reasons':dict(reason_counts),
+        'quality_accepted':summarize(quality_records), 'grouping_accepted':summarize(ready_records),
+        'grouping_quarantine':summarize(grouping_held),'diagnostic':summarize(diagnostic_records),
+        'quarantine':summarize(quarantined_records),
+        'deduped_source':summarize(records), 'duplicate_input_output_pairs_removed':duplicate_count,
+        'train':summarize(train), 'eval':summarize(eval_records), 'eval_clean':summarize(eval_records),
+        'test':summarize(test_records), 'groups':group_counts, 'leakage':leakage, **paths,
+    }
+    info = dataset_info()
+    info['latex_formula_test'] = {**info['latex_formula_eval'], 'file_name':'latex_formula_test.jsonl'}
+    (out_dir/'dataset_info.json').write_text(json.dumps(info,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    report=["# v5 结构与近亲分组审计", "",
+            "这里的零重叠仅针对已登记的来源、完整结构签名、参数模板签名和近亲关系，不是对任意数学相似性的证明。", "",
+            f"主数据去重后 {len(records)} 条，{len(group_manifest)} 个完整组；独立诊断 {len(diagnostic_records)} 条；隔离待复核 {len(quarantined_records)} 条。",
+            f"结构阶段新增隔离 {len(grouping_held)} 条。近亲关系与共享结构采用传递闭包，整组分配，不按类别强行补齐。", "",
+            "| 集合 | 组数 | 样本数 |", "| --- | ---: | ---: |"]
+    for name,split in [('train',train),('eval',eval_records),('test',test_records)]:
+        report.append(f"| {name} | {group_counts[name]} | {len(split)} |")
+    report += ["", "## 分配目标与类别覆盖", "",
+               "整组精确搜索：先最小化样本数相对目标的绝对偏差之和，再依次最小化缺失类别数、组数偏差和各类别样本数偏差。seed 仅用于同分方案选择与行顺序。",
+               f"分配规则：{ALLOCATION_VERSION}；各集合最少组数：{allocation['minimum_groups']}；目标值：{allocation['objective']}。",
+               "类别只作软目标；不会为了补齐类别拆开连通组。", "",
+               "| 类别 | train | eval | test |", "| --- | ---: | ---: | ---: |"]
+    category_counts=[summarize(split)['categories'] for split in (train,eval_records,test_records)]
+    for category in sorted({c for counts in category_counts for c in counts}):
+        report.append(f"| {category} | " + " | ".join(str(counts.get(category,0)) for counts in category_counts)+" |")
+    report += ["", "## 逐组名单", "", "| 集合 | 组 ID | 样本数 | 近亲组 | 公式家族 |", "| --- | --- | ---: | --- | --- |"]
+    for group in group_manifest:
+        report.append(f"| {group['split']} | {group['formula_group_id']} | {group['records']} | {', '.join(group['near_family_ids'])} | {', '.join(group['formula_names'])} |")
+    report += ["", "## 跨集合检查", "", "| 检查项 | 重叠数 |", "| --- | ---: |"]
+    report += [f"| {name} | {count} |" for name,count in sorted(leakage.items())]
+    report += ["", "## 结构隔离原因", "", "| 原因 | 记录数（可重叠） |", "| --- | ---: |"]
+    report += [f"| {reason} | {count} |" for reason,count in sorted(Counter(reason for row in grouping_held for reason in row['metadata']['grouping_reasons']).items())]
+    report += ["", "## 评测与限制", "",
+               "本轮未训练、未推理，不生成新的模型分数。未来预测记录必须保留 metadata.formula_group_id；评分同时输出样本平均 micro_math_accuracy、组等权 macro_math_accuracy 和逐组明细。缺少组 ID 的记录不伪造宏平均。",
+               "metadata.evaluation_role=diagnostic 的 Symbol Boundary 记录独立统计，不进入主分数。",
+               "测试组很少，样本数不均衡；报告两种平均方式也不能消除代表性限制。历史 v3 接触过旧数据，本切分不能成为它的未见测试集。",
+               "group_connections.jsonl 记录每次连接的两个来源、连接种类和匹配身份；group_manifest.jsonl 与 review_manifest.jsonl 可追溯最终分配。", ""]
+    (out_dir/'group_audit.md').write_text('\n'.join(report),encoding='utf-8')
+    export_paths = [Path(path) for path in paths.values()] + [out_dir/'review_manifest.jsonl', out_dir/'dataset_info.json',out_dir/'group_manifest.jsonl',out_dir/'group_connections.jsonl',out_dir/'group_audit.md']
+    # The summary carries the hashes and is excluded from its own self-reference.
+    summary['export_files_sha256'] = {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in export_paths}
+    (out_dir/'dataset_summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    return summary
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Prepare frozen LaTeX correction datasets for LLaMA-Factory.")
+    parser.add_argument("--repo-root", type=Path, default=repository_root())
+    parser.add_argument("--out-dir", type=Path, default=Path("training/data/v5"))
+    parser.add_argument("--eval-ratio", type=float, default=0.1)
+    parser.add_argument("--seed", type=int, default=42)
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    out_dir = args.out_dir if args.out_dir.is_absolute() else args.repo_root / args.out_dir
+    summary = build_datasets(args.repo_root, out_dir, args.eval_ratio, args.seed)
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

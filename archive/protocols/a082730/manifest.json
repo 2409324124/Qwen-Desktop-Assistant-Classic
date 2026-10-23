@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "source_commit": "a082730ef3657571e70cf4720efbb0958ded6b57",
+  "files": {
+    "tools/data_generation/__init__.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/__init__.py",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "tools/data_generation/data_builder.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/data_builder.py",
+      "sha256": "df11ae4a94349c04135f62d9d19c06e3505cfe1bd0ba385665ff45b5a1039e59"
+    },
+    "tools/data_generation/data_builder_mamut.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/data_builder_mamut.py",
+      "sha256": "30e57a57b990b727b50cb2ab51d8eb1d16a094256a419ce4ab6a7777edac8e6b"
+    },
+    "tools/data_generation/expression_reference_sampler.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/expression_reference_sampler.py",
+      "sha256": "92b3f43c31a59aee93ddd985d5936792c4fcffe278a76aca0b2e49a2a9b7d27a"
+    },
+    "tools/data_generation/hard_builder.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/hard_builder.py",
+      "sha256": "bba45413f9ffa9d573d96d1a488ac8a7aa6f1aa9ebb9c31e8cfc9767b7af9541"
+    },
+    "tools/data_generation/mine_sympy.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/mine_sympy.py",
+      "sha256": "18d983eae3829d5e4bfc0900ae7286fe001744fcf88c086dc14027991549c8df"
+    },
+    "tools/data_generation/noise_reference_sampler.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/noise_reference_sampler.py",
+      "sha256": "866542877214bda035428423107c36fd8d61786274376aad2ab8dcbb1b3f4209"
+    },
+    "tools/data_generation/noisy_builder.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/noisy_builder.py",
+      "sha256": "2f489810cb14d39899b2d6adfb03d68d19ffcd0c5b1a3e8243fd1ea741ae8035"
+    },
+    "tools/data_generation/tavily_client.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/tavily_client.py",
+      "sha256": "75e695e5c9599cbc4cf39b9e7f01ebfa1919e1d932e4482de116393cda445aff"
+    },
+    "tools/data_generation/validate_jsonl.py": {
+      "path": "archive/protocols/a082730/source/tools/data_generation/validate_jsonl.py",
+      "sha256": "0166fadc2885b18931db5a07a914eda3db551eb5808dcfdf0adc25adb3d685b5"
+    },
+    "training/__init__.py": {
+      "path": "archive/protocols/a082730/source/training/__init__.py",
+      "sha256": "773a7261e1067f2bb1b85dc958baba2f29df8f296e11a0ceee9efdf7c32bca48"
+    },
+    "training/audit_lm_eval_samples.py": {
+      "path": "archive/protocols/a082730/source/training/audit_lm_eval_samples.py",
+      "sha256": "b49bdca050d2ee1149f6150578ce6ae5e11cdf968b4e14d5a8ce8da7e4ba2a9c"
+    },
+    "training/canonicalization_audit.json": {
+      "path": "archive/protocols/a082730/source/training/canonicalization_audit.json",
+      "sha256": "90b466bd9218ba50347c9a409268b369d592f01459d7c8b728cf9255502d720a"
+    },
+    "training/canonicalize_dataset.py": {
+      "path": "archive/protocols/a082730/source/training/canonicalize_dataset.py",
+      "sha256": "ffdfba58965849737d1249ab90747638261d6c2d9e978d014b6acf10c05da511"
+    },
+    "training/clean_evaluation.py": {
+      "path": "archive/protocols/a082730/source/training/clean_evaluation.py",
+      "sha256": "dda756a0a03ebb52b2fddc3a82c18e3e5ae91112b55144d6dc429ca714813a4e"
+    },
+    "training/clean_v5_holdouts.py": {
+      "path": "archive/protocols/a082730/source/training/clean_v5_holdouts.py",
+      "sha256": "52bfff51a91f6d4222923d38e079d0e306cfd92bd0f09c4923da130bc6af6bc8"
+    },
+    "training/clean_v5_training.py": {
+      "path": "archive/protocols/a082730/source/training/clean_v5_training.py",
+      "sha256": "1d3abd926bdcbdce5bd5e553961807bdadd7920bc58c2f0f850197cb646adda4"
+    },
+    "training/component_allocation.py": {
+      "path": "archive/protocols/a082730/source/training/component_allocation.py",
+      "sha256": "b34cd0dd38ecf4403d4df47ccc50c320aa74077a1c10f4cb64748f583fa6e1a7"
+    },
+    "training/dataset_quality.py": {
+      "path": "archive/protocols/a082730/source/training/dataset_quality.py",
+      "sha256": "e24555ffab24a1914d84124d5fa19b1a2141b67e1c40eb7ce73b4fe8b34e20ad"
+    },
+    "training/dataset_quality_overrides.json": {
+      "path": "archive/protocols/a082730/source/training/dataset_quality_overrides.json",
+      "sha256": "c74d9b8ecc8f3a5b8f038ee799b4f28b466bec59c3b107d3871e2a52fcf751fd"
+    },
+    "training/evaluate_latex.py": {
+      "path": "archive/protocols/a082730/source/training/evaluate_latex.py",
+      "sha256": "01138118452061848e4dd2b34dfe23a43867f8d0e9bbc6bb52f120d398ee08a0"
+    },
+    "training/evaluate_text_correction.py": {
+      "path": "archive/protocols/a082730/source/training/evaluate_text_correction.py",
+      "sha256": "51bf387ac9438eed820ddbaba067ea07df9d81da773177262c053d1f9f208a34"
+    },
+    "training/formula_families.json": {
+      "path": "archive/protocols/a082730/source/training/formula_families.json",
+      "sha256": "83295be955799099df213194e750fc4086f0e454b48ea74d65d3ec88219f9e6f"
+    },
+    "training/formula_grouping.py": {
+      "path": "archive/protocols/a082730/source/training/formula_grouping.py",
+      "sha256": "e7e45a61e81e9e4d38bd9d7f7ded4840a8809e45d83cdf0152bd36b34c220316"
+    },
+    "training/formula_structure.py": {
+      "path": "archive/protocols/a082730/source/training/formula_structure.py",
+      "sha256": "623cd51d601827082ef03bbe4895956f41a79c843fadbc804b5a5fb409993537"
+    },
+    "training/latex_postprocess.py": {
+      "path": "archive/protocols/a082730/source/training/latex_postprocess.py",
+      "sha256": "15b26b185ee4ac7f10fa734ac58aaec9ff5a810c3ea72c2bb75cd753d981a067"
+    },
+    "training/latex_semantics.py": {
+      "path": "archive/protocols/a082730/source/training/latex_semantics.py",
+      "sha256": "1e3db6b66847fecfae5092a51a6ed79ee9c50ceeee6540c932f62fa63477b4a4"
+    },
+    "training/llamafactory_dataset_info.json": {
+      "path": "archive/protocols/a082730/source/training/llamafactory_dataset_info.json",
+      "sha256": "72642f66cb57b38995633172ab5750af935729054a253ea9df839a8744b6c2ef"
+    },
+    "training/prepare_dataset.py": {
+      "path": "archive/protocols/a082730/source/training/prepare_dataset.py",
+      "sha256": "0bf03dcacbde86c4d277ece10745bc928a6bfb448f63b278056190d6af26d74b"
+    },
+    "training/prepare_latexc_benchmark.py": {
+      "path": "archive/protocols/a082730/source/training/prepare_latexc_benchmark.py",
+      "sha256": "50e10c3d23244495174e4a939f73545faf3fab64723c76c648e5d2066e46d633"
+    },
+    "training/prompts.py": {
+      "path": "archive/protocols/a082730/source/training/prompts.py",
+      "sha256": "ae4f27a8443f9676a35cc28b501a57ef1eb996e37116b3b29f5535a57866a575"
+    },
+    "training/qwen3_4b_lora_export_v3.yaml": {
+      "path": "archive/protocols/a082730/source/training/qwen3_4b_lora_export_v3.yaml",
+      "sha256": "3f2f490fecdcfa3b0cda8f8ac389d8e0c9924752c8569d80a35eaa89172f8ac0"
+    },
+    "training/qwen3_4b_lora_sft.yaml": {
+      "path": "archive/protocols/a082730/source/training/qwen3_4b_lora_sft.yaml",
+      "sha256": "c43e6f89c18bd7b00722212b2bc1908ec71dc3116852cc0551d43ad35b5cc73a"
+    },
+    "training/qwen3_4b_lora_sft_v3.yaml": {
+      "path": "archive/protocols/a082730/source/training/qwen3_4b_lora_sft_v3.yaml",
+      "sha256": "f366810701a247bd57136263288af9e3a5e8ad3c5dcb807583f946c719179794"
+    },
+    "training/qwen3_4b_lora_sft_v5.yaml": {
+      "path": "archive/protocols/a082730/source/training/qwen3_4b_lora_sft_v5.yaml",
+      "sha256": "59247f67350b1824858296b746c6cc124bf43019b857485df156866824decbe1"
+    },
+    "training/qwen3_4b_lora_sft_v5_2.yaml": {
+      "path": "archive/protocols/a082730/source/training/qwen3_4b_lora_sft_v5_2.yaml",
+      "sha256": "08f99dba06e2401356e565e4e9dbc9cd153f698eb07d9a8a3eb93b262b03629a"
+    },
+    "training/qwen3_4b_lora_smoke.yaml": {
+      "path": "archive/protocols/a082730/source/training/qwen3_4b_lora_smoke.yaml",
+      "sha256": "02a86e45e5c186099b895ece7ae4d2d987856ee4c6b0f0c075747d8aa5fa7b63"
+    },
+    "training/qwen3_4b_lora_smoke_v5.yaml": {
+      "path": "archive/protocols/a082730/source/training/qwen3_4b_lora_smoke_v5.yaml",
+      "sha256": "9091ccaff2acfe25736c6079fd9022d46316ab4e563aadcf0ff2a2306b36d946"
+    },
+    "training/qwen3_4b_lora_smoke_v5_2.yaml": {
+      "path": "archive/protocols/a082730/source/training/qwen3_4b_lora_smoke_v5_2.yaml",
+      "sha256": "86cd6a37e5b3b26c1283eae15c53e610feabb4f002a732ed4ef8e91248f5bba1"
+    },
+    "training/reevaluate_offline.py": {
+      "path": "archive/protocols/a082730/source/training/reevaluate_offline.py",
+      "sha256": "ac3514e814c6428875a0e3e1bed7847d93e8944ab2a2660da4d1bfc8e63d6a65"
+    },
+    "training/reevaluate_v5_saved.py": {
+      "path": "archive/protocols/a082730/source/training/reevaluate_v5_saved.py",
+      "sha256": "2a0091fce2cea3690f1ea1f3f53bc4a2e222ce959c1c5b7921b48f1cbfc92db3"
+    },
+    "training/review_dataset.py": {
+      "path": "archive/protocols/a082730/source/training/review_dataset.py",
+      "sha256": "e92590c239365880037122eb765f8e773886c3f9f95b27b3ab7e89f398e1d84b"
+    },
+    "training/run_lora_inference.py": {
+      "path": "archive/protocols/a082730/source/training/run_lora_inference.py",
+      "sha256": "235e070c75ee1c4310f4069fed5cabc01d87d395ba9a6c2d3dcc839f70375941"
+    },
+    "training/run_v5_experiment.py": {
+      "path": "archive/protocols/a082730/source/training/run_v5_experiment.py",
+      "sha256": "62e643888e94faa0665124cde253cb75253b52d92b56ffa6edfe3662b94d7280"
+    }
+  }
+}

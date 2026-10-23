@@ -1,0 +1,36 @@
+### model
+model_name_or_path: Qwen/Qwen3-4B-Instruct-2507
+trust_remote_code: true
+flash_attn: fa2
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 64
+lora_alpha: 128
+lora_dropout: 0.05
+lora_target: all
+
+### dataset
+dataset_dir: training/data
+dataset: latex_formula_train
+template: qwen3_nothink
+cutoff_len: 1024
+max_samples: 64
+overwrite_cache: true
+preprocessing_num_workers: 2
+
+### output
+output_dir: saves/qwen3-4b-latex-correction/lora/smoke
+logging_steps: 1
+save_steps: 5
+plot_loss: false
+overwrite_output_dir: true
+
+### train
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 4
+learning_rate: 1.5e-5
+max_steps: 5
+bf16: true

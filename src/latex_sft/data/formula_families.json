@@ -1,0 +1,201 @@
+{
+  "version": "v5-near-families-1",
+  "groups": [
+    {
+      "id": "affine_activation",
+      "members": [
+        "Linear Layer with Activation",
+        "RNN Hidden State Update",
+        "ReLU Activation Function"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "attention_normalization",
+      "members": [
+        "Self-Attention Mechanism",
+        "Softmax Function"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "bayes_theorem",
+      "members": [
+        "Bayes' Theorem"
+      ],
+      "basis": "explicit_singleton_template"
+    },
+    {
+      "id": "complex_trigonometric",
+      "members": [
+        "Euler's Identity",
+        "Euler's Formula",
+        "Complex Number Polar Form",
+        "Complex Conjugate Product",
+        "Pythagorean Identity",
+        "Double Angle Formula",
+        "Sine Angle Addition",
+        "Rotation Matrix"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "cross_entropy_loss",
+      "members": [
+        "Cross-Entropy Loss"
+      ],
+      "basis": "explicit_singleton_template"
+    },
+    {
+      "id": "de_broglie_wavelength",
+      "members": [
+        "De Broglie Wavelength"
+      ],
+      "basis": "explicit_singleton_template"
+    },
+    {
+      "id": "differentiation",
+      "members": [
+        "Product Rule",
+        "Quotient Rule",
+        "Chain Rule",
+        "Limit Definition of Derivative",
+        "Hessian Matrix",
+        "Jacobian Matrix"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "electromagnetic",
+      "members": [
+        "Gauss's Law for Electricity",
+        "Gauss's Law (Integral Form)",
+        "Ampere-Maxwell Law"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "entropy",
+      "members": [
+        "Boltzmann Entropy",
+        "Second Law of Thermodynamics"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "fundamental_theorem_of_calculus",
+      "members": [
+        "Fundamental Theorem of Calculus"
+      ],
+      "basis": "explicit_singleton_template"
+    },
+    {
+      "id": "gaussian",
+      "members": [
+        "Gaussian Integral",
+        "Normal Distribution PDF"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "gradient_descent_update",
+      "members": [
+        "Gradient Descent Update"
+      ],
+      "basis": "explicit_singleton_template"
+    },
+    {
+      "id": "integral_transforms",
+      "members": [
+        "Fourier Transform",
+        "Laplace Transform"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "inverse_square",
+      "members": [
+        "Coulomb's Law",
+        "Newton's Law of Universal Gravitation"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "kinematics",
+      "members": [
+        "Kinematic Velocity Equation",
+        "Kinematic Displacement Equation"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "mass_energy_equivalence",
+      "members": [
+        "Mass-Energy Equivalence"
+      ],
+      "basis": "explicit_singleton_template"
+    },
+    {
+      "id": "matrix_layout",
+      "members": [
+        "Block Matrix",
+        "N x N Matrix with Ellipsis"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "moments",
+      "members": [
+        "Sample Mean",
+        "Sample Variance",
+        "Mean Squared Error",
+        "RMSNorm",
+        "Covariance",
+        "Covariance Matrix"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "quadratic_formula",
+      "members": [
+        "Quadratic Formula"
+      ],
+      "basis": "explicit_singleton_template"
+    },
+    {
+      "id": "schrodinger_equation",
+      "members": [
+        "Schrodinger Equation"
+      ],
+      "basis": "explicit_singleton_template"
+    },
+    {
+      "id": "series_expansion",
+      "members": [
+        "Arithmetic Series Sum",
+        "Geometric Series Sum",
+        "Taylor Series",
+        "Binomial Theorem"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "spectral",
+      "members": [
+        "Eigenvalue Equation",
+        "Characteristic Equation",
+        "Diagonal Matrix"
+      ],
+      "basis": "user_approved_near_relationship"
+    },
+    {
+      "id": "triangle_geometry",
+      "members": [
+        "Pythagorean Theorem",
+        "Law of Sines",
+        "Law of Cosines"
+      ],
+      "basis": "user_approved_near_relationship"
+    }
+  ]
+}
