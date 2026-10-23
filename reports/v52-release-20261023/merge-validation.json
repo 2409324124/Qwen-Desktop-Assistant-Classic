@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "tensors": 398,
+  "parameters": 4022468096,
+  "dtype": "bfloat16",
+  "adapter_targets_exactly_verified": 252,
+  "unchanged_tensors_verified": 146,
+  "tokenizer_vocab_and_chat_tokens_match_base": true
+}

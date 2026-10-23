@@ -1,0 +1,18 @@
+{
+  "status": "uploading_not_yet_verified",
+  "date": "2026-10-23",
+  "host": "home-ms03",
+  "remote_directory": "/mnt/RC10/qwen-latex/releases/v52-20261023",
+  "checkpoint": 30,
+  "model_version": "v5.2",
+  "merge_validation": "passed: 252 LoRA tensors exactly match base plus adapter; 146 untouched tensors match base; tokenizer matches",
+  "gguf_validation": "passed CPU load and one-token completion; tokenizer IDs match BF16",
+  "gpu_service_started": false,
+  "archive_tag": "v3-archive-20261023",
+  "uploads": [
+    {"format": "BF16", "repo_id": "xu2409324124/qwen3-4b-latex-correction-v3-bf16", "previous_commit": "455d0a161457f4e95efa8ff7d74addcdcfff32b1", "pid": 1448193, "log": "upload-bf16.log", "weights_bytes": 8044982000},
+    {"format": "Q4_K_M GGUF", "repo_id": "xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m", "previous_commit": "7350f8000b05bee313b95b93ccae45ac3add7383", "pid": 1448263, "log": "upload-gguf.log", "filename": "qwen3-4b-latex-correction-v5.2-q4_k_m.gguf", "weights_bytes": 2497278784}
+  ],
+  "last_observation": "Xet upload active, BF16 approximately 2.16GB sent; some requests retrying after network errors. No restart or duplicate upload launched.",
+  "completion_required": "Wait for hf upload exit 0 and commit receipts; create v5.2-checkpoint-30 tags at new commits; run verify_release.py; copy release-receipt.json locally. Do not call published until verified."
+}
