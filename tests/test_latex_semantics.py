@@ -4,6 +4,47 @@ from training.latex_semantics import canonicalize_latex, canonicalize_latex_fait
 
 
 class LatexCanonicalizationTests(unittest.TestCase):
+    def test_scalar_force_fraction_regrouping_reproduces_four_audited_cases(self) -> None:
+        cases = (
+            ("Newton's Law of Universal Gravitation", r"F = G \frac{M \mu}{d^{2}}", r"F = \frac{G M \mu}{d^{2}}"),
+            ("Newton's Law of Universal Gravitation", r"F = G \frac{m_{0} m}{R^{2}}", r"F = \frac{G m_{0} m}{R^{2}}"),
+            ("Coulomb's Law", r"F = k_{e} \frac{q_{1} q_{2}}{r^{2}}", r"F = \frac{k_{e} q_{1} q_{2}}{r^{2}}"),
+            ("Coulomb's Law", r"F = k_{e} \frac{q_{1} q_{2}}{R^{2}}", r"F = \frac{k_{e} q_{1} q_{2}}{R^{2}}"),
+        )
+        for family, expected, prediction in cases:
+            for left, right in ((expected, prediction), (prediction, expected)):
+                with self.subTest(family=family, prediction=right):
+                    result = compare_latex_math_only(left, right, formula_name=family)
+                    self.assertTrue(result.math_match)
+                    self.assertFalse(result.format_compliant)
+
+    def test_scalar_fraction_regrouping_preserves_fidelity_and_domain(self) -> None:
+        expected = r"F = G \frac{M m}{r^{2}}"
+        invalid = (
+            r"F = \frac{G M m}{R^{2}}", r"F = \frac{G M m}{r^{3}}",
+            r"F = \frac{G M n}{r^{2}}", r"F = \frac{G M}{m r^{2}}",
+            r"F = -\frac{G M m}{r^{2}}", r"F = \frac{2 G M m}{r^{2}}",
+            r"\frac{G M m}{r^{2}}", r"F = \frac{\mathbf{G} M m}{r^{2}}",
+            r"F = \frac{G M m}{r^{2}}" + "\nF=0",
+        )
+        for prediction in invalid:
+            with self.subTest(prediction=prediction):
+                self.assertFalse(compare_latex_math_only(expected, prediction, formula_name="Newton's Law of Universal Gravitation").math_match)
+        self.assertFalse(compare_latex_math_only(r"G\frac{r}{r}", "G", formula_name="Coulomb's Law").math_match)
+
+    def test_scalar_fraction_regrouping_is_scoped_and_keeps_operators(self) -> None:
+        cases = (
+            (r"G\frac{a b}{r^2}", r"\frac{G a b}{r^2}", None),
+            (r"G\frac{\mathbf{A}\mathbf{B}}{r^2}", r"\frac{G\mathbf{A}\mathbf{B}}{r^2}", "Coulomb's Law"),
+            (r"G\frac{a}{\begin{bmatrix}r\end{bmatrix}}", r"\frac{Ga}{\begin{bmatrix}r\end{bmatrix}}", "Coulomb's Law"),
+            (r"G\frac{a\times b}{r^2}", r"\frac{Ga\times b}{r^2}", "Coulomb's Law"),
+            (r"G\frac{a b}{r^2}", r"\frac{G b a}{r^2}", "Newton's Law of Universal Gravitation"),
+            (r"G\frac{\sum_{i=1}^{N} x_i}{r^2}", r"\frac{G\sum_{j=1}^{N} x_j}{r^2}", "Coulomb's Law"),
+        )
+        for expected, prediction, family in cases:
+            with self.subTest(prediction=prediction):
+                self.assertFalse(compare_latex_math_only(expected, prediction, formula_name=family).math_match)
+
     def test_primary_metric_preserves_free_symbols_constants_and_operators(self) -> None:
         cases = (
             ("x+y", "a+b"), (r"e^{x}", r"a^{x}"), (r"e^{ix}", r"e^{jx}"),

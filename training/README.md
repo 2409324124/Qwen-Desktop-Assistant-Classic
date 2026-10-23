@@ -121,11 +121,11 @@ For each candidate, the result directory contains `predictions.jsonl`, `metrics.
 
 This workflow uses **development only** for selection. It verifies test membership/leakage metadata but does not run test inference or report test scores. The test set remains reserved for a separately specified final evaluation. The current development and test sets each contain only four groups and no calculus; see [DATA_V5.md](DATA_V5.md) for their composition and limits.
 
-**The [2026-10-23 Colab smoke](../reports/v5-colab-smoke-20261023/README.md) passed on an A100 40GB:** five optimizer steps completed in 21.985 seconds, and the saved checkpoint reloaded for two development predictions. The runtime was terminated after result collection. All 127 local tests passed. Full SFT, full baseline/checkpoint comparison and measured v5 formula accuracy remain pending.
+**The [2026-10-23 Colab smoke](../reports/v5-colab-smoke-20261023/README.md) passed on an A100 40GB:** five optimizer steps completed in 21.985 seconds, and the saved checkpoint reloaded for two development predictions. The runtime was terminated after result collection. All 127 local tests passed. The subsequent 3-epoch / 99-step formal run completed: frozen development scores were 25/64 for Base and 41/64 for cp66/cp99. Extra diagnostics and final test remain incomplete. The GPU was released. See [the complete training-data review and scorer-only reassessment](DATA_V5.md#v51-全量训练审查与已有预测复评2026-10-23): 476 reviewed training rows remain; no new training was run after cleanup.
 
 ### Manual remote model prefetch
 
-On remote machines, the user downloads model files of 1 GB or more manually. Account for network timeouts, proxies and cache location before execution. Prefetch the immutable model commit into the same Hugging Face cache used by the training/inference environment, for example:
+Only on SSH host `home-ms03`, the user downloads files of 1 GB or more manually. This restriction does not apply to Colab or other environments; authorized downloads there may be automated. The current experiment entry point still requires the immutable model to be prefetched. Account for network timeouts, proxies and cache location before execution. Prefetch the immutable model commit into the same Hugging Face cache used by the training/inference environment, for example:
 
 ```bash
 # Replace the placeholder with the full immutable model commit, not a branch name.

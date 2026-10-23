@@ -1,0 +1,83 @@
+{
+  "data_version": "v5.1-reviewed-training",
+  "duplicates_merged": 0,
+  "export_files_sha256": {
+    "dataset_info.json": "9b911a2a3aa0407d748ae2f57f6dac260c976c4114d57c1cfcb555a68d70d87c",
+    "group_manifest.jsonl": "45f77fd6355c8ac20ae37b21cb5c1cea67a9ebbad4b45cd9d2fce92ee1b2c59d",
+    "latex_formula_eval.jsonl": "ed83c7d05390958a40b78a993c6e65ad4a599bd0fef8ff019871185a9f84c02d",
+    "latex_formula_eval_clean.jsonl": "ed83c7d05390958a40b78a993c6e65ad4a599bd0fef8ff019871185a9f84c02d",
+    "latex_formula_quarantine.jsonl": "cf2052fa7f878f2a060bec2c69f2400adc35ac56f99edb7dffc44254f4700988",
+    "latex_formula_test.jsonl": "143860b7e38fc3c0478e9d80424cb132cdb7d87cebeee4e3581fc4c121aaf8fb",
+    "latex_formula_train.jsonl": "c1311942fbda228b63f9959ffb5dea6a1998ef660230901553bceb829ba58eee",
+    "review_manifest.jsonl": "022874d67e844b0c8261cd1b666485f35cc257d55373fb3cc963ab588916fe96"
+  },
+  "final_actions": {
+    "keep": 396,
+    "quarantine": 39,
+    "repair": 80
+  },
+  "group_count": 10,
+  "input_records": 515,
+  "leakage": {
+    "equation_overlap": 0,
+    "family_overlap": 0,
+    "group_overlap": 0,
+    "input_overlap": 0,
+    "lineage_overlap": 0,
+    "near_family_overlap": 0,
+    "source_overlap": 0,
+    "structure_overlap": 0,
+    "template_overlap": 0
+  },
+  "parent_data_version": "v5",
+  "quarantine": {
+    "categories": {
+      "algebra_trig": 4,
+      "calculus": 10,
+      "matrix": 3,
+      "physics": 8,
+      "stats_ml": 14
+    },
+    "layers": {
+      "clean": 11,
+      "hard": 4,
+      "noisy": 16,
+      "targeted": 8
+    },
+    "total": 39
+  },
+  "review_code_sha256": {
+    "clean_v5_training.py": "1d3abd926bdcbdce5bd5e553961807bdadd7920bc58c2f0f850197cb646adda4",
+    "formula_grouping.py": "e7e45a61e81e9e4d38bd9d7f7ded4840a8809e45d83cdf0152bd36b34c220316",
+    "formula_structure.py": "623cd51d601827082ef03bbe4895956f41a79c843fadbc804b5a5fb409993537",
+    "latex_semantics.py": "1e3db6b66847fecfae5092a51a6ed79ee9c50ceeee6540c932f62fa63477b4a4"
+  },
+  "review_decisions": {
+    "keep": 396,
+    "quarantine": 37,
+    "repair": 82
+  },
+  "review_scope": "All training records; frozen development/test copied unchanged, not certified clean",
+  "review_sha256": "49fa0d3ef3dbefc0f73b090f168a793a6316f567c9888975a7b37a706c2340ec",
+  "source_files_sha256": {
+    "latex_formula_eval_clean.jsonl": "ed83c7d05390958a40b78a993c6e65ad4a599bd0fef8ff019871185a9f84c02d",
+    "latex_formula_test.jsonl": "143860b7e38fc3c0478e9d80424cb132cdb7d87cebeee4e3581fc4c121aaf8fb",
+    "latex_formula_train.jsonl": "7589e92de25edd87afc591b1657b52a0ec927e5e58dc4abf6fbd00cc9a85653e"
+  },
+  "train": {
+    "categories": {
+      "algebra_trig": 69,
+      "calculus": 156,
+      "matrix": 80,
+      "physics": 20,
+      "stats_ml": 151
+    },
+    "layers": {
+      "clean": 426,
+      "hard": 6,
+      "noisy": 17,
+      "targeted": 27
+    },
+    "total": 476
+  }
+}

@@ -1,0 +1,10 @@
+{"formula_group_id": "formula:0b762b03aa536eb5523b", "formula_names": ["Arithmetic Series Sum", "Binomial Theorem", "Geometric Series Sum", "Taylor Series"], "records": 83, "split": "train"}
+{"formula_group_id": "formula:2eff1f1fb68652fd32e4", "formula_names": ["Cross-Entropy Loss"], "records": 14, "split": "train"}
+{"formula_group_id": "formula:341ac8d2581e88c85cea", "formula_names": ["Kinematic Displacement Equation", "Kinematic Velocity Equation"], "records": 18, "split": "train"}
+{"formula_group_id": "formula:5441073b6afcc468f457", "formula_names": ["De Broglie Wavelength"], "records": 2, "split": "train"}
+{"formula_group_id": "formula:81164dc7ccc0ef4d04bd", "formula_names": ["Bayes' Theorem"], "records": 5, "split": "train"}
+{"formula_group_id": "formula:a3c2c734315fbb673f98", "formula_names": ["Self-Attention Mechanism", "Softmax Function"], "records": 30, "split": "train"}
+{"formula_group_id": "formula:aa7a3c120c9de3a2adf1", "formula_names": ["Chain Rule", "Hessian Matrix", "Jacobian Matrix", "Limit Definition of Derivative", "Product Rule", "Quotient Rule"], "records": 161, "split": "train"}
+{"formula_group_id": "formula:ae7506350337a3a3ae4c", "formula_names": ["Law of Cosines", "Law of Sines", "Pythagorean Theorem"], "records": 20, "split": "train"}
+{"formula_group_id": "formula:bcc072e5402bbecaa654", "formula_names": ["Covariance", "Covariance Matrix", "Mean Squared Error", "RMSNorm", "Sample Mean", "Sample Variance"], "records": 134, "split": "train"}
+{"formula_group_id": "formula:f2f341cd1565654b8186", "formula_names": ["Characteristic Equation", "Diagonal Matrix", "Eigenvalue Equation"], "records": 9, "split": "train"}

@@ -60,7 +60,7 @@ v4 的“零重叠”只适用于当时登记的名称、文本和来源键，�
 
 ## 评测与复现
 
-当前只完成 CPU 计划验证和 mock 子进程测试，没有真实 v5 训练、模型推理或 Colab 验收，不产生新的模型准确率。未来预测 JSONL 保留 `metadata.formula_group_id` 后，评测同时输出：
+2026-10-23 已完成 A100 上的 3 epochs / 99 steps 正式训练及 Base、cp33、cp66、cp99 的完整开发集比较。原始协议下 Base 为 25/64，cp66/cp99 为 41/64；额外诊断与最终测试尚未完成，Colab 已释放。本次评分修复后的离线结果见下节。预测 JSONL 保留 `metadata.formula_group_id` 后，评测同时输出：
 
 - `math_accuracy` / `micro_math_accuracy`：按样本平均。
 - `macro_math_accuracy`：先算每组准确率，再给每组相同权重。
@@ -96,4 +96,33 @@ python3 -B -m training.run_v5_experiment evaluate --run-dir saves/qwen3-4b-latex
 
 候选模型只在 development 上按 **postprocessed macro math accuracy，再 micro math accuracy** 排序；同分优先 base，再优先较早 checkpoint。base 获胜可以推荐 base，不强行推荐 SFT。输出完整 raw/postprocessed、per-group 指标、预测哈希、环境与数据/配置/adapter/协议哈希；独立 baseline 不进行 checkpoint 选择。入口只核验 test 的成员和隔离信息，不对 test 运行模型或给出成绩。
 
-当前验收不含真实 GPU、模型或 Colab 执行；依赖兼容、显存和实际收益需未来 smoke 与正式训练后再验证。远端大于等于 1 GB 的模型文件由用户手动预取固定 revision 到同一 HF 缓存，避免自动大文件下载；未来执行解析的 revision 必须与缓存一致，见[训练操作说明](README.md#manual-remote-model-prefetch)。新 inference 默认 v5 development；重现旧 v3 命令必须显式传旧 `--eval-file training/data/latex_formula_eval_clean.jsonl`。旧 98.97% 是旧评分器和旧切分的历史成绩，不是 v5 有效结果。
+smoke 和首轮正式训练已完成；本次清洗和复评仅在本地运行，没有重新启动 GPU。大于等于 1 GB 文件需用户手动下载的限制仅适用于 SSH 主机 home-ms03，Colab 和其他环境可按授权下载。实验入口仍要求预先准备固定 revision 缓存，执行解析的 revision 必须与缓存一致，见[训练操作说明](README.md#manual-remote-model-prefetch)。新 inference 默认 v5 development；重现旧 v3 命令必须显式传旧 `--eval-file training/data/latex_formula_eval_clean.jsonl`。旧 98.97% 是旧评分器和旧切分的历史成绩，不是 v5 有效结果。
+
+## v5.1 全量训练审查与已有预测复评（2026-10-23）
+
+本次逐条审查全部 **515 条训练记录**，并交叉复核：最终 **396 条原样保留、80 条修复、39 条隔离**，导出 **476 条训练记录、10 个原训练公式组**。隔离中37条存在欠指定、冲突或截断，另2条可给出忠实修订但当前结构解析器不支持（带 `\ne` 条件，以及多字符求和索引），不能静默通过。唯一的 Gradient Descent Update 记录存在 `alpha_m-1` 歧义，所在组因此不再有训练记录。清洗减少了错误监督，没有增加结构覆盖。
+
+- [冻结输入快照](reviews/v5_source/)随分支提交，复现不依赖未跟踪的本地数据。
+- [完整515条审查清单](reviews/v5_train_review.jsonl)：每条来源、原文证据、判断、具体理由、输入/标签绑定；修复项附完整目标。
+- [训练导出](data/v5.1/latex_formula_train.jsonl)、[隔离集](data/v5.1/latex_formula_quarantine.jsonl)、[最终审查与解析诊断](data/v5.1/review_manifest.jsonl)、[汇总](data/v5.1/dataset_summary.json)。
+- 修订版本为 `v5.1-reviewed-training`；原 v5、v4 和历史预测不改。保留原集合分配和全部历史连接，并补入修订目标结构；来源、输入、目标、结构、参数模板、家族、近亲与组的交叉重叠检查全部为0。零重叠只证明已登记规则下的隔离，不是任意语义关系无泄漏的证明。
+- 此版本**只清洗训练集**。目录内开发/测试文件是原 v5 的逐字节快照，仍含已知标签问题，未宣称清洗完毕。原 v5 实验入口按版本锁定，不能直接把该目录当作已完成接入的新训练配置；下一次训练前需完善开发标签审查并接入新版本。本次不训练。
+
+修复包括 `range(N)` 的零起始边界、未给边界的求和不擅补起止、自由索引/变量保真、不擅添等式左侧、普通乘法不改逐元乘法。信息不足输入继续隔离，没有引入拒答协议。人工式逐条审核和解析检查仍不是自然语言语义正确性的形式证明。
+
+```bash
+# 输出目录必须不存在；保留已发布v5.1，复现时使用新目录。
+python3 -B -m training.clean_v5_training --source-dir training/reviews/v5_source --out-dir /tmp/v5-reviewed-reproduction
+python3 -B -m training.reevaluate_v5_saved --output /tmp/v5-offline-reproduction
+python3 -B -m unittest discover -s tests -q
+```
+
+评分修复只覆盖已确认的库仑/万有引力标量上下文：将外部因子并入单一分数分子，保留因子顺序、完整分母及非零域；不交换矩阵乘法、不取消因子、不放宽自由变量、粗体、左侧命名或作用域。结构归组 AST 不变。
+
+| 模型 | 原协议64条 micro / macro | 修复评分64条 micro / macro | 排除7条已知问题标签后57条 micro / macro |
+|---|---|---|---|
+| Base | 39.06% / 44.41% | 45.31% / 64.41% | 50.88% / 71.65% |
+| cp33 | 60.94% / 44.41% | 67.19% / 64.41% | 73.68% / 72.22% |
+| cp66 | 64.06% / 57.67% | 70.31% / 77.67% | 77.19% / 85.52% |
+
+[完整复评报告](../reports/v5-offline-reviewed/report.md)与[逐条评分变化](../reports/v5-offline-reviewed/changed_judgments.jsonl)同时保留旧成绩。三组既有预测各有相同4条从未验证变为通过，生成和标签未变；**不是清洗后训练的模型收益**。raw 与 postprocessed 分别报告，所有样本未截断。57条仅为同样排除7条标签问题的事后补充结果，不能视为全新独立测试；仅4个开发组仍限制代表性。cp99逐条预测未回收，不能重算其新分数；最终测试、额外诊断仍未完成。

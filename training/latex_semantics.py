@@ -872,6 +872,49 @@ def _faithful_ast(value: str) -> LatexNode:
     return bind(tree)
 
 
+# These two task families declare scalar force magnitudes, masses/charges and
+# distances. Do not infer scalar types from bare letters in arbitrary formulas.
+_SCALAR_FRACTION_FORMULAS = {"Coulomb's Law", "Newton's Law of Universal Gravitation"}
+
+
+def _regroup_scalar_fraction(node: LatexNode) -> LatexNode:
+    """Move factors into one numerator without cancellation or domain changes.
+
+    Called only in the explicit scalar-family context above. Unsupported types,
+    binders, explicit product operators and nested quotients are left untouched.
+    This normalization is evaluation-only; grouping signatures remain frozen.
+    """
+    def scalar_polynomial(part: LatexNode) -> bool:
+        if part.kind in {"number", "symbol", "empty"}:
+            return True
+        if part.kind not in {"scripts", "neg", "add", "mul"}:
+            return False
+        if part.kind == "mul" and part.value:
+            return False
+        return all(scalar_polynomial(child) for child in part.children)
+
+    children = tuple(_regroup_scalar_fraction(child) for child in node.children)
+    result = LatexNode(node.kind, node.value, children)
+    if node.kind != "mul" or node.value:
+        return result
+    fractions = [child for child in children if child.kind == "div"]
+    if len(fractions) != 1:
+        return result
+    fraction = fractions[0]
+    if not all(scalar_polynomial(part) for part in fraction.children):
+        return result
+    if not all(child is fraction or scalar_polynomial(child) for child in children):
+        return result
+    numerator = LatexNode("mul", children=tuple(
+        fraction.children[0] if child is fraction else child for child in children
+    ))
+    # Retain the exact denominator: x/x must not become 1, and d^2 must not
+    # become another power or lose its nonzero-domain restriction.
+    return LatexNode("div", children=(
+        _normalize_ast(numerator, faithful=True), fraction.children[1],
+    ))
+
+
 _SCALAR_FORMULAS = {"Product Rule", "Mean Squared Error", "Coulomb's Law", "Normal Distribution PDF", "Softmax Function"}
 
 
@@ -895,6 +938,8 @@ def compare_latex_math_only(
             candidate = candidate[text_group[1]:].strip()
             prefixed = True
         left, right = _faithful_ast(expected), _faithful_ast(candidate)
+        if formula_name in _SCALAR_FRACTION_FORMULAS:
+            left, right = _regroup_scalar_fraction(left), _regroup_scalar_fraction(right)
     except (ValueError, IndexError, RecursionError) as exc:
         return LatexMathComparison(False, False, False, "parse_error", str(exc), "unverified")
     matched, _, _ = _equivalent(

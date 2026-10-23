@@ -1,0 +1,11 @@
+{
+  "source_commit": "9009e91",
+  "description": "Exact input/expected/prediction/raw_prediction copies of locally recovered 2026-10-23 Colab generations; audit metadata reduced to identity and scoring fields. No generation or gold edits. cp99 predictions unavailable.",
+  "files_sha256": {
+    "base-predictions.jsonl": "c5330aea1ad5864203791c0a9fa3bc50c47f38e17366bb93bf2b40a17a0b1a16",
+    "checkpoint-33-predictions.jsonl": "2a7e67986e23eeb0edb6d2b292f3d03213a497c62856e3c2c630efbe3fc8b63d",
+    "checkpoint-66-predictions.jsonl": "8faea7d4254038a242bcfd2a52face740291e8cf8be35d3d6e2ded3ad0d9cf03",
+    "development-exclusions.jsonl": "ec3daae702b5a23c0abee25f582ec004175a0fedbb38fe3fa9bef481e1468ccb",
+    "previous-scoring.json": "d3737bfface5387f328ced56266085e892ea00beb0c2ac44a8859ef5c73b4b47"
+  }
+}
