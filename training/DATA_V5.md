@@ -60,7 +60,7 @@ v4 的“零重叠”只适用于当时登记的名称、文本和来源键，�
 
 ## 评测与复现
 
-本轮没有训练或推理，不产生新的模型准确率。未来预测 JSONL 保留 `metadata.formula_group_id` 后，评测同时输出：
+当前只完成 CPU 计划验证和 mock 子进程测试，没有真实 v5 训练、模型推理或 Colab 验收，不产生新的模型准确率。未来预测 JSONL 保留 `metadata.formula_group_id` 后，评测同时输出：
 
 - `math_accuracy` / `micro_math_accuracy`：按样本平均。
 - `macro_math_accuracy`：先算每组准确率，再给每组相同权重。
@@ -76,4 +76,24 @@ python3 -B -m training.prepare_dataset --out-dir training/data/v5 --seed 42
 python3 -B -m training.evaluate_latex --predictions predictions-v5.jsonl --report reports/v5-eval.md --json reports/v5-eval.json
 ```
 
-默认准备目录已切到 v5。准备工具会拒绝覆盖已有其他版本或未标版本的数据目录。v4 和旧预测本轮通过 SHA256 核对保持不变；相同输入、规则和 seed 的导出可逐字节复现。现有训练配置没有切换到 v5，后续训练需另行选择配置与实验方案。
+默认准备目录已切到 v5。准备工具会拒绝覆盖已有其他版本或未标版本的数据目录。v4 和旧预测本轮通过 SHA256 核对保持不变；相同输入、规则和 seed 的导出可逐字节复现。旧训练配置继续保留；v5 使用独立的 `qwen3_4b_lora_sft_v5.yaml` 和 `qwen3_4b_lora_smoke_v5.yaml`。
+
+## v5 实验入口与模型选择
+
+统一入口 `training.run_v5_experiment` 默认只校验本地数据/代码/导出哈希并打印计划，不联网或下载模型，只有加 `--execute` 才调用训练或模型推理。没有单独的 `plan` 子命令：
+
+```bash
+python3 -B -m training.run_v5_experiment train --profile smoke
+python3 -B -m training.run_v5_experiment train --profile sft
+python3 -B -m training.run_v5_experiment evaluate --baseline-only
+# 仅在正式 SFT 已完成、manifest 和 checkpoint 齐全后可生成比较计划：
+python3 -B -m training.run_v5_experiment evaluate --run-dir saves/qwen3-4b-latex-correction/lora/sft-v5
+```
+
+正式配置为 SDPA、BF16、3 epochs，逐 epoch 保存与计算开发集 loss，保留全部 3 轮 checkpoint，不按 `eval_loss` 自动加载最佳模型。smoke 为最多 64 个样本、5 个 optimizer steps，写入独立的 `smoke-v5` 根目录。`train --run-dir` 指定实验根，根下保存 `effective_config.yaml` 和 `run_manifest.json`，HF checkpoint 写入 `checkpoints/checkpoint-N`。执行时拒绝覆盖已有根目录，真实训练还要求 CUDA BF16 支持。
+
+基座执行时解析并记录不可变 HF revision，再只读检查对应 revision 的本地全部 safetensors 权重；缓存缺失或不完整时停止并给出准确的 `hf download MODEL --revision SHA` 命令，由用户手动下载，不自动抓取大模型。训练完成时锁定 checkpoint config/weights 和存在的 trainer_state 哈希，评测前重新核对。正式 checkpoint 比较使用训练已锁定的 revision，每次同时重新评测 base 和全部 checkpoint。比较只接受 completed sft，拒绝 smoke、失败或未完成实验，核验数据、协议、配置和 adapter 身份。独立 baseline 的默认结果根为 `reports/v5/base-development`，checkpoint 比较默认 `reports/v5/checkpoint-development`；`evaluate --output` 可改为新的结果根，执行时已有目录拒绝覆盖。
+
+候选模型只在 development 上按 **postprocessed macro math accuracy，再 micro math accuracy** 排序；同分优先 base，再优先较早 checkpoint。base 获胜可以推荐 base，不强行推荐 SFT。输出完整 raw/postprocessed、per-group 指标、预测哈希、环境与数据/配置/adapter/协议哈希；独立 baseline 不进行 checkpoint 选择。入口只核验 test 的成员和隔离信息，不对 test 运行模型或给出成绩。
+
+当前验收不含真实 GPU、模型或 Colab 执行；依赖兼容、显存和实际收益需未来 smoke 与正式训练后再验证。远端大于等于 1 GB 的模型文件由用户手动预取固定 revision 到同一 HF 缓存，避免自动大文件下载；未来执行解析的 revision 必须与缓存一致，见[训练操作说明](README.md#manual-remote-model-prefetch)。新 inference 默认 v5 development；重现旧 v3 命令必须显式传旧 `--eval-file training/data/latex_formula_eval_clean.jsonl`。旧 98.97% 是旧评分器和旧切分的历史成绩，不是 v5 有效结果。

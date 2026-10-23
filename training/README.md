@@ -1,6 +1,6 @@
 # Qwen3 4B LaTeX Correction Training
 
-This workflow trains and evaluates a LoRA adapter for LaTeX formula correction. The source data is frozen under `data/frozen/phase1/`; versioned LLaMA-Factory datasets are written to `training/data/v5/` and ignored by Git. See [the v5 grouping protocol](DATA_V5.md) and [historical v4 audit](DATA_V4.md); existing v3 configs and `training/data/*.jsonl` are historical and are not switched to v5 automatically.
+This workflow trains and evaluates a LoRA adapter for LaTeX formula correction. The source data is frozen under `data/frozen/phase1/`; versioned LLaMA-Factory datasets are written to `training/data/v5/` and ignored by Git. See [the v5 grouping protocol](DATA_V5.md) and [historical v4 audit](DATA_V4.md); v5 has separate training configurations and a version-bound experiment entry point. Existing v3 configs and `training/data/*.jsonl` remain historical.
 
 ## Release Artifacts
 
@@ -44,7 +44,7 @@ Generated files:
 - `training/data/v5/dataset_info.json`
 - `training/data/v5/latex_formula_quarantine.jsonl`
 
-Frozen and targeted records share review, normalization and connected source/structure/template/near-family grouping. The explicit registry covers all 58 templates; unknown families or unverified signatures are quarantined. With seed 42 allocation targets 80/10/10 groups globally, without category stratification. Targeted records follow their group. Symbol Boundary records are diagnostic only. Output also includes `latex_formula_test.jsonl`, `latex_formula_diagnostic.jsonl`, `review_manifest.jsonl`, `group_manifest.jsonl`, `group_connections.jsonl` and `group_audit.md`; `eval_clean` aliases development. Per-sample and group-macro scoring are available for future predictions with group metadata.
+Frozen and targeted records share review, normalization and connected source/structure/template/near-family grouping. The explicit registry covers all 58 templates; unknown families or unverified signatures are quarantined. With seed 42 allocation targets 80/10/10 samples using whole connected groups. The allocator prioritizes sample-count deviation, then category coverage, group-count deviation and category-count deviation; it does not split groups to force every category into every set. Targeted records follow their group. Symbol Boundary records are diagnostic only. Output also includes `latex_formula_test.jsonl`, `latex_formula_diagnostic.jsonl`, `review_manifest.jsonl`, `group_manifest.jsonl`, `group_connections.jsonl` and `group_audit.md`; `eval_clean` aliases development. Per-sample and group-macro scoring are available for future predictions with group metadata.
 
 Historical v4 offline re-evaluation command (the saved results predate v5 parser changes; rerunning uses current scoring code). This is not an unseen v5 evaluation:
 
@@ -54,85 +54,118 @@ python -m training.reevaluate_offline --dataset-dir training/data/v4 --output-di
 
 `LaTeXC` / `LaTeX-130K` source attribution has not been verified; their generic conversion script does not establish provenance. They are not primary evidence for this re-evaluation.
 
-## 3. LLaMA-Factory Training
+## 3. v5 Training and Development Evaluation
 
-Use an isolated Python 3.11 environment with LLaMA-Factory and its training dependencies installed. The 3090 profile uses BF16 and FlashAttention-2.
+Use `training.run_v5_experiment` from the repository root. It verifies the v5 source, rule, export and split identities before constructing a plan. **Without `--execute`, commands only validate local artifacts and print a plan; they do not contact Hugging Face or launch training/inference.** Prepare the data first so provenance hashes match the checked-out code:
 
-Final v3 LoRA configuration:
+```bash
+python3 -B -m training.prepare_dataset --out-dir training/data/v5 --seed 42
+python3 -B -m training.run_v5_experiment train --profile smoke
+python3 -B -m training.run_v5_experiment train --profile sft
+python3 -B -m training.run_v5_experiment evaluate --baseline-only
+```
 
-| item | value |
-| --- | --- |
-| Base checkpoint | `Qwen/Qwen3-4B-Instruct-2507` |
-| LoRA rank / alpha / dropout | `r=64`, `alpha=128`, `dropout=0.05` |
-| LoRA target modules | `all` linear layers |
-| Epochs / optimizer steps | 3.0 epochs, 495 optimizer steps |
-| Batch shape | per-device batch 4, gradient accumulation 4, effective batch 16 |
-| Precision / attention | BF16, FlashAttention-2 |
-| Learning rate schedule | `1.5e-5`, cosine decay, warmup ratio `0.05` |
-| Eval / save cadence | eval every 100 steps, save every 100 steps |
-| Best checkpoint | `checkpoint-495`, selected by `eval_loss=0.03259` |
+The dedicated [SFT configuration](qwen3_4b_lora_sft_v5.yaml) and [smoke configuration](qwen3_4b_lora_smoke_v5.yaml) use `training/data/v5`, LoRA rank 64 / alpha 128 / dropout 0.05, target `all`, learning rate `1.5e-5`, and the non-thinking Qwen3 template. They default to **SDPA and BF16**. SDPA avoids requiring the separate FlashAttention-2 extension; compatible PyTorch, Transformers, PEFT and LLaMA-Factory packages are still required. A real training execution checks that a CUDA GPU with BF16 support is available.
 
-Smoke test:
+| Profile | Duration | Eval / save cadence | Experiment root |
+| --- | --- | --- | --- |
+| smoke | 5 optimizer steps, at most 64 source samples | every 5 steps | `saves/qwen3-4b-latex-correction/lora/smoke-v5` |
+| sft | 3 epochs | every epoch; retain all 3 epoch checkpoints | `saves/qwen3-4b-latex-correction/lora/sft-v5` |
+
+`load_best_model_at_end` is false: development `eval_loss` is a training diagnostic, not the final model-selection rule. `--run-dir` changes the experiment root. The entry point writes `effective_config.yaml` and `run_manifest.json` at that root and sets the effective HF output directory to its `checkpoints/` subdirectory:
+
+```text
+saves/qwen3-4b-latex-correction/lora/sft-v5/
+  effective_config.yaml
+  run_manifest.json
+  checkpoints/
+    checkpoint-N/
+    ...
+```
+
+Training execution refuses an existing experiment root. Use a fresh `--run-dir` for another run; this entry point does not automatically resume a failed or partial run. These are commands for a future real GPU run, **not actions performed during this implementation**:
+
+```bash
+python3 -B -m training.run_v5_experiment train --profile smoke --execute
+# Run only after the smoke run has checked real GPU and dependency compatibility.
+python3 -B -m training.run_v5_experiment train --profile sft --execute
+```
+
+For a baseline plan and, later, an explicitly executed baseline:
+
+```bash
+python3 -B -m training.run_v5_experiment evaluate --baseline-only
+python3 -B -m training.run_v5_experiment evaluate --baseline-only --execute
+```
+
+The default baseline results root is `reports/v5/base-development`. Use `--output reports/v5/base-development-run2` for a fresh result location; execution refuses an existing results root.
+
+After a **completed SFT run**, inspect the comparison plan before executing it:
+
+```bash
+python3 -B -m training.run_v5_experiment evaluate \
+  --run-dir saves/qwen3-4b-latex-correction/lora/sft-v5
+python3 -B -m training.run_v5_experiment evaluate \
+  --run-dir saves/qwen3-4b-latex-correction/lora/sft-v5 --execute
+```
+
+This evaluates the unchanged base model plus every saved `checkpoints/checkpoint-N`, sorted by optimizer step, on the same v5 development file. It rejects smoke runs, failed or partial SFT runs, missing adapter files and changed training configuration, data or evaluation protocol. A checkpoint comparison plan therefore requires real completed-run artifacts, even when `--execute` is omitted. The default comparison results root is `reports/v5/checkpoint-development`; `--output` selects a fresh alternative.
+
+## 4. v5 Metrics, Provenance and Current Validation
+
+At execution, the entry point resolves an immutable Hugging Face base-model revision, then checks the local cache for all safetensors shards at that revision. Missing or incomplete model weights stop execution and print the exact `hf download MODEL --revision SHA` command for the user; the entry point does not automatically download the base model. Training records it in the effective configuration and manifest; checkpoint comparison reuses that training revision for both the base model and all adapters. An independent baseline-only execution records its own resolved revision, so a later checkpoint comparison runs the base again under the training revision rather than silently combining potentially different baselines.
+
+For each candidate, the result directory contains `predictions.jsonl`, `metrics.json` and `report.md`. Predictions include the complete raw output, postprocessed output and source/group metadata. Raw and postprocessed metrics are reported separately, including sample micro accuracy, equal-weight group macro accuracy, per-group results, parsing coverage and independent output-protocol compliance. `format_compliance_accuracy` is the compatibility metric for **correct formula plus structural-format match**; it is not the independent `output_protocol_compliance_accuracy` syntax/output-form check. The current faithful math metric preserves free variables, constants, operator types and scope; unsupported equivalence is unverified, not scored correct.
+
+`evaluation_manifest.json`, `comparison.json` and `comparison.md` record the comparison and selection. The training manifest locks the completed checkpoint set and its adapter config, weights and available `trainer_state.json` hashes. Evaluation rejects changed checkpoint artifacts. The manifests and comparison files bind the model revision, environment package versions, data/export identities, effective training configuration, adapter hashes, prediction SHA256 and evaluation-protocol hashes. Selection uses **postprocessed development macro math accuracy, then development micro accuracy**. A tie favors the base model, then the earlier checkpoint. If the base wins, the recommendation can be `base`; no SFT improvement is assumed. `--baseline-only` makes no checkpoint recommendation.
+
+This workflow uses **development only** for selection. It verifies test membership/leakage metadata but does not run test inference or report test scores. The test set remains reserved for a separately specified final evaluation. The current development and test sets each contain only four groups and no calculus; see [DATA_V5.md](DATA_V5.md) for their composition and limits.
+
+**Current validation is CPU planning and mocked-process tests only. No real v5 training, model inference or Colab session has run.** CUDA memory use, GPU BF16 support, installed training-stack compatibility and actual learning quality still need a future GPU smoke run and subsequent completed-run evaluation. There is no measured v5 accuracy yet.
+
+### Manual remote model prefetch
+
+On remote machines, the user downloads model files of 1 GB or more manually. Account for network timeouts, proxies and cache location before execution. Prefetch the immutable model commit into the same Hugging Face cache used by the training/inference environment, for example:
+
+```bash
+# Replace the placeholder with the full immutable model commit, not a branch name.
+hf download Qwen/Qwen3-4B-Instruct-2507 --revision "REPLACE_WITH_IMMUTABLE_COMMIT_SHA"
+```
+
+Alternatively, use the exact manual-download command printed by the first execution when its cache check fails, then retry with the same cached revision. Dry runs do not resolve a remote revision or download files. The entry point resolves the model revision when an execution starts. Confirm that revision is already cached; if the remote repository revision has changed since prefetch, manually fetch the newly resolved commit before running. The recorded revision, rather than a moving model name, identifies the run. The commands above do not claim that a model was downloaded in this implementation.
+
+### Historical v3 recipe and evaluation
+
+The preserved v3 configs use the old `training/data` split, BF16 / FlashAttention-2, 3 epochs / 495 optimizer steps, eval/save every 100 steps and historical `eval_loss` selection (`checkpoint-495`, `eval_loss=0.03259`). They do not define the v5 experiment:
 
 ```bash
 llamafactory-cli train training/qwen3_4b_lora_smoke.yaml
-```
-
-Full v3 training:
-
-```bash
 llamafactory-cli train training/qwen3_4b_lora_sft_v3.yaml
 ```
 
-Primary adapter output:
-
-```text
-saves/qwen3-4b-latex-correction/lora/sft-v3
-```
-
-The full config evaluates the fixed `latex_formula_eval_clean` dataset every 100 optimizer steps and reloads the checkpoint with the lowest `eval_loss`.
-
-## 4. Evaluation
-
-Long-running inference and evaluation commands display progress bars. Inference flushes every prediction to disk, so `wc -l` reflects current progress. Inference applies deterministic LaTeX boundary postprocessing by default and records `raw_prediction` only when the final `prediction` changes.
-
-Base-model baseline:
+New `run_lora_inference` invocations default to v5 development. Historical v3 commands must name their old evaluation file explicitly:
 
 ```bash
-python -m training.run_lora_inference \
-  --out reports/qwen3-4b-latex-correction-base-predictions.jsonl
-```
-
-v3 adapter:
-
-```bash
-python -m training.run_lora_inference \
+python3 -B -m training.run_lora_inference \
+  --eval-file training/data/latex_formula_eval_clean.jsonl \
+  --out reports/qwen3-4b-latex-correction-base-historical-predictions.jsonl
+python3 -B -m training.run_lora_inference \
   --adapter saves/qwen3-4b-latex-correction/lora/sft-v3 \
-  --out reports/qwen3-4b-latex-correction-lora-v3-predictions.jsonl
+  --eval-file training/data/latex_formula_eval_clean.jsonl \
+  --out reports/qwen3-4b-latex-correction-lora-v3-historical-predictions.jsonl
 ```
 
-Report:
+The following values are archived **old-split, old-permissive-evaluator** results. Label errors, leakage and permissive variable renaming prevent interpreting them as v5 results or independent generalization evidence. Rerunning historical predictions with today's scorer may produce different values.
 
-```bash
-python -m training.evaluate_latex \
-  --predictions reports/qwen3-4b-latex-correction-lora-v3-predictions.jsonl \
-  --report reports/qwen3-4b-latex-correction-v3-eval.md \
-  --json reports/qwen3-4b-latex-correction-v3-eval.json
-```
-
-`run_lora_inference` still defaults to the historical `training/data/latex_formula_eval_clean.jsonl`; use `--eval-file training/data/v5/latex_formula_eval_clean.jsonl` explicitly for a future v5 run. `math_accuracy` is the primary metric. It counts mathematically equivalent formulas even when harmless layout choices differ, while still rejecting variable drift when the user input explicitly names variables. `format_compliance_accuracy` is reported separately for exact canonical-dialect adherence. The report also retains exact, canonical, symbol-fidelity, legacy semantic, parse-coverage, per-layer, and per-formula-family metrics.
-
-Current clean-eval results:
-
-| model | math accuracy | format compliance | exact accuracy | parse coverage |
+| model | historical math | historical combined format | historical exact | historical parse coverage |
 | --- | ---: | ---: | ---: | ---: |
 | Base Qwen3-4B-Instruct-2507 | 13.36% | 2.40% | 2.40% | 36.99% |
 | DeepSeek V4 Pro baseline | 69.86% | 41.78% | 21.23% | 97.95% |
 | Qwen3-4B LaTeX Correction LoRA v3 | 98.97% | 83.22% | 83.22% | 100.00% |
 
-## 5. Export
+## 5. Historical v3 Export
 
-Export the merged BF16 model:
+This preserved config exports the historical v3 adapter; there is no automatically selected or exported v5 release. Export the v3 merged BF16 model:
 
 ```bash
 llamafactory-cli export training/qwen3_4b_lora_export_v3.yaml

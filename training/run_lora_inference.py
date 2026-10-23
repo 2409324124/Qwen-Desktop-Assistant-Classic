@@ -28,8 +28,9 @@ def expected_from_record(record: dict) -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run LoRA inference over the fixed eval split.")
     parser.add_argument("--model", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--revision", default=None, help="Immutable base-model revision for reproducible experiments.")
     parser.add_argument("--adapter", default=None, help="Optional LoRA adapter path. Omit for base-model baseline.")
-    parser.add_argument("--eval-file", type=Path, default=Path("training/data/latex_formula_eval_clean.jsonl"))
+    parser.add_argument("--eval-file", type=Path, default=Path("training/data/v5/latex_formula_eval_clean.jsonl"))
     parser.add_argument("--out", type=Path, default=Path("reports/qwen3-4b-latex-correction-predictions.jsonl"))
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--limit", type=int, default=None, help="Optional maximum number of records for smoke runs.")
@@ -38,14 +39,20 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    args = parse_args()
+    if args.out.exists():
+        raise FileExistsError(f"Refusing to overwrite predictions: {args.out}")
+    lines = load_eval_lines(args.eval_file, args.limit)
+    if not lines:
+        raise ValueError("Evaluation data is empty")
     from peft import PeftModel
     from transformers import AutoModelForCausalLM, AutoTokenizer
     import torch
 
-    args = parse_args()
-    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(args.model, revision=args.revision, trust_remote_code=True)
     base = AutoModelForCausalLM.from_pretrained(
         args.model,
+        revision=args.revision,
         torch_dtype=torch.bfloat16,
         device_map="auto",
         trust_remote_code=True,
@@ -54,9 +61,7 @@ def main() -> None:
     model.eval()
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    lines = load_eval_lines(args.eval_file, args.limit)
-
-    with args.out.open("w", encoding="utf-8") as sink:
+    with args.out.open("x", encoding="utf-8") as sink:
         for line in tqdm(lines, desc="Generating", unit="formula"):
             record = json.loads(line)
             messages = [
@@ -80,11 +85,12 @@ def main() -> None:
                 "input": record["input"],
                 "expected": expected_from_record(record),
                 "prediction": prediction,
+                "raw_prediction": raw_prediction,
+                "postprocessed": prediction != raw_prediction,
+                "generated_tokens": len(new_tokens),
+                "hit_token_limit": len(new_tokens) >= args.max_new_tokens,
                 "metadata": record.get("metadata", {}),
             }
-            if prediction != raw_prediction:
-                payload["raw_prediction"] = raw_prediction
-                payload["postprocessed"] = True
             sink.write(
                 json.dumps(payload, ensure_ascii=False)
                 + "\n"

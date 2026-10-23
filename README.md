@@ -2,7 +2,7 @@
 
 This repository contains a reproducible Qwen3 4B SFT workflow for restoring noisy, colloquial, or pseudocode-like math descriptions into canonical LaTeX formulas. It also keeps the original local desktop assistant that started the project.
 
-## Release
+## Historical v3 Release
 
 | item | value |
 | --- | --- |
@@ -10,11 +10,11 @@ This repository contains a reproducible Qwen3 4B SFT workflow for restoring nois
 | Fine-tuning method | LoRA SFT, `r=64`, `alpha=128`, `dropout=0.05`, target `all` linear layers |
 | Training length | 3.0 epochs, 495 optimizer steps |
 | Training framework | LLaMA-Factory |
-| Evaluation split | `latex_formula_eval_clean`, 292 examples |
-| Primary metric | Math-only accuracy via the local LaTeX AST matcher |
+| Historical evaluation split | old `training/data/latex_formula_eval_clean.jsonl`, 292 examples |
+| Historical metric | Old permissive local LaTeX AST score; not the current v5 protocol |
 | Release models | BF16: [`xu2409324124/qwen3-4b-latex-correction-v3-bf16`](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-bf16); GGUF Q4_K_M: [`xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m`](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m) |
 
-### Training Recipe
+### Historical v3 Training Recipe
 
 | item | value |
 | --- | --- |
@@ -30,7 +30,9 @@ This repository contains a reproducible Qwen3 4B SFT workflow for restoring nois
 | Best checkpoint | `checkpoint-495`, `eval_loss=0.03259` |
 | Final train metrics | `train_loss=0.1066`, runtime 26m15s |
 
-| model | math accuracy | format compliance | exact accuracy | parse coverage |
+These are archived old-split scores from the old permissive evaluator. Label errors and leakage prevent treating them as v5 accuracy or independent generalization evidence. No measured v5 accuracy is available.
+
+| model | historical math | historical combined format | historical exact | historical parse coverage |
 | --- | ---: | ---: | ---: | ---: |
 | Base Qwen3-4B-Instruct-2507 | 13.36% | 2.40% | 2.40% | 36.99% |
 | DeepSeek V4 Pro baseline | 69.86% | 41.78% | 21.23% | 97.95% |
@@ -38,11 +40,11 @@ This repository contains a reproducible Qwen3 4B SFT workflow for restoring nois
 
 The SFT model is trained to return formula-only output in the repository's canonical LaTeX dialect: standard fractions, `bmatrix` matrices, and braced superscripts/subscripts. The current inference prompt uses a two-section system message with a role definition followed by concrete formatting examples.
 
-`math_accuracy` is the primary score: it checks whether the mathematical structure is correct while allowing harmless presentation differences. `format_compliance_accuracy` remains separate and stricter, measuring whether the output follows the exact canonical dialect expected by the desktop assistant workflow.
+The current v5 `math_accuracy` preserves free variables, constants, operator types and scope while allowing supported presentation differences. `output_protocol_compliance_accuracy` independently checks output form. The compatibility field `format_compliance_accuracy` combines mathematical correctness with a structural-format match. These revised metrics do not retroactively validate the historical table.
 
 ## v5 formula structure and related-family isolation
 
-The current preparation pipeline uses full structural/template signatures and an explicit registry covering all 58 source templates. Related formulas are assigned together; Symbol Boundary is a separate diagnostic. v4's zero-overlap checks covered only its registered names, source and text keys, and did not establish absence of related-formula leakage. See [v5 protocol and limits](training/DATA_V5.md) and [the generated group audit](training/data/v5/group_audit.md). No new training or model accuracy is claimed.
+The current preparation pipeline uses full structural/template signatures and an explicit registry covering all 58 source templates. Related formulas are assigned together; Symbol Boundary is a separate diagnostic. v4's zero-overlap checks covered only its registered names, source and text keys, and did not establish absence of related-formula leakage. See [v5 protocol and limits](training/DATA_V5.md) and [the generated group audit](training/data/v5/group_audit.md). The allocator targets 80/10/10 samples with intact connected groups and category soft objectives; it does not row-shuffle formulas. Current validation covers CPU planning and mocked subprocesses only: no real v5 training, inference or Colab session has run. The new [v5 experiment workflow](training/README.md#3-v5-training-and-development-evaluation) defaults to dry-run plans, has a separate 5-step smoke profile and compares the base plus every completed SFT checkpoint on development only. GPU/dependency compatibility and model accuracy remain unverified.
 
 ## v4 data audit and offline re-evaluation
 
@@ -67,7 +69,7 @@ The historical local LaTeX evaluation used the same 292-example `latex_formula_e
 | Area | Base Qwen3-4B-Instruct-2507 | SFT v3 | Delta / interpretation |
 | --- | ---: | ---: | --- |
 | Local LaTeX math accuracy | 13.36% | 98.97% | Historical permissive score; leakage and label errors require revised evaluation |
-| Local exact / format accuracy | 2.40% | 83.22% | Massive gain; the canonical LaTeX dialect was learned |
+| Local exact / format accuracy | 2.40% | 83.22% | Historical change on the old split; not v5 validation |
 | Local parse coverage | 36.99% | 100.00% | Outputs became consistently parseable by the project evaluator |
 | MMLU-Pro | 69.6% published | 63.54% measured | About 6.1 points lower, but broad STEM/reasoning did not collapse |
 | IFEval | 83.4% published | 80.96% strict / 83.73% loose | Instruction following is broadly preserved |
@@ -78,7 +80,7 @@ The runs suggest a task-specific change in behavior, but unmatched benchmark pro
 
 ### 3. What happened to general abilities?
 
-The merged BF16 SFT v3 model was evaluated with external `lm-eval` benchmarks on an RTX 3090. The table below contains completed full-size runs that are clean enough to cite as current preservation evidence, plus one MATH-500 exact-match result that is retained as an extraction-sensitive diagnostic.
+The merged BF16 SFT v3 model was evaluated with external `lm-eval` benchmarks on an RTX 3090. The table below retains completed historical runs, plus an extraction-sensitive MATH-500 diagnostic. Without matched base-model runs, these results do not independently establish capability preservation.
 
 | Benchmark | Metric | SFT v3 result | Samples | Status |
 | --- | --- | ---: | ---: | --- |
@@ -152,18 +154,11 @@ Remote artifact roots for follow-up analysis:
 - `/mnt/RC10/qwen-latex/Qwen-Desktop-Assistant-Classic/reports/sft-v3-split-resume-20260706-011507`
 - `/mnt/RC10/qwen-latex/Qwen-Desktop-Assistant-Classic/reports/sft-v3-vllm-formal-20260706-110320`
 
-### 4. Why is the LaTeX output accurate?
+### 4. Current data and evaluation protocol
 
-The strongest gains came from reducing output entropy before training:
+Frozen clean/noisy/hard and targeted source layers share quality review and versioned safe normalization. Connected source, structural, parameter-template and explicit related-family identities determine whole groups before splitting. Unknown families and unverified scopes are held for review; Symbol Boundary samples remain a separate diagnostic. Canonical targets retain determinant environments, meaningful fonts, operators and symbol identity while normalizing fractions and braced scripts.
 
-- The frozen source data is split into clean, noisy, hard, and targeted layers, then quality-reviewed before splitting.
-- Training targets use deterministic `canonical_output`, not free-form original labels.
-- Canonicalization removes avoidable dialect choices: fractions use `\frac{...}{...}`, matrices use `bmatrix`, and superscripts/subscripts are braced.
-- The system prompt is stored per sample and defines a narrow formula-only role plus concrete formatting examples.
-- The LoRA profile targets all linear layers with rank 64 / alpha 128, BF16, low learning rate `1.5e-5`, and clean eval monitoring.
-- The evaluator separates math correctness from formatting compliance, so semantic success and canonical-dialect success can be diagnosed independently.
-
-In short, the model is good because the dataset no longer asks it to guess one of many valid LaTeX dialects. The SFT turns a strong general model into a narrow canonical transducer for this desktop assistant workflow.
+The v5 LoRA recipe retains rank 64 / alpha 128 and learning rate `1.5e-5`, switches to SDPA with BF16, and saves all three epoch checkpoints. The development comparison reports raw and postprocessed micro/group-macro scores and independent protocol compliance. It ranks by postprocessed macro, then micro, and can recommend the unchanged base model. Test inference is reserved. This defines how a future measured improvement will be assessed; it is not evidence that a new model has already improved.
 
 ### 5. External small-model context
 
@@ -173,13 +168,13 @@ The control rows below use published model-card or vendor benchmark numbers only
 
 | Model / source | Size / type | Strength | Weakness vs this release | Best use |
 | --- | --- | --- | --- | --- |
-| Qwen3-4B LaTeX Correction LoRA v3 | 4B non-thinking LoRA | Local LaTeX math 98.97%, exact 83.22%, MMLU-Pro 63.54% | GPQA and MATH-500 are not strengths in the current run | Canonical LaTeX formula restoration for the desktop assistant |
-| [Qwen3-4B-Instruct-2507](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) | 4B non-thinking base | More general: MMLU-Pro 69.6, GPQA 62.0, AIME25 47.4 | Weak on this repo's formula task: 13.36% math accuracy, 2.40% exact | General small-model assistant |
+| Qwen3-4B LaTeX Correction LoRA v3 | 4B non-thinking LoRA | Historical old-evaluator LaTeX math 98.97%, exact 83.22%; historical MMLU-Pro 63.54% | GPQA and MATH-500 are not strengths in the current run | Canonical LaTeX formula restoration for the desktop assistant |
+| [Qwen3-4B-Instruct-2507](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) | 4B non-thinking base | More general: MMLU-Pro 69.6, GPQA 62.0, AIME25 47.4 | Historical old-evaluator formula scores: 13.36% math, 2.40% exact | General small-model assistant |
 | [Qwen3-4B-Thinking-2507](https://huggingface.co/Qwen/Qwen3-4B-Thinking-2507) | 4B thinking model | Strong reasoning: AIME25 81.3, GPQA 65.8, MMLU-Pro 74.0 | Thinking output is longer and not trained for this canonical formula dialect | Compact reasoning tasks |
 | [DeepSeek-R1-Distill-Qwen-7B](https://huggingface.co/deepseek-ai/DeepSeek-R1) | 7B reasoning distill | MATH-500 92.8, AIME2024 55.5, GPQA Diamond 49.1 | Larger and not a LaTeX-correction model | Math reasoning when format control is secondary |
 | [DeepSeek-R1-Distill-Llama-8B](https://huggingface.co/deepseek-ai/DeepSeek-R1) | 8B reasoning distill | MATH-500 89.1, AIME2024 50.4, GPQA Diamond 49.0 | Larger and outside the Qwen ecosystem | Open reasoning baseline |
 
-This model is not trying to beat thinking or R1-distilled models at long-chain reasoning. Its advantage is narrower: 4B scale, formula-only behavior, and high compliance with one canonical LaTeX dialect. For general reasoning, Qwen3-4B-Thinking or DeepSeek-R1-Distill are better choices; for this desktop assistant's formula-restoration workflow, the base model and general reasoning models lack the same output stability.
+The release targets 4B formula restoration and formula-only output. This table does not establish current v5 task reliability or a causal capability tradeoff; those require matched independent evaluations.
 
 #### Larger open-weight and frontier controls
 
@@ -249,10 +244,10 @@ Generated files are intentionally ignored: `training/data/`, `saves/`, and `repo
 The complete training and evaluation path is documented in [`training/README.md`](training/README.md). It covers:
 
 - canonicalizing and cleaning the frozen formula dataset
-- generating fixed train/eval splits for LLaMA-Factory
-- running smoke and full LoRA training
-- running base-model and LoRA inference baselines
-- evaluating exact, canonical, symbol-fidelity, semantic, and parse-coverage metrics
+- generating v5 connected-group train/development/test splits for LLaMA-Factory
+- validating dry-run plans and explicitly launching separate v5 smoke/SFT profiles
+- comparing the base and every completed SFT checkpoint on development with immutable model revisions
+- reporting raw/postprocessed micro and group-macro scores, independent protocol compliance and provenance hashes
 - exporting BF16 and GGUF release artifacts
 
 ## Desktop Assistant

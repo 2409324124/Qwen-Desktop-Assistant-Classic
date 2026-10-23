@@ -65,6 +65,56 @@ class TrainingConfigurationTests(unittest.TestCase):
         ):
             self.assertEqual(v3[key], full[key], key)
 
+    def test_v5_training_config_preserves_v3_adapter_and_uses_isolated_data(self) -> None:
+        v3 = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_sft_v3.yaml").read_text(encoding="utf-8"))
+        v5 = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_sft_v5.yaml").read_text(encoding="utf-8"))
+
+        for key in ("model_name_or_path", "finetuning_type", "lora_rank", "lora_alpha",
+                    "lora_dropout", "lora_target", "learning_rate", "num_train_epochs",
+                    "per_device_train_batch_size", "gradient_accumulation_steps", "cutoff_len"):
+            self.assertEqual(v5[key], v3[key], key)
+        self.assertEqual(v5["dataset_dir"], "training/data/v5")
+        self.assertEqual(v5["dataset"], "latex_formula_train")
+        self.assertEqual(v5["eval_dataset"], "latex_formula_eval_clean")
+        self.assertTrue(v5["do_train"])
+        self.assertTrue(v5["do_eval"])
+        self.assertEqual(v5["flash_attn"], "sdpa")
+        self.assertTrue(v5["bf16"])
+        self.assertEqual(v5["output_dir"], "saves/qwen3-4b-latex-correction/lora/sft-v5")
+        self.assertNotEqual(v5["output_dir"], v3["output_dir"])
+        self.assertFalse(v5["overwrite_output_dir"])
+
+    def test_v5_retains_each_epoch_checkpoint_without_loss_based_selection(self) -> None:
+        config = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_sft_v5.yaml").read_text(encoding="utf-8"))
+
+        self.assertEqual(config["num_train_epochs"], 3.0)
+        self.assertEqual(config["save_strategy"], "epoch")
+        self.assertEqual(config["eval_strategy"], "epoch")
+        self.assertEqual(config["save_total_limit"], 3)
+        self.assertFalse(config["save_only_model"])
+        self.assertFalse(config["load_best_model_at_end"])
+        for obsolete_key in ("save_steps", "eval_steps", "metric_for_best_model", "greater_is_better", "max_steps"):
+            self.assertNotIn(obsolete_key, config)
+
+    def test_v5_smoke_uses_the_same_profile_with_five_steps_and_its_own_output(self) -> None:
+        full = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_sft_v5.yaml").read_text(encoding="utf-8"))
+        smoke = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_smoke_v5.yaml").read_text(encoding="utf-8"))
+
+        for key in ("model_name_or_path", "bf16", "flash_attn", "lora_rank", "lora_alpha",
+                    "lora_dropout", "lora_target", "learning_rate", "per_device_train_batch_size",
+                    "gradient_accumulation_steps", "cutoff_len", "dataset_dir", "dataset", "eval_dataset"):
+            self.assertEqual(smoke[key], full[key], key)
+        self.assertEqual(smoke["max_steps"], 5)
+        self.assertEqual(smoke["max_samples"], 64)
+        self.assertEqual(smoke["save_strategy"], "steps")
+        self.assertEqual(smoke["save_steps"], 5)
+        self.assertEqual(smoke["eval_strategy"], "steps")
+        self.assertEqual(smoke["eval_steps"], 5)
+        self.assertEqual(smoke["output_dir"], "saves/qwen3-4b-latex-correction/lora/smoke-v5")
+        self.assertNotEqual(smoke["output_dir"], full["output_dir"])
+        self.assertFalse(smoke["overwrite_output_dir"])
+        self.assertFalse(smoke["load_best_model_at_end"])
+
     def test_smoke_config_uses_the_same_adapter_shape(self) -> None:
         full = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_sft.yaml").read_text(encoding="utf-8"))
         smoke = yaml.safe_load((REPO_ROOT / "training/qwen3_4b_lora_smoke.yaml").read_text(encoding="utf-8"))
