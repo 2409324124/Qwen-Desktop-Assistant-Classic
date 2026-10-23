@@ -26,12 +26,10 @@
 
 ### 用自己的 Ollama 修复公式
 
-安装 Node.js 22+，准备已运行的 Ollama 和已安装的模型。当前 npm 包尚未发布；从本仓库打包安装：
+安装 Node.js 22+，准备已运行的 Ollama 和已安装的模型。使用 [qwen-latex-cli](https://www.npmjs.com/package/qwen-latex-cli)：
 
 ```bash
-cd packages/cli
-npm pack
-npm install -g ./qwen-latex-cli-0.1.0.tgz
+npm install -g qwen-latex-cli
 qwen-latex models
 qwen-latex correct "x平方加y平方" --model <已安装模型名>
 ```
@@ -62,6 +60,6 @@ CPU 数据检查与保存预测评分无需训练/GPU 依赖。正式训练继�
 
 - [架构与历史协议迁移](docs/architecture.md)
 - [v5 分组隔离与审查协议](training/DATA_V5.md)
-- [Future](docs/future.md)：npm 正式发布、量化效果评测与可选托管服务。
+- [Future](docs/future.md)：CLI 后续版本、量化效果评测与可选托管服务。
 
 当前没有托管服务，不提供通用数学能力提升保证；历史 v3 的高分存在标签、泄漏和评分协议问题，保留用于审计。

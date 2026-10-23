@@ -2,12 +2,10 @@
 
 A lightweight client for an existing Ollama instance. Node.js 22 or newer is required; Python and GPU packages are not required by the CLI. The user manages the server and model installation.
 
-This package is not yet published to npm. From this repository:
+Install:
 
 ```sh
-cd packages/cli
-npm pack
-npm install -g ./qwen-latex-cli-0.1.0.tgz
+npm install -g qwen-latex-cli
 qwen-latex models
 qwen-latex correct "x平方加y平方" --model YOUR_INSTALLED_MODEL
 qwen-latex correct --file input.txt --model YOUR_INSTALLED_MODEL
@@ -36,4 +34,4 @@ npm test
 npm pack
 ```
 
-The build copies `src/latex_sft/core/resources/latex-correction.txt` into package assets and verifies byte identity. Do not edit the generated asset. Tests use a local mock HTTP server and need no GPU or Ollama process. The tarball contains only the runtime, prompt asset, package metadata and this guide. Public npm publication is a separate step after confirming name availability, account and licensing.
+The build copies `src/latex_sft/core/resources/latex-correction.txt` into package assets and verifies byte identity. Do not edit the generated asset. Tests use a local mock HTTP server and need no GPU or Ollama process. The tarball contains only the runtime, prompt asset, package metadata and this guide.

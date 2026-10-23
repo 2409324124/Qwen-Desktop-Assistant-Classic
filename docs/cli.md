@@ -1,6 +1,6 @@
 # Ollama CLI
 
-`qwen-latex-cli` 提供 `qwen-latex` 命令，Node.js 22+，不依赖 Python 或 GPU 库。包尚未公开发布；从 `packages/cli` 执行 `npm pack`，再用 `npm install -g ./qwen-latex-cli-0.1.0.tgz` 安装。正式 npm 发布属于后续工作。
+`qwen-latex-cli` 提供 `qwen-latex` 命令，Node.js 22+，不依赖 Python 或 GPU 库。[npm 包](https://www.npmjs.com/package/qwen-latex-cli) 首版为 `0.1.0`，使用 `npm install -g qwen-latex-cli` 安装。首次发布可能需要几分钟完成 npm 处理；如暂时返回 404，请稍后重试。源码安装仍可从 `packages/cli` 执行 `npm pack` 后安装生成的 tarball。
 
 ## 调用
 

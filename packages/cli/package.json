@@ -3,14 +3,41 @@
   "version": "0.1.0",
   "description": "LaTeX correction through your own Ollama endpoint",
   "type": "module",
-  "engines": { "node": ">=22" },
-  "bin": { "qwen-latex": "bin/qwen-latex.js" },
-  "files": ["bin/", "lib/", "assets/", "README.md"],
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "qwen-latex": "bin/qwen-latex.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "assets/",
+    "README.md"
+  ],
   "scripts": {
     "sync-prompt": "node scripts/sync-prompt.js",
     "prepack": "npm run sync-prompt",
     "pretest": "npm run sync-prompt",
     "test": "node --test"
   },
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2409324124/Qwen-Desktop-Assistant-Classic.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/2409324124/Qwen-Desktop-Assistant-Classic#readme",
+  "bugs": {
+    "url": "https://github.com/2409324124/Qwen-Desktop-Assistant-Classic/issues"
+  },
+  "keywords": [
+    "latex",
+    "ollama",
+    "cli"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }
