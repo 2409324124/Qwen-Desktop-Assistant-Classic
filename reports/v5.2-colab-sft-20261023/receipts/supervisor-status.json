@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "exitcode": 0,
+  "outer": {
+    "status": "completed",
+    "pid": 5360,
+    "updated_at": 1792742366.3620288,
+    "phase": "done",
+    "exitcode": 0,
+    "final_commit": "6ac55090f0581d475dab44a6f6ef0c2e4169c534",
+    "model_card_commit": "3721b25f40f3e9383d99b2991ba9dd0e4749dc86"
+  }
+}

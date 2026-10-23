@@ -1,6 +1,6 @@
 # v5：按结构与近亲关系隔离
 
-当前全量清洗版本为 **v5.2-reviewed-all-splits**：训练476条、开发56条、测试56条。训练与开发评测入口已通过显式 `--data-version v5.2` 接入；默认仍为历史v5。新Colab训练尚未启动，没有v5.2成绩。原v5与v5.1作为历史版本保留，详见文末的开发／测试盲审记录。
+当前全量清洗版本为 **v5.2-reviewed-all-splits**：训练476条、开发56条、测试56条。训练与开发评测入口已通过显式 `--data-version v5.2` 接入；默认仍为历史v5。新Colab训练已完成，开发集对比与HF归档见[运行报告](../reports/v5.2-colab-sft-20261023/README.md)。原v5与v5.1作为历史版本保留，详见文末的开发／测试盲审记录。
 
 v4 的“零重叠”只适用于当时登记的名称、文本和来源键，不能证明相似公式没有跨集合。v5 保留 v4 数据和历史预测，改用来源、完整结构、参数模板和显式近亲关系的连通组。基础数学符号仍可共享；同组公式整体进入一个集合。
 
@@ -157,7 +157,7 @@ python3 -B -m training.clean_v5_holdouts --out-dir /tmp/v5-all-reviewed-reproduc
 python3 -B -m unittest discover -s tests -q
 ```
 
-导出可逐字节复现。原v5/v5.1、源快照和历史预测保持不变。清洗阶段没有读取模型预测来制定标签，没有新推理、重新评分、checkpoint选择或Colab训练。开发和测试仍各只有4组且缺少微积分，清洗不等于扩充覆盖。随后完成的v5.2入口接入如下；新Colab训练尚未启动，没有v5.2成绩。
+导出可逐字节复现。原v5/v5.1、源快照和历史预测保持不变。清洗阶段没有读取模型预测来制定标签，没有新推理、重新评分、checkpoint选择或Colab训练。开发和测试仍各只有4组且缺少微积分，清洗不等于扩充覆盖。随后完成的v5.2入口接入如下；新Colab训练已完成，开发集对比与HF归档见[运行报告](../reports/v5.2-colab-sft-20261023/README.md)。
 
 
 ## v5.2 训练与开发评测入口
@@ -177,8 +177,7 @@ python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 --baseline
 在GPU环境准备好固定revision的原始基座缓存后，执行对应计划：
 
 ```bash
-python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile smoke --execute
-# smoke确认GPU和依赖兼容后执行正式训练。
+# 直接执行正式训练；smoke不是前置要求。
 python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile sft --execute
 python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 --baseline-only --execute
 ```
@@ -194,4 +193,4 @@ python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 \
 
 默认训练根为 `saves/qwen3-4b-latex-correction/lora/smoke-v5.2`／`sft-v5.2`，独立基座与checkpoint比较结果分别写入 `reports/v5.2/base-development`／`checkpoint-development`；重复运行需用新的 `--run-dir`／`--output`。比较仍只在开发集按postprocessed macro、再micro排序，同分优先base、再较早checkpoint；测试只核验成员和隔离，不推理或计分。
 
-当前已完成入口接入与本地验证，全部154项本地测试通过；v5.2最终导出与冻结审查来源已纳入Git跟踪。**新Colab未启动，无v5.2训练成绩或checkpoint选择**。历史v5训练、历史预测复评与本轮清洗后的新实验分别记录。
+全部154项本地测试通过，v5.2导出与冻结审查来源已纳入Git。正式运行已完成两轮60步，两个checkpoint均为48/56（85.71%），同分选择checkpoint-30。权重和报告已保存HF，Colab已释放，详见[运行报告](../reports/v5.2-colab-sft-20261023/README.md)。后续Colab操作直接使用CLI，不再增加Python编排或未经要求的冒烟。

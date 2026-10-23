@@ -1,0 +1,126 @@
+{
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "dataset": {
+    "summary_sha256": "2bd2d357accf591c5eb6c7f43ef6ad1dcedfafb70a033c23df220238584a5162",
+    "data_version": "v5.2-reviewed-all-splits",
+    "export_files_sha256": {
+      "dataset_info.json": "9b911a2a3aa0407d748ae2f57f6dac260c976c4114d57c1cfcb555a68d70d87c",
+      "group_connections.jsonl": "943e22878fcd9dcc39e2ec9495576643209cf0e794f79fbcc3fac5e83c8eed31",
+      "group_manifest.jsonl": "53c9289867bbb0cfae76a18ce687bd52ebf7a12e3624fbbfc4ed447313c4b381",
+      "latex_formula_eval.jsonl": "3c4f2113a63be1e6825aff6131c0d6cad9a439565dac2f582d53e836d6375c93",
+      "latex_formula_eval_clean.jsonl": "3c4f2113a63be1e6825aff6131c0d6cad9a439565dac2f582d53e836d6375c93",
+      "latex_formula_quarantine.jsonl": "d3216b4d2ee41d310dfe236fdbe5e8ea44dfbacdca8ef281f1688698e61ba9d6",
+      "latex_formula_test.jsonl": "728c236fc2cb0cfbf952fda91e08eff50fb7489887146d8c10f66c52da59e2ff",
+      "latex_formula_train.jsonl": "e7c9838ca9824bf0a055842355f205b6c78c55bb75bfbeb4fa45d19d065bf5e3",
+      "review_manifest.jsonl": "04885a509914a470a843d6a1afc311ac65e3aa39697ca867eeeaceac1fd55ddb"
+    },
+    "review_rule_version": "v5.2-reviewed-all-splits"
+  },
+  "data_version": "v5.2",
+  "data_dir": "/content/qwen-v52/training/data/v5.2",
+  "protocol_sha256": {
+    "training/run_v5_experiment.py": "62e643888e94faa0665124cde253cb75253b52d92b56ffa6edfe3662b94d7280",
+    "training/run_lora_inference.py": "235e070c75ee1c4310f4069fed5cabc01d87d395ba9a6c2d3dcc839f70375941",
+    "training/evaluate_latex.py": "01138118452061848e4dd2b34dfe23a43867f8d0e9bbc6bb52f120d398ee08a0",
+    "training/latex_semantics.py": "1e3db6b66847fecfae5092a51a6ed79ee9c50ceeee6540c932f62fa63477b4a4",
+    "training/latex_postprocess.py": "15b26b185ee4ac7f10fa734ac58aaec9ff5a810c3ea72c2bb75cd753d981a067",
+    "training/prompts.py": "ae4f27a8443f9676a35cc28b501a57ef1eb996e37116b3b29f5535a57866a575"
+  },
+  "split": "development",
+  "eval_file": "/content/qwen-v52/training/data/v5.2/latex_formula_eval_clean.jsonl",
+  "max_new_tokens": 256,
+  "selection": "postprocessed macro_math_accuracy, then micro_math_accuracy; base/earlier step breaks ties",
+  "candidates": [
+    {
+      "name": "base",
+      "adapter": null,
+      "sha256": null,
+      "command": [
+        "/content/v52-sft-venv/bin/python",
+        "-B",
+        "-m",
+        "training.run_lora_inference",
+        "--model",
+        "Qwen/Qwen3-4B-Instruct-2507",
+        "--eval-file",
+        "/content/qwen-v52/training/data/v5.2/latex_formula_eval_clean.jsonl",
+        "--out",
+        "/content/qwen-v52/reports/v5.2/checkpoint-development/base/predictions.jsonl",
+        "--max-new-tokens",
+        "256",
+        "--revision",
+        "cdbee75f17c01a7cc42f958dc650907174af0554"
+      ]
+    },
+    {
+      "name": "checkpoint-30",
+      "adapter": "/content/qwen-v52/saves/qwen3-4b-latex-correction/lora/sft-v5.2/checkpoints/checkpoint-30",
+      "sha256": {
+        "adapter_config.json": "bf591e8f0f7e69a7f15efee58ff5ac3cf2111e32abf6d72416e2c217b880905b",
+        "adapter_model.safetensors": "31d574dacb5174395246654300950f3ccbe5c67b90b7866b09747576482dd22b",
+        "trainer_state.json": "d6e0e6235fbccb53aa1b31816331e799340e2eed6ee96c8beda4931fafd2f3a9"
+      },
+      "command": [
+        "/content/v52-sft-venv/bin/python",
+        "-B",
+        "-m",
+        "training.run_lora_inference",
+        "--model",
+        "Qwen/Qwen3-4B-Instruct-2507",
+        "--eval-file",
+        "/content/qwen-v52/training/data/v5.2/latex_formula_eval_clean.jsonl",
+        "--out",
+        "/content/qwen-v52/reports/v5.2/checkpoint-development/checkpoint-30/predictions.jsonl",
+        "--max-new-tokens",
+        "256",
+        "--adapter",
+        "/content/qwen-v52/saves/qwen3-4b-latex-correction/lora/sft-v5.2/checkpoints/checkpoint-30",
+        "--revision",
+        "cdbee75f17c01a7cc42f958dc650907174af0554"
+      ]
+    },
+    {
+      "name": "checkpoint-60",
+      "adapter": "/content/qwen-v52/saves/qwen3-4b-latex-correction/lora/sft-v5.2/checkpoints/checkpoint-60",
+      "sha256": {
+        "adapter_config.json": "bf591e8f0f7e69a7f15efee58ff5ac3cf2111e32abf6d72416e2c217b880905b",
+        "adapter_model.safetensors": "18645705b105f8572842cc256f4ac26c702b58027e1cc5d625de3e1b45f8255a",
+        "trainer_state.json": "7a3e56edf5439140451408c0b5e491e587868489851accb98f68b7d694aaea92"
+      },
+      "command": [
+        "/content/v52-sft-venv/bin/python",
+        "-B",
+        "-m",
+        "training.run_lora_inference",
+        "--model",
+        "Qwen/Qwen3-4B-Instruct-2507",
+        "--eval-file",
+        "/content/qwen-v52/training/data/v5.2/latex_formula_eval_clean.jsonl",
+        "--out",
+        "/content/qwen-v52/reports/v5.2/checkpoint-development/checkpoint-60/predictions.jsonl",
+        "--max-new-tokens",
+        "256",
+        "--adapter",
+        "/content/qwen-v52/saves/qwen3-4b-latex-correction/lora/sft-v5.2/checkpoints/checkpoint-60",
+        "--revision",
+        "cdbee75f17c01a7cc42f958dc650907174af0554"
+      ]
+    }
+  ],
+  "output": "/content/qwen-v52/reports/v5.2/checkpoint-development",
+  "baseline_only": false,
+  "training_run_dir": "/content/qwen-v52/saves/qwen3-4b-latex-correction/lora/sft-v5.2",
+  "environment": {
+    "python": "3.13.15 (main, Aug  6 2026, 11:06:22) [GCC 13.3.0]",
+    "packages": {
+      "llamafactory": "0.9.5",
+      "transformers": "4.57.6",
+      "torch": "2.11.0+cu130",
+      "peft": "0.18.1",
+      "accelerate": "1.11.0",
+      "datasets": "4.0.0"
+    }
+  },
+  "status": "completed"
+}

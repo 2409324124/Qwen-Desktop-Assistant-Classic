@@ -1,0 +1,535 @@
+{
+  "repo": "xu2409324124/qwen3-4b-latex-correction-v5-2",
+  "run_id": "v52-20261023T073851Z-d239b61a",
+  "items": {
+    "preflight": {
+      "status": "verified",
+      "commit": "13a3e74d8567c48574da7529d2f76aba6afab7aa",
+      "path": "runs/v52-20261023T073851Z-d239b61a/preflight",
+      "files": {
+        "authorization-check.json": {
+          "size": 217,
+          "sha256": "062e3b9beff6cfaff3d25aa5c9c138c3c281777864602acf53d1ff87a64fdc67",
+          "git_blob": "ca23ec124c119feb8e80292b42520a55465beafa"
+        },
+        "bundle_manifest.json": {
+          "size": 5049,
+          "sha256": "4e3b950b543f74287cc471e3b4fb36c809bfbd4645f4e59f0adb332d7843f69c",
+          "git_blob": "a57acf10dc787655693efcd3e7f295b8ad8bb658"
+        }
+      },
+      "attempt": 1,
+      "updated_at": 1792741172.9526613
+    },
+    "smoke/checkpoint-5": {
+      "status": "verified",
+      "commit": "214788113ca54a14d414880ada021da5a952cf9f",
+      "path": "runs/v52-20261023T073851Z-d239b61a/smoke/checkpoint-5",
+      "files": {
+        "trainer_state.json": {
+          "size": 1697,
+          "sha256": "c60f0349eb4174372abb2af64b90769eaba53c5267189ac72a8384c958e6c9b7",
+          "git_blob": "bc11da29406d93b6024fcca2847a67e80bd838a6"
+        },
+        "README.md": {
+          "size": 299,
+          "sha256": "2960a29142f650321dd7607263b527a3d14b48856906ae634df45b80a0ed4052",
+          "git_blob": "2123c0fe1e76afd817178864a79ed539e81bc753"
+        },
+        "provenance.json": {
+          "size": 864,
+          "sha256": "d850a26fab146109cd02ab23569a9e390cd9da5453fbb796de514f153ef5203c",
+          "git_blob": "ebfc94d3d2991169b5d870f3ea2c607e9d6b0a22"
+        },
+        "adapter_config.json": {
+          "size": 1059,
+          "sha256": "04f4e9b8a5c12b5ef018a1fe29613f2feee30932baba6d41f9557f63eaa846ae",
+          "git_blob": "c2ea44d96a78ccf6560f344861248cadd1ee47d9"
+        },
+        "adapter_model.safetensors": {
+          "size": 528550256,
+          "sha256": "12d54bf736febdf4e1bb424325898823da76b326dc74c4cc0a5baa949f44cc1b",
+          "git_blob": "b7d2e26ff0c0a79daa5f4c57ff36ccdc0c0f180a"
+        }
+      },
+      "attempt": 1,
+      "updated_at": 1792741254.9013145
+    },
+    "sft/checkpoint-30": {
+      "status": "verified",
+      "commit": "ad342dfdbe07c52b55f8199ed187d5dcd57be67d",
+      "path": "runs/v52-20261023T073851Z-d239b61a/sft/checkpoint-30",
+      "files": {
+        "trainer_state.json": {
+          "size": 1474,
+          "sha256": "d6e0e6235fbccb53aa1b31816331e799340e2eed6ee96c8beda4931fafd2f3a9",
+          "git_blob": "177c98d72aaf63cb3bf9942a0dbfb324aaf7751e"
+        },
+        "README.md": {
+          "size": 299,
+          "sha256": "2960a29142f650321dd7607263b527a3d14b48856906ae634df45b80a0ed4052",
+          "git_blob": "2123c0fe1e76afd817178864a79ed539e81bc753"
+        },
+        "provenance.json": {
+          "size": 862,
+          "sha256": "7b4a814c675a8991a0a226ac0e92dd5b299e3a79cdd1f42e8a47083c3808826a",
+          "git_blob": "031ef61f9d09963966e311f5860725885a29272d"
+        },
+        "adapter_config.json": {
+          "size": 1059,
+          "sha256": "bf591e8f0f7e69a7f15efee58ff5ac3cf2111e32abf6d72416e2c217b880905b",
+          "git_blob": "1ad6fc18437e7ebc3fe3f1e361b373da0a3a2ef0"
+        },
+        "adapter_model.safetensors": {
+          "size": 528550256,
+          "sha256": "31d574dacb5174395246654300950f3ccbe5c67b90b7866b09747576482dd22b",
+          "git_blob": "c75ec10c1aba6794734de1b9f5c41656b5dc3df5"
+        }
+      },
+      "attempt": 1,
+      "updated_at": 1792741435.8995674
+    },
+    "sft/checkpoint-60": {
+      "status": "verified",
+      "commit": "8ffdfef354043ace2f16bba51687d1e081afa7da",
+      "path": "runs/v52-20261023T073851Z-d239b61a/sft/checkpoint-60",
+      "files": {
+        "trainer_state.json": {
+          "size": 2181,
+          "sha256": "7a3e56edf5439140451408c0b5e491e587868489851accb98f68b7d694aaea92",
+          "git_blob": "b3b0d8846dd5c5d0c545443e1be0efa7637352de"
+        },
+        "README.md": {
+          "size": 299,
+          "sha256": "2960a29142f650321dd7607263b527a3d14b48856906ae634df45b80a0ed4052",
+          "git_blob": "2123c0fe1e76afd817178864a79ed539e81bc753"
+        },
+        "provenance.json": {
+          "size": 862,
+          "sha256": "525992ccbd0ccb779524f2a7c9cb358970b51a1e6993e6c6747fd14caf12033f",
+          "git_blob": "c464673be858f0afd3da483611f5c105d081b2ac"
+        },
+        "adapter_config.json": {
+          "size": 1059,
+          "sha256": "bf591e8f0f7e69a7f15efee58ff5ac3cf2111e32abf6d72416e2c217b880905b",
+          "git_blob": "1ad6fc18437e7ebc3fe3f1e361b373da0a3a2ef0"
+        },
+        "adapter_model.safetensors": {
+          "size": 528550256,
+          "sha256": "18645705b105f8572842cc256f4ac26c702b58027e1cc5d625de3e1b45f8255a",
+          "git_blob": "0fd9a71066348f020e2757de04c5fa28d203192d"
+        }
+      },
+      "attempt": 1,
+      "updated_at": 1792741567.9232018
+    },
+    "final": {
+      "status": "verified",
+      "commit": "6ac55090f0581d475dab44a6f6ef0c2e4169c534",
+      "path": "runs/v52-20261023T073851Z-d239b61a/final",
+      "files": {
+        "upload-status.json": {
+          "size": 4956,
+          "sha256": "cf1f999a4504d0dae2648fd97692308fb540ee520b0639873a7015e6b0ca7465",
+          "git_blob": "361ea6d80a3297ec347ffc9ba2aa1e86d9f29fbf"
+        },
+        "constraints.txt": {
+          "size": 71,
+          "sha256": "4636b644ff1ef11dc3fcbabbc51f19019f28edc04390714bb53d1922f05354c5",
+          "git_blob": "3050e0d5f0d2d9880c7d4b5b664e8fe4f3104a07"
+        },
+        "completion.json": {
+          "size": 235,
+          "sha256": "668c9c5cf8058927fcfb609f1bc5456ab7788d7d76cc003b50cf54244beda7d3",
+          "git_blob": "e6c68bd8a8ab42830023b5c6cf3c39ee83e50906"
+        },
+        "source/bundle_manifest.json": {
+          "size": 5049,
+          "sha256": "4e3b950b543f74287cc471e3b4fb36c809bfbd4645f4e59f0adb332d7843f69c",
+          "git_blob": "a57acf10dc787655693efcd3e7f295b8ad8bb658"
+        },
+        "logs/job.log": {
+          "size": 171258,
+          "sha256": "6fc824c93815566f49251d8a6765976ceb3aacae10fa0f40809a665a165b7cc4",
+          "git_blob": "35c5f26419d0d980bdf2d9993e8962d04a79f7a2"
+        },
+        "logs/setup-v52.log": {
+          "size": 34095,
+          "sha256": "40f30fc47af483e05e760ee0ed8cfbfd5eb0cdcb70499f78b75070a0aacd340f",
+          "git_blob": "1e832c76fcb62a22c301f9a8eb1c2114cd54d6db"
+        },
+        "reports/v5.2/checkpoint-development/comparison.md": {
+          "size": 393,
+          "sha256": "b26c29ae89961534e1ce8173ad081cd91cbbf66b9f3ae713a85453dbc9315b5b",
+          "git_blob": "c978189a50ab8c0bdad5f14ff7605ccb2177f60d"
+        },
+        "reports/v5.2/checkpoint-development/evaluation_manifest.json": {
+          "size": 5625,
+          "sha256": "e34ff44af58dff18a26c0dd98751ec3d58c538fe75acdcac9a6567adf53441cf",
+          "git_blob": "a16204b00a2ca8dd10c5c5c1a9542eccc48a816f"
+        },
+        "reports/v5.2/checkpoint-development/comparison.json": {
+          "size": 29289,
+          "sha256": "50a32810cee3a3ae353b72b34810dbf9b74dc1ee6011259cc00b89ad849f50b8",
+          "git_blob": "06749c38d95e84ae5af183a803d08098129aff4f"
+        },
+        "reports/v5.2/smoke-reload/predictions.jsonl": {
+          "size": 13190,
+          "sha256": "fdbd05a4951baeb1d77db9ab48f23ad5f3f892c1939be2a95af405c0b8041ea4",
+          "git_blob": "16649f829fdfb10e01d732ea571360b24d786924"
+        },
+        "reports/v5.2/smoke-reload/development-first-two.jsonl": {
+          "size": 15667,
+          "sha256": "4f132a20280b68154c562d070e13d141ebc891cb23105ccfced646de42df0775",
+          "git_blob": "729cea07d0917028aa2c293af9ea7fae464454f3"
+        },
+        "reports/v5.2/smoke-reload/reload-status.json": {
+          "size": 120,
+          "sha256": "25e10877ec632961322f7a6aa6c555879480a78a8f8573ad787c27de01de6ee4",
+          "git_blob": "93cc22d649c799a52584cf52ee0696effe798469"
+        },
+        "reports/v5.2/checkpoint-development/checkpoint-30/predictions.jsonl": {
+          "size": 363917,
+          "sha256": "b663c024318008284fc25a8a54454f657676747a659c42f9db94b23f7c169f8b",
+          "git_blob": "29da5713d6da76e35ab49e8dc9daa7348de3e818"
+        },
+        "reports/v5.2/checkpoint-development/checkpoint-30/report.md": {
+          "size": 11201,
+          "sha256": "3486bc5d3551480e628ae9d99784d1810ff794098c21763b36a032ae11dcc08c",
+          "git_blob": "1dd8b44552c68b3d833235922a7a9c7635240ce6"
+        },
+        "reports/v5.2/checkpoint-development/checkpoint-30/metrics.json": {
+          "size": 609935,
+          "sha256": "c814bb8e326fcfd75c645def2063e9f1e964ff5e3f3e7e2552d621d6b0076fe9",
+          "git_blob": "1699cfbc349c0ab7f5c520506a8ec104d731cf67"
+        },
+        "reports/v5.2/checkpoint-development/checkpoint-60/predictions.jsonl": {
+          "size": 363921,
+          "sha256": "2194e7348d2f1058dc8f96588d5da3d77d17c028237e518acc2ca6c3ee3631fa",
+          "git_blob": "80f1fc9c7d5df64d8acda36590e152a2a5d64c8b"
+        },
+        "reports/v5.2/checkpoint-development/checkpoint-60/report.md": {
+          "size": 11203,
+          "sha256": "b535edd29d45fea44af54151fb53b46912bd8ee26909892d2523a6bded4452b9",
+          "git_blob": "605ed17df491ce9da4c06db833e796b5d19443c6"
+        },
+        "reports/v5.2/checkpoint-development/checkpoint-60/metrics.json": {
+          "size": 609937,
+          "sha256": "98ab69a8625ecde44c69fdf6f59ecb5c416666b8af93e208591b4de4a1d23df8",
+          "git_blob": "b532e06ff2deafe1bfa4a60e4d4d64d6f27d3d27"
+        },
+        "reports/v5.2/checkpoint-development/base/predictions.jsonl": {
+          "size": 364323,
+          "sha256": "00b3390a3e397b05f8d72c52c611eab1b755db8422c9ecddb62b8fe5657f511f",
+          "git_blob": "c71f5ea3ee3e054d62a375aa00d61a5b34fb5acc"
+        },
+        "reports/v5.2/checkpoint-development/base/report.md": {
+          "size": 21426,
+          "sha256": "1e611c0d23f57067febc8acafc4da4b2a66ed40a81b616f8835780212dbe5a58",
+          "git_blob": "e07a510089aef52b99d03476e97a5f9ae2d34a17"
+        },
+        "reports/v5.2/checkpoint-development/base/metrics.json": {
+          "size": 1246618,
+          "sha256": "2b2eb4c55231d5e0096220a931c4b4dc54a869b4649394f4e3072e7744f77b54",
+          "git_blob": "f7f7098509b62fd84ead94df507660ad2fa28d09"
+        },
+        "source/tools/__init__.py": {
+          "size": 1,
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "git_blob": "8b137891791fe96927ad78e64b0aad7bded08bdc"
+        },
+        "source/training/dataset_quality_overrides.json": {
+          "size": 3789,
+          "sha256": "c74d9b8ecc8f3a5b8f038ee799b4f28b466bec59c3b107d3871e2a52fcf751fd",
+          "git_blob": "25d3193450ee6cbdbcc1eb894586ef89d762f6ae"
+        },
+        "source/training/clean_v5_holdouts.py": {
+          "size": 8772,
+          "sha256": "52bfff51a91f6d4222923d38e079d0e306cfd92bd0f09c4923da130bc6af6bc8",
+          "git_blob": "4b47189482ac7267678b18df3ab1a7265749b253"
+        },
+        "source/training/run_lora_inference.py": {
+          "size": 4363,
+          "sha256": "235e070c75ee1c4310f4069fed5cabc01d87d395ba9a6c2d3dcc839f70375941",
+          "git_blob": "12abb2cad7accb794895f2927b0a2bb82fccce3c"
+        },
+        "source/training/latex_semantics.py": {
+          "size": 39386,
+          "sha256": "1e3db6b66847fecfae5092a51a6ed79ee9c50ceeee6540c932f62fa63477b4a4",
+          "git_blob": "b61016d751ea0485b7b0441045a9b863c10e3911"
+        },
+        "source/training/qwen3_4b_lora_sft_v5_2.yaml": {
+          "size": 1003,
+          "sha256": "08f99dba06e2401356e565e4e9dbc9cd153f698eb07d9a8a3eb93b262b03629a",
+          "git_blob": "5967ce41fac1c8e0ab4a2f8231ee03c332dfdf4f"
+        },
+        "source/training/latex_postprocess.py": {
+          "size": 4269,
+          "sha256": "15b26b185ee4ac7f10fa734ac58aaec9ff5a810c3ea72c2bb75cd753d981a067",
+          "git_blob": "3f98fbadefab8e1f71ea1941999a437b9a418dab"
+        },
+        "source/training/review_dataset.py": {
+          "size": 15161,
+          "sha256": "e92590c239365880037122eb765f8e773886c3f9f95b27b3ab7e89f398e1d84b",
+          "git_blob": "b0aef59376c7c88f08b60eb7c20c17fc96cd5c50"
+        },
+        "source/training/prepare_dataset.py": {
+          "size": 27522,
+          "sha256": "0bf03dcacbde86c4d277ece10745bc928a6bfb448f63b278056190d6af26d74b",
+          "git_blob": "66b01e433a205733299e4d9dc3a5ba9697a219b7"
+        },
+        "source/training/clean_v5_training.py": {
+          "size": 9694,
+          "sha256": "1d3abd926bdcbdce5bd5e553961807bdadd7920bc58c2f0f850197cb646adda4",
+          "git_blob": "221674711892ecb9f95e5c9926ad436a9df6220b"
+        },
+        "source/training/formula_families.json": {
+          "size": 4629,
+          "sha256": "83295be955799099df213194e750fc4086f0e454b48ea74d65d3ec88219f9e6f",
+          "git_blob": "678421a2bf9f861d5d2b62edd18fa14ae4765d23"
+        },
+        "source/training/formula_grouping.py": {
+          "size": 3130,
+          "sha256": "e7e45a61e81e9e4d38bd9d7f7ded4840a8809e45d83cdf0152bd36b34c220316",
+          "git_blob": "3fe83693f9cf17208f575469dad9bf46e51b3929"
+        },
+        "source/training/formula_structure.py": {
+          "size": 7945,
+          "sha256": "623cd51d601827082ef03bbe4895956f41a79c843fadbc804b5a5fb409993537",
+          "git_blob": "a3dc55d72119554d91773afaef46ef7c9dab63d1"
+        },
+        "source/training/evaluate_latex.py": {
+          "size": 21909,
+          "sha256": "01138118452061848e4dd2b34dfe23a43867f8d0e9bbc6bb52f120d398ee08a0",
+          "git_blob": "d250afc4591bb787e11a3ae8ca121c20292ce4eb"
+        },
+        "source/training/qwen3_4b_lora_smoke_v5_2.yaml": {
+          "size": 1040,
+          "sha256": "86cd6a37e5b3b26c1283eae15c53e610feabb4f002a732ed4ef8e91248f5bba1",
+          "git_blob": "576eca91df1ff16b04b7edc9c8d47cc1dd9c6133"
+        },
+        "source/training/dataset_quality.py": {
+          "size": 3910,
+          "sha256": "e24555ffab24a1914d84124d5fa19b1a2141b67e1c40eb7ce73b4fe8b34e20ad",
+          "git_blob": "f768e725b4889871ad884a12112a316f67be5fa8"
+        },
+        "source/training/component_allocation.py": {
+          "size": 6940,
+          "sha256": "b34cd0dd38ecf4403d4df47ccc50c320aa74077a1c10f4cb64748f583fa6e1a7",
+          "git_blob": "174b773d0500df2b3f08a588c303d18654a47109"
+        },
+        "source/training/prompts.py": {
+          "size": 1369,
+          "sha256": "ae4f27a8443f9676a35cc28b501a57ef1eb996e37116b3b29f5535a57866a575",
+          "git_blob": "e2bcef74183d7cb7b3db568392a2d4ec48b15336"
+        },
+        "source/training/run_v5_experiment.py": {
+          "size": 28449,
+          "sha256": "62e643888e94faa0665124cde253cb75253b52d92b56ffa6edfe3662b94d7280",
+          "git_blob": "fee4b57ca62fa45ffd01870a81a5e912a3e4726a"
+        },
+        "source/training/__init__.py": {
+          "size": 64,
+          "sha256": "773a7261e1067f2bb1b85dc958baba2f29df8f296e11a0ceee9efdf7c32bca48",
+          "git_blob": "dfbd87f8a950afea1f4aa5e558b27f33af517983"
+        },
+        "source/experiment/start_training.py": {
+          "size": 6939,
+          "sha256": "ce6f045ef7ac584a649a5f88587bfb3e124ef4c76e6d84d744cae98632128be2",
+          "git_blob": "a4ebcbf3ee020b3fa947d11b8e5ec8a471459edc"
+        },
+        "source/experiment/collect_reports.py": {
+          "size": 4540,
+          "sha256": "c6b858edd40dd404482c72516ac1e951d416a9228080befbf9ba97c201752b01",
+          "git_blob": "2787d4efe6b1662b9728ce06a4b17399a8143c3d"
+        },
+        "source/experiment/train_worker.py": {
+          "size": 3418,
+          "sha256": "6d9807a6e8b8d9096d366157f1477e3faccdfdf35268847d304b7a3cd99333aa",
+          "git_blob": "607bf72bf2176298182f987f63b2693b24261cb0"
+        },
+        "source/experiment/setup_remote.py": {
+          "size": 2520,
+          "sha256": "eb25b725dd471c198bff4f0ef07748a402d0e96038a9a48f747b7961cdace587",
+          "git_blob": "d01cc56ba55d57af0c6d743eefbcc21e23e30ac7"
+        },
+        "source/experiment/archive_hf.py": {
+          "size": 5727,
+          "sha256": "086a1b0415eb0f951ed5f6e3eb2911501e796109e68205737c80c21032551732",
+          "git_blob": "8550ddc5397b75e243721fc746b74e1c7fac3121"
+        },
+        "source/training/reviews/v5_test_review.jsonl": {
+          "size": 86836,
+          "sha256": "f50eff8fd1bfc58f83361ff58b45900237a9f612232dedb775b8ff20ea1fdd33",
+          "git_blob": "5c51ed6fd378eeb52248f45e2d3bff92848c071b"
+        },
+        "source/training/reviews/v5_train_review.jsonl": {
+          "size": 257370,
+          "sha256": "49fa0d3ef3dbefc0f73b090f168a793a6316f567c9888975a7b37a706c2340ec",
+          "git_blob": "40b25903e9e715dd75b794b4014b6c1e82f8e92b"
+        },
+        "source/training/reviews/v5_eval_review.jsonl": {
+          "size": 93846,
+          "sha256": "bc4599d4f8170dd21fd822d726b6bcf8d2e42588abce9234719fa12027df1a3a",
+          "git_blob": "019b75e7ada21ad8aa60cad384aec44b3a5b0cac"
+        },
+        "source/training/reviews/v5_source/dataset_info.json": {
+          "size": 857,
+          "sha256": "9b911a2a3aa0407d748ae2f57f6dac260c976c4114d57c1cfcb555a68d70d87c",
+          "git_blob": "58623e8c869c8c51d9d3266a970730f33b0537f4"
+        },
+        "source/training/reviews/v5_source/latex_formula_train.jsonl": {
+          "size": 3385540,
+          "sha256": "7589e92de25edd87afc591b1657b52a0ec927e5e58dc4abf6fbd00cc9a85653e",
+          "git_blob": "003c4ad7105fda0a7df30c97643baae4ccf706a2"
+        },
+        "source/training/reviews/v5_source/latex_formula_eval_clean.jsonl": {
+          "size": 470803,
+          "sha256": "ed83c7d05390958a40b78a993c6e65ad4a599bd0fef8ff019871185a9f84c02d",
+          "git_blob": "fab76ef3858fc2241b7aefc52a356d7d54a10396"
+        },
+        "source/training/reviews/v5_source/latex_formula_test.jsonl": {
+          "size": 376810,
+          "sha256": "143860b7e38fc3c0478e9d80424cb132cdb7d87cebeee4e3581fc4c121aaf8fb",
+          "git_blob": "d4d66bf32449dd36dbe77effce338be8e2a03594"
+        },
+        "source/training/data/v5.2/latex_formula_eval.jsonl": {
+          "size": 432910,
+          "sha256": "3c4f2113a63be1e6825aff6131c0d6cad9a439565dac2f582d53e836d6375c93",
+          "git_blob": "940fae081bc85edc67e5cc60c0bd961039a0496b"
+        },
+        "source/training/data/v5.2/dataset_summary.json": {
+          "size": 4919,
+          "sha256": "2bd2d357accf591c5eb6c7f43ef6ad1dcedfafb70a033c23df220238584a5162",
+          "git_blob": "6bd4b88e8f04ebf27d4ce28969751c2ecdc9ce7d"
+        },
+        "source/training/data/v5.2/latex_formula_quarantine.jsonl": {
+          "size": 381244,
+          "sha256": "d3216b4d2ee41d310dfe236fdbe5e8ea44dfbacdca8ef281f1688698e61ba9d6",
+          "git_blob": "96fd90e04800a94bf0f8ef8f51662ddfb8b08d9b"
+        },
+        "source/training/data/v5.2/dataset_info.json": {
+          "size": 857,
+          "sha256": "9b911a2a3aa0407d748ae2f57f6dac260c976c4114d57c1cfcb555a68d70d87c",
+          "git_blob": "58623e8c869c8c51d9d3266a970730f33b0537f4"
+        },
+        "source/training/data/v5.2/group_manifest.jsonl": {
+          "size": 34785,
+          "sha256": "53c9289867bbb0cfae76a18ce687bd52ebf7a12e3624fbbfc4ed447313c4b381",
+          "git_blob": "971c05d7b1d8dcbada5737b6f192cb4bd17fc3b9"
+        },
+        "source/training/data/v5.2/latex_formula_train.jsonl": {
+          "size": 3341559,
+          "sha256": "e7c9838ca9824bf0a055842355f205b6c78c55bb75bfbeb4fa45d19d065bf5e3",
+          "git_blob": "28be9a9303253ca3dc713525dc46bbb6bed99837"
+        },
+        "source/training/data/v5.2/review_manifest.jsonl": {
+          "size": 482426,
+          "sha256": "04885a509914a470a843d6a1afc311ac65e3aa39697ca867eeeaceac1fd55ddb",
+          "git_blob": "8d53b1c87893679e4470bae98afe52fb55e85977"
+        },
+        "source/training/data/v5.2/latex_formula_eval_clean.jsonl": {
+          "size": 432910,
+          "sha256": "3c4f2113a63be1e6825aff6131c0d6cad9a439565dac2f582d53e836d6375c93",
+          "git_blob": "940fae081bc85edc67e5cc60c0bd961039a0496b"
+        },
+        "source/training/data/v5.2/group_connections.jsonl": {
+          "size": 723470,
+          "sha256": "943e22878fcd9dcc39e2ec9495576643209cf0e794f79fbcc3fac5e83c8eed31",
+          "git_blob": "4b0e4b1556557b1b41820d593e1dc4bda282f363"
+        },
+        "source/training/data/v5.2/latex_formula_test.jsonl": {
+          "size": 348583,
+          "sha256": "728c236fc2cb0cfbf952fda91e08eff50fb7489887146d8c10f66c52da59e2ff",
+          "git_blob": "1954fd041a05468c0236e1c943eda09c05ef2d62"
+        },
+        "source/tools/data_generation/noisy_builder.py": {
+          "size": 13062,
+          "sha256": "2f489810cb14d39899b2d6adfb03d68d19ffcd0c5b1a3e8243fd1ea741ae8035",
+          "git_blob": "dd6abf6c2878625ac7317806c994bfc67d9151c3"
+        },
+        "source/tools/data_generation/__init__.py": {
+          "size": 1,
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "git_blob": "8b137891791fe96927ad78e64b0aad7bded08bdc"
+        },
+        "runs/smoke/run_manifest.json": {
+          "size": 5623,
+          "sha256": "80a414cb385bed25b500a1797060f25b05aed91e783f8a3b654df91948c58cd1",
+          "git_blob": "9d98f102d378ec139be7f0a171a18a6282b50a88"
+        },
+        "runs/smoke/effective_config.yaml": {
+          "size": 1045,
+          "sha256": "7527cd25e57d8bc3ea082e5f4ed8793b00d90192f91785ee35b64084c32bc6c7",
+          "git_blob": "f8dda51a591d853f3adc8ae42155ad4ec6c2f116"
+        },
+        "runs/sft/run_manifest.json": {
+          "size": 5881,
+          "sha256": "6214c261747ae74f78a47cee525e35b8d8c0e8279f8c259802fa291b0963aa25",
+          "git_blob": "13c999b7726d8f3008bb8cb03bee8b79acea3b39"
+        },
+        "runs/sft/effective_config.yaml": {
+          "size": 1006,
+          "sha256": "8e853f6f79515c88ee21355d0ac4c04b4470cc79f5cec7b7c53158219560b537",
+          "git_blob": "7732e0afd5bc9e75650b8c4a5ca0713623bbabf8"
+        },
+        "runs/sft/training_data/dataset_info.json": {
+          "size": 437,
+          "sha256": "9c182d71c72649b8bea1189b8e6759f7b27d056cacf194eab6d889ed4a05b198",
+          "git_blob": "f8de76912cbc0b193be95196f986a9edf2b258b0"
+        },
+        "runs/sft/training_data/latex_formula_train.jsonl": {
+          "size": 765032,
+          "sha256": "db8eff6446425b9da2172699e72cb94a4a8ac8683204b2b468f28bb7e638252e",
+          "git_blob": "d6306cfcee269733afb25cbcd073330c0f965022"
+        },
+        "runs/sft/training_data/source_map.jsonl": {
+          "size": 202134,
+          "sha256": "d99f02461751da6719e3a0a4e15ce519b5828ed17d40db8b2fc9de091bdf6eec",
+          "git_blob": "73decdc91896d076f8b56d335a4acf9a90c3fb0b"
+        },
+        "runs/sft/training_data/latex_formula_eval_clean.jsonl": {
+          "size": 92684,
+          "sha256": "a55f86e2d621fc29f70f35319d32ea1f403d1967d827a0875b050222a38b8240",
+          "git_blob": "c81ba8bb10b12f8b0ad51542f168c5c8543c740f"
+        },
+        "runs/smoke/training_data/dataset_info.json": {
+          "size": 437,
+          "sha256": "9c182d71c72649b8bea1189b8e6759f7b27d056cacf194eab6d889ed4a05b198",
+          "git_blob": "f8de76912cbc0b193be95196f986a9edf2b258b0"
+        },
+        "runs/smoke/training_data/latex_formula_train.jsonl": {
+          "size": 765032,
+          "sha256": "db8eff6446425b9da2172699e72cb94a4a8ac8683204b2b468f28bb7e638252e",
+          "git_blob": "d6306cfcee269733afb25cbcd073330c0f965022"
+        },
+        "runs/smoke/training_data/source_map.jsonl": {
+          "size": 202134,
+          "sha256": "d99f02461751da6719e3a0a4e15ce519b5828ed17d40db8b2fc9de091bdf6eec",
+          "git_blob": "73decdc91896d076f8b56d335a4acf9a90c3fb0b"
+        },
+        "runs/smoke/training_data/latex_formula_eval_clean.jsonl": {
+          "size": 92684,
+          "sha256": "a55f86e2d621fc29f70f35319d32ea1f403d1967d827a0875b050222a38b8240",
+          "git_blob": "c81ba8bb10b12f8b0ad51542f168c5c8543c740f"
+        }
+      },
+      "attempt": 1,
+      "updated_at": 1792742363.2450852
+    },
+    "model-card": {
+      "status": "verified",
+      "commit": "3721b25f40f3e9383d99b2991ba9dd0e4749dc86",
+      "path": "",
+      "files": {
+        "README.md": {
+          "size": 1497,
+          "sha256": "3ab7177bdb0a109037a1c1a7d4e6763c55d704859af39a04af6532e47f14b204",
+          "git_blob": "ed73b36c2f50cda1e9d048fb182401acfa984a3c"
+        }
+      },
+      "attempt": 1,
+      "updated_at": 1792742364.866674
+    }
+  }
+}

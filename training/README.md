@@ -128,8 +128,7 @@ python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 --baseline
 After preparing the immutable base-model cache in the GPU environment, execute the selected plans:
 
 ```bash
-python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile smoke --execute
-# Run after the smoke run confirms GPU and dependency compatibility.
+# Direct formal training; optional smoke is not a prerequisite.
 python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile sft --execute
 python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 --baseline-only --execute
 ```
@@ -147,7 +146,7 @@ The default roots are `saves/qwen3-4b-latex-correction/lora/smoke-v5.2`, `saves/
 
 The v5.2 verifier checks frozen source hashes under `training/reviews/v5_source`, review hashes under `training/reviews`, cleaning-code hashes under `training`, and export hashes under `training/data/v5.2`. It checks every accepted row against its original split, source and reviewed label, and checks all cross-split group keys. Training projections, manifests, checkpoint discovery and evaluation commands bind the same absolute data directory; development inference uses the repaired v5.2 labels. Test membership is verified, while test inference remains a separate final evaluation.
 
-The v5.2 entry point and local validation are complete; all 154 local tests passed. **The new Colab run has not started, and no v5.2 model scores or checkpoint selection exist.** The commands above describe the upcoming execution.
+All 154 local tests passed. The v5.2 run has now completed: both epoch checkpoints scored 48/56 (85.71%), compared with the base at 33/56 (58.93%). The tie selects checkpoint-30. Weights and reports are saved in HF and Colab is released; see [the run report](../reports/v5.2-colab-sft-20261023/README.md). Future Colab operations use direct CLI commands, with no unsolicited smoke runs or additional Python orchestration.
 
 ## 4. v5 Metrics, Provenance and Current Validation
 
@@ -159,9 +158,9 @@ For each candidate, the result directory contains `predictions.jsonl`, `metrics.
 
 This workflow uses **development only** for selection. It verifies test membership/leakage metadata but does not run test inference or report test scores. The test set remains reserved for a separately specified final evaluation. The current development and test sets each contain only four groups and no calculus; see [DATA_V5.md](DATA_V5.md) for their composition and limits.
 
-**The [2026-10-23 Colab smoke](../reports/v5-colab-smoke-20261023/README.md) passed on an A100 40GB:** five optimizer steps completed in 21.985 seconds, and the saved checkpoint reloaded for two development predictions. The runtime was terminated after result collection. All 127 local tests passed. The subsequent 3-epoch / 99-step formal run completed: frozen development scores were 25/64 for Base and 41/64 for cp66/cp99. Extra diagnostics and final test remain incomplete. The GPU was released. See [the complete training-data review and scorer-only reassessment](DATA_V5.md#v51-全量训练审查与已有预测复评2026-10-23): 476 reviewed training rows remain; no new training was run after cleanup.
+**The [2026-10-23 Colab smoke](../reports/v5-colab-smoke-20261023/README.md) passed on an A100 40GB:** five optimizer steps completed in 21.985 seconds, and the saved checkpoint reloaded for two development predictions. The runtime was terminated after result collection. All 127 local tests passed. The subsequent 3-epoch / 99-step formal run completed: frozen development scores were 25/64 for Base and 41/64 for cp66/cp99. Extra diagnostics and final test remain incomplete. The GPU was released. See [the complete training-data review and scorer-only reassessment](DATA_V5.md#v51-全量训练审查与已有预测复评2026-10-23): 476 reviewed training rows remain; no new training was run during that cleanup stage. The later v5.2 run is reported below.
 
-The subsequent **v5.2 input/gold-only review** is complete: 476 training, 56 development and 56 test records remain, with 55 records quarantined across the three original splits. Both holdouts received two independent reviews without model predictions or scores. Original split ownership and historical grouping connections are preserved; all registered cross-split overlap checks are zero. See [DATA_V5.md](DATA_V5.md) and [the exported summary](data/v5.2/dataset_summary.json). During the cleanup stage, no inference, checkpoint selection or Colab training was run. The entry point now supports explicit `--data-version v5.2` for both training and evaluation; the default remains historical v5. The new Colab run has not started, and no v5.2 scores are available.
+The subsequent **v5.2 input/gold-only review** is complete: 476 training, 56 development and 56 test records remain, with 55 records quarantined across the three original splits. Both holdouts received two independent reviews without model predictions or scores. Original split ownership and historical grouping connections are preserved; all registered cross-split overlap checks are zero. See [DATA_V5.md](DATA_V5.md) and [the exported summary](data/v5.2/dataset_summary.json). During the cleanup stage, no inference, checkpoint selection or Colab training was run. The entry point now supports explicit `--data-version v5.2` for both training and evaluation; the default remains historical v5. The completed v5.2 run and saved artifacts are documented in [the run report](../reports/v5.2-colab-sft-20261023/README.md).
 
 ### Manual remote model prefetch
 
