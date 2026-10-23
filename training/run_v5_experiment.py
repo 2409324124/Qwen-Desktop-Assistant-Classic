@@ -102,13 +102,63 @@ def training_plan(root, profile, run_dir=None):
     data_dir = root/config['dataset_dir']
     data = verify_dataset(root, data_dir)
     run_dir = (root/(run_dir or config['output_dir'])).resolve()
-    config['dataset_dir'] = str(data_dir.resolve())
+    config['dataset_dir'] = str(run_dir/'training_data')
     config['output_dir'] = str(run_dir/'checkpoints')
     return {'profile': profile, 'model': MODEL, 'dataset': data,
             'config_source_sha256': sha(config_path), 'effective_config': config,
             'protocol_sha256': protocol_hashes(root), 'run_dir': str(run_dir),
             'command': ['llamafactory-cli', 'train', str(run_dir/'effective_config.yaml')]}
 
+
+
+def write_training_projection(plan, root):
+    """Write only flat model-facing columns; retain audited records separately."""
+    directory = Path(plan['run_dir'])/'training_data'
+    directory.mkdir(exist_ok=False)
+    source_dir = root/'training/data/v5'
+    registry = json.loads((source_dir/'dataset_info.json').read_text())
+    projected_registry, mapping, source_hashes, counts = {}, [], {}, {}
+    for split in ('train', 'eval_clean'):
+        filename = FILES[split]
+        source = source_dir/filename
+        source_hashes[str(source)] = sha(source)
+        projected = []
+        for physical_line, line in enumerate(source.read_text(encoding='utf-8').splitlines(), 1):
+            if not line.strip(): continue
+            row = json.loads(line)
+            flat = {key: row[key] for key in ('instruction', 'input', 'output')}
+            if any(not isinstance(value, str) for value in flat.values()):
+                raise ValueError('Training projection requires string instruction/input/output')
+            projected.append(flat)
+            mapping.append({'projected_file': filename, 'projected_line': len(projected),
+                            'source_file': str(source), 'source_line': physical_line,
+                            'source_id': row['metadata']['source_id'],
+                            'formula_group_id': row['metadata']['formula_group_id'],
+                            'source_record_sha256': hashlib.sha256(json.dumps(row, ensure_ascii=False, sort_keys=True).encode()).hexdigest()})
+        (directory/filename).write_text(''.join(json.dumps(row, ensure_ascii=False)+'\n' for row in projected), encoding='utf-8')
+        counts[filename] = len(projected)
+        name = 'latex_formula_'+split
+        projected_registry[name] = {**registry[name], 'file_name': filename, 'formatting': 'alpaca',
+                                   'columns': {'prompt': 'input', 'response': 'output', 'system': 'instruction'}}
+    write_json(directory/'dataset_info.json', projected_registry)
+    (directory/'source_map.jsonl').write_text(''.join(json.dumps(row, ensure_ascii=False)+'\n' for row in mapping), encoding='utf-8')
+    files = [*counts, 'dataset_info.json', 'source_map.jsonl']
+    return {'version': 'flat-training-columns-v1', 'directory': str(directory),
+            'files_sha256': {name: sha(directory/name) for name in files},
+            'source_files_sha256': source_hashes, 'rows': counts,
+            'source_mapping_file': 'source_map.jsonl'}
+
+
+def verify_training_projection(projection):
+    directory = Path(projection['directory'])
+    for filename, digest in projection['files_sha256'].items():
+        path = within(directory, filename)
+        if not path.is_file() or sha(path) != digest:
+            raise ValueError(f'Training projection changed: {path}')
+    for filename, digest in projection['source_files_sha256'].items():
+        path = Path(filename)
+        if not path.is_file() or sha(path) != digest:
+            raise ValueError(f'Training projection source changed: {path}')
 
 def resolve_model_revision():
     from huggingface_hub import model_info
@@ -139,6 +189,8 @@ def check_training_runtime():
 
 
 def verify_execution_binding(plan, root):
+    if plan.get('training_projection'):
+        verify_training_projection(plan['training_projection'])
     if verify_dataset(root, root/'training/data/v5') != plan['dataset']:
         raise ValueError('Dataset binding changed since planning')
     if protocol_hashes(root) != plan['protocol_sha256']:
@@ -161,6 +213,8 @@ def train(plan, root, runner=subprocess.run, resolver=resolve_model_revision, mo
     verify_execution_binding(plan, root)
     plan['effective_config']['model_revision'] = plan['model_revision']
     run_dir.mkdir(parents=True, exist_ok=False)
+    plan['training_projection'] = write_training_projection(plan, root)
+    verify_training_projection(plan['training_projection'])
     config_path = run_dir/'effective_config.yaml'
     config_path.write_text(yaml.safe_dump(plan['effective_config'], sort_keys=False), encoding='utf-8')
     manifest = {**plan, 'environment': environment(), 'config_sha256': sha(config_path), 'status': 'running'}
@@ -195,6 +249,9 @@ def discover_checkpoints(run_dir, data, protocol):
     manifest = json.loads((run_dir/'run_manifest.json').read_text())
     if manifest.get('profile') != 'sft' or manifest.get('status') != 'completed':
         raise ValueError('Checkpoint comparison requires a completed v5 SFT run, not smoke/partial training')
+    if not manifest.get('training_projection'):
+        raise ValueError('Missing bound training projection')
+    verify_training_projection(manifest['training_projection'])
     if manifest.get('dataset') != data or manifest.get('protocol_sha256') != protocol:
         raise ValueError('Training data or evaluation protocol differs from the recorded run')
     if sha(run_dir/'effective_config.yaml') != manifest['config_sha256']:

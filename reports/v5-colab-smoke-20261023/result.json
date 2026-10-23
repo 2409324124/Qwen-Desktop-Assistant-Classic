@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-23",
+  "status": "passed",
+  "gpu": "NVIDIA A100-SXM4-40GB",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "global_step": 5,
+  "reload_samples": 2,
+  "training_samples": 64,
+  "development_samples": 64,
+  "train_metrics": {
+    "epoch": 1.25,
+    "total_flos": 1007141009129472.0,
+    "train_loss": 0.6632856130599976,
+    "train_runtime": 21.985,
+    "train_samples_per_second": 3.639,
+    "train_steps_per_second": 0.227
+  },
+  "eval_metrics": {
+    "epoch": 1.25,
+    "eval_loss": 0.2706463932991028,
+    "eval_runtime": 3.5851,
+    "eval_samples_per_second": 17.852,
+    "eval_steps_per_second": 4.463
+  },
+  "environment": {
+    "python": "3.13.15 (main, Aug  6 2026, 11:06:22) [GCC 13.3.0]",
+    "packages": {
+      "llamafactory": "0.9.5",
+      "transformers": "4.57.6",
+      "torch": "2.11.0+cu130",
+      "peft": "0.18.1",
+      "accelerate": "1.11.0",
+      "datasets": "4.0.0"
+    }
+  },
+  "protocol_sha256": {
+    "training/run_v5_experiment.py": "5418202a674c81aa832f966f2cea4b2cb65df70601833e1fbb68e54740fb4d9b",
+    "training/run_lora_inference.py": "235e070c75ee1c4310f4069fed5cabc01d87d395ba9a6c2d3dcc839f70375941",
+    "training/evaluate_latex.py": "34f3ffde35965bf3a606e4ebdf2be8a21401f8fc8780b9012e2c5c3def57277a",
+    "training/latex_semantics.py": "aefb72ef9332e2733581bb1146b6dfb752c152e0f9666ef1d1b9d2fe0469c043",
+    "training/latex_postprocess.py": "15b26b185ee4ac7f10fa734ac58aaec9ff5a810c3ea72c2bb75cd753d981a067",
+    "training/prompts.py": "ae4f27a8443f9676a35cc28b501a57ef1eb996e37116b3b29f5535a57866a575"
+  },
+  "dataset": {
+    "summary_sha256": "2942203736d25b88164930e7e0ad39de5aefed92b2bfd0cd36c7d18f98e667af",
+    "data_version": "v5",
+    "review_rule_sha256": "9ce275e00c582beb291fb3822776057d467345f531760eb5320f9efd81ebdd69",
+    "export_files_sha256": {
+      "latex_formula_train.jsonl": "7589e92de25edd87afc591b1657b52a0ec927e5e58dc4abf6fbd00cc9a85653e",
+      "latex_formula_eval.jsonl": "ed83c7d05390958a40b78a993c6e65ad4a599bd0fef8ff019871185a9f84c02d",
+      "latex_formula_eval_clean.jsonl": "ed83c7d05390958a40b78a993c6e65ad4a599bd0fef8ff019871185a9f84c02d",
+      "latex_formula_test.jsonl": "143860b7e38fc3c0478e9d80424cb132cdb7d87cebeee4e3581fc4c121aaf8fb",
+      "latex_formula_quarantine.jsonl": "eacf71f02e9ed128309a0066c1647fd8aca3063ac72c6e12dbd3637eb5db45a5",
+      "latex_formula_diagnostic.jsonl": "07f52b61ba2e51142b537a195acb1183788b0186e78a60c2333c298d05e35f3e",
+      "review_manifest.jsonl": "7f52a15f45be345335860e73d1ab0bf8ec0a338652468a0af2f40127ac7fa08f",
+      "dataset_info.json": "9b911a2a3aa0407d748ae2f57f6dac260c976c4114d57c1cfcb555a68d70d87c",
+      "group_manifest.jsonl": "2b77e19936951298c1bd2142f049d267ed5f110f9cf3441b774aeed9906490c2",
+      "group_connections.jsonl": "27ccadbd689a6406dc41c557b413282abe4783578f057ab73d325b1c79a3e7fc",
+      "group_audit.md": "46e4a24bf2974bf1da57dc1c7a57033285e607b3ae43cf71fdd4524d818c936c"
+    }
+  },
+  "log_history": [
+    {
+      "epoch": 0.25,
+      "grad_norm": 12.115950584411621,
+      "learning_rate": 0.0,
+      "loss": 0.7535,
+      "step": 1
+    },
+    {
+      "epoch": 0.5,
+      "grad_norm": 12.350281715393066,
+      "learning_rate": 1.5e-05,
+      "loss": 1.0331,
+      "step": 2
+    },
+    {
+      "epoch": 0.75,
+      "grad_norm": 8.685249328613281,
+      "learning_rate": 1.2803300858899106e-05,
+      "loss": 0.5348,
+      "step": 3
+    },
+    {
+      "epoch": 1.0,
+      "grad_norm": 5.531290531158447,
+      "learning_rate": 7.5e-06,
+      "loss": 0.5899,
+      "step": 4
+    },
+    {
+      "epoch": 1.25,
+      "grad_norm": 3.6505815982818604,
+      "learning_rate": 2.196699141100894e-06,
+      "loss": 0.4051,
+      "step": 5
+    },
+    {
+      "epoch": 1.25,
+      "eval_loss": 0.2706463932991028,
+      "eval_runtime": 3.5503,
+      "eval_samples_per_second": 18.026,
+      "eval_steps_per_second": 4.507,
+      "step": 5
+    }
+  ],
+  "colab_after_stop": {
+    "active_assignments": 0,
+    "usage_rate_per_hour": 0,
+    "balance_compute_units": 398.27
+  },
+  "limitations": [
+    "Five-step smoke only; no full SFT, full baseline or checkpoint selection.",
+    "Two reloaded predictions check execution only, not model accuracy.",
+    "Smoke adapter weights remained on temporary Colab storage; logs, metrics and predictions were recovered locally."
+  ]
+}

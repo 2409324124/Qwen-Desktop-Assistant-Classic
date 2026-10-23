@@ -26,7 +26,7 @@ class V5ExperimentTests(unittest.TestCase):
             (self.root/relative).write_bytes((workflow.ROOT/relative).read_bytes())
         source = self.root/'source.jsonl'; source.write_text('frozen')
         for split,filename in workflow.FILES.items():
-            rows = [{'input':f'input {split}', 'output':f'x_{{{len(split)}}}',
+            rows = [{'instruction':'Restore the formula only', 'input':f'input {split}', 'output':f'x_{{{len(split)}}}',
                      'metadata': {'data_version':'v5', 'evaluation_role':'main',
                                   'formula_group_id':f'group-{split}', 'source_id':f'source-{split}',
                                   'split':'eval' if split=='eval_clean' else split}}]
@@ -66,6 +66,50 @@ class V5ExperimentTests(unittest.TestCase):
                                 'raw_prediction':prediction, 'metadata':row['metadata']})
         out.write_text(''.join(json.dumps(r)+'\n' for r in predictions))
         return subprocess.CompletedProcess(command,0)
+
+    def test_training_projects_heterogeneous_audit_metadata_without_mutating_sources(self):
+        source = self.data/workflow.FILES['train']
+        row = json.loads(source.read_text())
+        row['metadata']['signature_evidence'] = [{'structural_payload': ['symbol', 'x', []]}]
+        other = {**row, 'input': 'second input', 'metadata': {**row['metadata'],
+                 'source_id': 'second-source', 'signature_evidence': [{'structural_payload': [['nested'], ['array']]}]}}
+        source.write_text(json.dumps(row)+'\n'+json.dumps(other)+'\n')
+        self.summary['train']['total'] = 2
+        self.rehash()
+        original = source.read_bytes()
+        run = self.trained()
+        effective = yaml.safe_load((run/'effective_config.yaml').read_text())
+        self.assertEqual(Path(effective['dataset_dir']), run/'training_data')
+        rows = workflow.load_jsonl(run/'training_data'/workflow.FILES['train'])
+        self.assertEqual(len(rows), 2)
+        self.assertTrue(all(set(record) == {'instruction', 'input', 'output'} for record in rows))
+        self.assertEqual(source.read_bytes(), original)
+        manifest = json.loads((run/'run_manifest.json').read_text())
+        projection = manifest['training_projection']
+        workflow.verify_training_projection(projection)
+        mapping = workflow.load_jsonl(run/'training_data'/'source_map.jsonl')
+        self.assertEqual([r['source_id'] for r in mapping[:2]], ['source-train', 'second-source'])
+        self.assertEqual([r['source_line'] for r in mapping[:2]], [1, 2])
+        self.assertIn('source_map.jsonl', projection['files_sha256'])
+
+    def test_projection_tampering_during_training_marks_run_failed(self):
+        plan = workflow.training_plan(self.root, 'smoke')
+        def tamper(command, **kwargs):
+            config = yaml.safe_load(Path(command[-1]).read_text())
+            target = Path(config['dataset_dir'])/workflow.FILES['train']
+            target.write_text(target.read_text()+' ')  # valid JSON, changed bound bytes
+            return self.fake_train(command, **kwargs)
+        with self.assertRaisesRegex(ValueError, 'Training projection changed'):
+            workflow.train(plan, self.root, runner=tamper, resolver=lambda: 'a'*40, model_check=self.no_model_check)
+        manifest = json.loads((Path(plan['run_dir'])/'run_manifest.json').read_text())
+        self.assertEqual(manifest['status'], 'failed')
+
+    def test_projection_tampering_after_training_blocks_checkpoint_comparison(self):
+        run = self.trained()
+        target = run/'training_data'/workflow.FILES['eval_clean']
+        target.write_text(target.read_text()+' ')
+        with self.assertRaisesRegex(ValueError, 'Training projection changed'):
+            workflow.evaluation_plan(self.root, run)
 
     def test_dataset_tampering_and_cross_split_overlap_fail_closed(self):
         workflow.verify_dataset(self.root,self.data)

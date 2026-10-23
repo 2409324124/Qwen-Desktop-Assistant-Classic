@@ -65,7 +65,7 @@ python3 -B -m training.run_v5_experiment train --profile sft
 python3 -B -m training.run_v5_experiment evaluate --baseline-only
 ```
 
-The dedicated [SFT configuration](qwen3_4b_lora_sft_v5.yaml) and [smoke configuration](qwen3_4b_lora_smoke_v5.yaml) use `training/data/v5`, LoRA rank 64 / alpha 128 / dropout 0.05, target `all`, learning rate `1.5e-5`, and the non-thinking Qwen3 template. They default to **SDPA and BF16**. SDPA avoids requiring the separate FlashAttention-2 extension; compatible PyTorch, Transformers, PEFT and LLaMA-Factory packages are still required. A real training execution checks that a CUDA GPU with BF16 support is available.
+The dedicated [SFT configuration](qwen3_4b_lora_sft_v5.yaml) and [smoke configuration](qwen3_4b_lora_smoke_v5.yaml) use `training/data/v5`, LoRA rank 64 / alpha 128 / dropout 0.05, target `all`, learning rate `1.5e-5`, and the non-thinking Qwen3 template. They default to **SDPA and BF16**. SDPA avoids requiring the separate FlashAttention-2 extension; compatible PyTorch, Transformers, PEFT and LLaMA-Factory packages are still required. A real training execution checks that a CUDA GPU with BF16 support is available. At execution, the entry point creates `run_dir/training_data` with only string `instruction/input/output` columns for train and development. This avoids Arrow failures on heterogeneous AST audit metadata; original v5 exports remain unchanged, and a separate source map plus the run manifest bind every projected row to its audited source. Projection integrity is checked before and after training and before checkpoint comparison.
 
 | Profile | Duration | Eval / save cadence | Experiment root |
 | --- | --- | --- | --- |
@@ -121,7 +121,7 @@ For each candidate, the result directory contains `predictions.jsonl`, `metrics.
 
 This workflow uses **development only** for selection. It verifies test membership/leakage metadata but does not run test inference or report test scores. The test set remains reserved for a separately specified final evaluation. The current development and test sets each contain only four groups and no calculus; see [DATA_V5.md](DATA_V5.md) for their composition and limits.
 
-**Current validation is CPU planning and mocked-process tests only. No real v5 training, model inference or Colab session has run.** CUDA memory use, GPU BF16 support, installed training-stack compatibility and actual learning quality still need a future GPU smoke run and subsequent completed-run evaluation. There is no measured v5 accuracy yet.
+**The [2026-10-23 Colab smoke](../reports/v5-colab-smoke-20261023/README.md) passed on an A100 40GB:** five optimizer steps completed in 21.985 seconds, and the saved checkpoint reloaded for two development predictions. The runtime was terminated after result collection. All 127 local tests passed. Full SFT, full baseline/checkpoint comparison and measured v5 formula accuracy remain pending.
 
 ### Manual remote model prefetch
 
