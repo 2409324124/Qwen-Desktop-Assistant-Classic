@@ -13,7 +13,7 @@ class MAMUTDataBuilder:
         self.factor_false = factor_false
         self.formulas = []
         self.instruction = "请将以下输入的数学描述或错误公式转换为标准的 LaTeX 格式，并修正其中的逻辑错误。"
-        
+
         # Natural language templates for pseudo-code
         self.nl_templates = [
             "{name} is usually written like {pseudo}.",
@@ -41,7 +41,7 @@ class MAMUTDataBuilder:
         pseudo = pseudo.replace("\\pi", " pi ")
         pseudo = pseudo.replace("\\sqrt", " square root of ")
         pseudo = " ".join(pseudo.split())
-        
+
         # Randomly pick variants
         variants = random.sample(self.nl_templates, min(len(self.nl_templates), 2))
         return [v.format(name=name, pseudo=pseudo) for v in variants]
@@ -64,22 +64,22 @@ class MAMUTDataBuilder:
         for f in self.formulas:
             print(f"Processing: {f['name']}...")
             standard_latex = f['standard_latex']
-            
+
             # 1. Add NL pseudo variants
             nl_variants = self.generate_pseudo_nl(f['name'], standard_latex)
             for nl in nl_variants:
                 records.append(self.assemble_record(nl, f, is_correct=True))
-            
+
             # 2. Use MAMUT FormulaGenerator
             # max = num_equiv (True versions) + num_equiv * factor_false (False versions)
             max_total = self.num_equiv * (1 + self.factor_false)
             generator = FormulaGenerator(standard_latex, factor_false=self.factor_false)
-            
+
             try:
                 # generate_versions_iterator yields (latex_version, is_true)
                 iterations = 0
                 for version, is_true in generator.generate_versions_iterator(
-                    max=max_total, 
+                    max=max_total,
                     initial_is_candidate=False
                 ):
                     # Sanity check for falsified versions
@@ -89,10 +89,10 @@ class MAMUTDataBuilder:
                         try:
                             # Parse back to check equivalence (heuristic)
                             # Note: parsing latex back to sympy is part of the fork
-                            pass 
+                            pass
                         except:
                             pass
-                    
+
                     records.append(self.assemble_record(version, f, is_correct=is_true))
                     iterations += 1
                     if iterations >= max_total:
@@ -105,7 +105,7 @@ class MAMUTDataBuilder:
         with open(self.out_path, 'w', encoding='utf-8') as f_out:
             for r in records:
                 f_out.write(json.dumps(r, ensure_ascii=False) + "\n")
-        
+
         print(f"\n[DONE] Generated {len(records)} records in {self.out_path}")
 
 if __name__ == "__main__":

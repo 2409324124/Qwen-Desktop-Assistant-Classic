@@ -62,4 +62,3 @@ def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
         summary["layers"][layer] = summary["layers"].get(layer, 0) + 1
         summary["categories"][category] = summary["categories"].get(category, 0) + 1
     return summary
-

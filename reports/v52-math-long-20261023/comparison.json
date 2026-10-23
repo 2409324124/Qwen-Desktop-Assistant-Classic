@@ -1,0 +1,45 @@
+{
+  "aime25": {
+    "n": 30,
+    "base_only_correct": [
+      4,
+      28
+    ],
+    "sft_only_correct": [
+      25
+    ],
+    "base": {
+      "correct": 12,
+      "no_reliable_final_box": 2,
+      "suspected_truncation": 2,
+      "output_limit": 32768,
+      "output_at_limit": 3,
+      "max_output_tokens": 32768,
+      "invalid_filter": 0,
+      "over_100_boxed_occurrences_ids": [
+        1,
+        8,
+        10
+      ]
+    },
+    "checkpoint-30": {
+      "correct": 11,
+      "no_reliable_final_box": 7,
+      "suspected_truncation": 8,
+      "output_limit": 32768,
+      "output_at_limit": 9,
+      "max_output_tokens": 32768,
+      "invalid_filter": 0,
+      "over_100_boxed_occurrences_ids": [
+        1,
+        8,
+        9,
+        10,
+        22,
+        24,
+        27,
+        28
+      ]
+    }
+  }
+}

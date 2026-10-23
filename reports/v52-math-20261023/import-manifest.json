@@ -1,0 +1,25 @@
+{
+  "source_directory": "/srv/storage/projects/colab/v52-math-20261023",
+  "files": {
+    "compare.py": "b39404329bb2db71e4dd9944d575fa18564210b35e79c21877af950264bb2d40",
+    "README.md": "8ee8f35eade6a040b5a4d3a69ace7852148c6073ed051681df2edfc95cbc0504",
+    "run.sh": "73053d795925145b09f0eb87627da197db00aafdab4bdd2f238ea34d157c13f2",
+    "comparison.json": "5078a7bc83ed2011e3fcd663b91332c9a3defa15dacd38544d374d7da8206dcf",
+    "tasks/math500_v52.yaml": "2480935998a8ff5807037abd808c16b47060627bf3d58dc3ddcb5ffbc97d6d58",
+    "tasks/test_score.py": "1a8c715a1aea3f51031ba5adc397068cd2cb5f909db83e8ba1a99c917890fc9c",
+    "tasks/answer_audit.py": "b49bdca050d2ee1149f6150578ce6ae5e11cdf968b4e14d5a8ce8da7e4ba2a9c",
+    "tasks/math_score.py": "20f7d36b58f63b48fa1a71da1a7e46c7b6650787889745e6810b25c76f034b18",
+    "results/gsm8k_cot_zeroshot/base/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/samples_gsm8k_cot_zeroshot_2026-10-23T16-21-09.153843.jsonl": "d5741d38468d06eb1c2c6849e57ce16f973c3dc55175054228cb85cb82d5d6ea",
+    "results/gsm8k_cot_zeroshot/base/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/results_2026-10-23T16-21-09.153843.json": "8b43d02c2473cc52ba4f99a1a5f9c9c7f1b36619a0b24aba63105c4c124cc070",
+    "results/gsm8k_cot_zeroshot/checkpoint-30/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/samples_gsm8k_cot_zeroshot_2026-10-23T16-23-50.535044.jsonl": "d6266143bd20f0935e5437a44df5d5897bf1604e0e1d202a597ce7bc9e6fddc8",
+    "results/gsm8k_cot_zeroshot/checkpoint-30/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/results_2026-10-23T16-23-50.535044.json": "9909fd3524f6a562fd71f5684d445c802c6d067620b7e5c5616f6a2aa2267f02",
+    "results/aime25/base/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/results_2026-10-23T16-34-08.054407.json": "1f11b4e8e5b9e53ad4c836c67959407f374a4ff2fab1b541cbbd3a08b150c841",
+    "results/aime25/base/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/samples_aime25_2026-10-23T16-34-08.054407.jsonl": "f307ca8a73d95fd2d5587aca635de536ecda3021ed0fab0b22145228fca16dce",
+    "results/aime25/checkpoint-30/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/results_2026-10-23T16-37-00.197727.json": "ab9ff0140f641db3c42f083f23d5f00ea1b53fabe0f356529853faa88aeeb2fb",
+    "results/aime25/checkpoint-30/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/samples_aime25_2026-10-23T16-37-00.197727.jsonl": "6f2c3474e4bed8277be4ab4357992406602449214e9bdaf5e845fe30ed3716bd",
+    "results/math500_v52/base/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/samples_math500_v52_2026-10-23T16-27-36.828971.jsonl": "d904a9d53d611b7f0b8b6681b1bede2af33735830ab7830fb32064a48dd142df",
+    "results/math500_v52/base/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/results_2026-10-23T16-27-36.828971.json": "ee5f3accbe6997b6f22371230fdffc78ed85fd7eacfe620f6af6cb1aae56c6e6",
+    "results/math500_v52/checkpoint-30/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/samples_math500_v52_2026-10-23T16-31-42.510274.jsonl": "e48b5ed6b5b7b7846bf67a7e7b87b52fb268eeb0910fb62dc53b261478d1cd9a",
+    "results/math500_v52/checkpoint-30/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/results_2026-10-23T16-31-42.510274.json": "3bcc0258c7cb87bacce7baf5766e26f186dad8a4605af4cf565891367c278e73"
+  }
+}

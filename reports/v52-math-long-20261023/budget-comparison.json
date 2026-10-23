@@ -1,0 +1,32 @@
+{
+  "aime25/base": {
+    "n": 30,
+    "4k_correct": 7,
+    "long_correct": 12,
+    "gained": [
+      4,
+      11,
+      20,
+      26,
+      28
+    ],
+    "lost": []
+  },
+  "aime25/checkpoint-30": {
+    "n": 30,
+    "4k_correct": 9,
+    "long_correct": 11,
+    "gained": [
+      11,
+      20,
+      21,
+      25,
+      26
+    ],
+    "lost": [
+      3,
+      4,
+      23
+    ]
+  }
+}

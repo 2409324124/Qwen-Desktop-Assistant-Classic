@@ -26,4 +26,3 @@ def is_output_protocol_compliant(prediction: str) -> bool:
         return False
     parsed = compare_latex_math_only(value, value)
     return parsed.parse_success and parsed.math_match
-

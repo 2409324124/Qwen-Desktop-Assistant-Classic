@@ -47,5 +47,3 @@ def write_json(path, value):
 
 def write_rows(path, rows):
     path.write_text(''.join(json.dumps(r, ensure_ascii=False, sort_keys=True)+'\n' for r in rows), encoding='utf-8')
-
-

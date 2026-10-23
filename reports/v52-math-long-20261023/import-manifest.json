@@ -1,0 +1,20 @@
+{
+  "source_directory": "/srv/storage/projects/colab/v52-math-long-20261023",
+  "files": {
+    "budget-comparison.json": "c22715330b48f9b961f08fb0052ce57fdea765489208d09533e353ae28e85fd3",
+    "compare.py": "86309ce0d6124095f9aa87e2f80cd13bfe3d9ab614f2d687f64cb4663c21a574",
+    "README.md": "4bd47597f7241f2270e69e77325f3339ce3687ac218e59770a87726b6a8f3b04",
+    "output-excerpts.md": "63093faac3dbb72736157aafc05150fb3287ba8067b3b73073746df09d054ba9",
+    "run.sh": "b20d8a57e6b16d34b72e18969080f84ab645fe03c1977adb485b122678384f80",
+    "compare_budgets.py": "5c70e13ab0a820c1246c9431e80a4bfe034a4ba41a2c9b90320feb099022c262",
+    "comparison.json": "93efc41668ec967a44c88e77f6018c270dfe02220092eba51d407372fdd8dc20",
+    "tasks/math500_v52.yaml": "2480935998a8ff5807037abd808c16b47060627bf3d58dc3ddcb5ffbc97d6d58",
+    "tasks/test_score.py": "1a8c715a1aea3f51031ba5adc397068cd2cb5f909db83e8ba1a99c917890fc9c",
+    "tasks/answer_audit.py": "b49bdca050d2ee1149f6150578ce6ae5e11cdf968b4e14d5a8ce8da7e4ba2a9c",
+    "tasks/math_score.py": "20f7d36b58f63b48fa1a71da1a7e46c7b6650787889745e6810b25c76f034b18",
+    "results/aime25/base/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/samples_aime25_2026-10-23T17-03-36.045461.jsonl": "d91be613792b8971190230dfe8080c482a2e9c078592be002f7ee5d9276974e7",
+    "results/aime25/base/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/results_2026-10-23T17-03-36.045461.json": "98347ba6d98098718b7b79c6ea7617dafea248d52a5351b4ddea1e38b41ee674",
+    "results/aime25/checkpoint-30/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/results_2026-10-23T17-44-23.163126.json": "11249b9fd1ca160ed98a90a2b3606d1c035a61197f9bb28fe123ceded90014cb",
+    "results/aime25/checkpoint-30/__home__miku__.cache__huggingface__hub__models--Qwen--Qwen3-4B-Instruct-2507__snapshots__cdbee75f17c01a7cc42f958dc650907174af0554/samples_aime25_2026-10-23T17-44-23.163126.jsonl": "512759cb224948be8757a5251637f2baeb5b76304a6e832df74568dacf65bed6"
+  }
+}
