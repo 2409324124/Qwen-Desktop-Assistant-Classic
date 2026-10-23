@@ -1,0 +1,153 @@
+{
+  "code_sha256": {
+    "clean_v5_holdouts.py": "52bfff51a91f6d4222923d38e079d0e306cfd92bd0f09c4923da130bc6af6bc8",
+    "clean_v5_training.py": "1d3abd926bdcbdce5bd5e553961807bdadd7920bc58c2f0f850197cb646adda4",
+    "evaluate_latex.py": "01138118452061848e4dd2b34dfe23a43867f8d0e9bbc6bb52f120d398ee08a0",
+    "formula_grouping.py": "e7e45a61e81e9e4d38bd9d7f7ded4840a8809e45d83cdf0152bd36b34c220316",
+    "formula_structure.py": "623cd51d601827082ef03bbe4895956f41a79c843fadbc804b5a5fb409993537",
+    "latex_semantics.py": "1e3db6b66847fecfae5092a51a6ed79ee9c50ceeee6540c932f62fa63477b4a4"
+  },
+  "cross_split_components_quarantined": 0,
+  "data_version": "v5.2-reviewed-all-splits",
+  "export_files_sha256": {
+    "dataset_info.json": "9b911a2a3aa0407d748ae2f57f6dac260c976c4114d57c1cfcb555a68d70d87c",
+    "group_connections.jsonl": "943e22878fcd9dcc39e2ec9495576643209cf0e794f79fbcc3fac5e83c8eed31",
+    "group_manifest.jsonl": "53c9289867bbb0cfae76a18ce687bd52ebf7a12e3624fbbfc4ed447313c4b381",
+    "latex_formula_eval.jsonl": "3c4f2113a63be1e6825aff6131c0d6cad9a439565dac2f582d53e836d6375c93",
+    "latex_formula_eval_clean.jsonl": "3c4f2113a63be1e6825aff6131c0d6cad9a439565dac2f582d53e836d6375c93",
+    "latex_formula_quarantine.jsonl": "d3216b4d2ee41d310dfe236fdbe5e8ea44dfbacdca8ef281f1688698e61ba9d6",
+    "latex_formula_test.jsonl": "728c236fc2cb0cfbf952fda91e08eff50fb7489887146d8c10f66c52da59e2ff",
+    "latex_formula_train.jsonl": "e7c9838ca9824bf0a055842355f205b6c78c55bb75bfbeb4fa45d19d065bf5e3",
+    "review_manifest.jsonl": "04885a509914a470a843d6a1afc311ac65e3aa39697ca867eeeaceac1fd55ddb"
+  },
+  "label_protocol_check": {
+    "eval": {
+      "checked": 56,
+      "violations": 0
+    },
+    "test": {
+      "checked": 56,
+      "violations": 0
+    },
+    "train": {
+      "checked": 476,
+      "violations": 0
+    }
+  },
+  "leakage": {
+    "equation_overlap": 0,
+    "family_overlap": 0,
+    "group_overlap": 0,
+    "input_overlap": 0,
+    "lineage_overlap": 0,
+    "near_family_overlap": 0,
+    "source_overlap": 0,
+    "structure_overlap": 0,
+    "template_overlap": 0
+  },
+  "parent_data_version": "v5",
+  "quarantine": {
+    "categories": {
+      "algebra_trig": 6,
+      "calculus": 10,
+      "matrix": 8,
+      "physics": 11,
+      "stats_ml": 20
+    },
+    "layers": {
+      "clean": 15,
+      "hard": 6,
+      "noisy": 26,
+      "targeted": 8
+    },
+    "total": 55
+  },
+  "review_files_sha256": {
+    "v5_eval_review.jsonl": "bc4599d4f8170dd21fd822d726b6bcf8d2e42588abce9234719fa12027df1a3a",
+    "v5_test_review.jsonl": "f50eff8fd1bfc58f83361ff58b45900237a9f612232dedb775b8ff20ea1fdd33",
+    "v5_train_review.jsonl": "49fa0d3ef3dbefc0f73b090f168a793a6316f567c9888975a7b37a706c2340ec"
+  },
+  "review_scope": "All frozen source rows; labels reviewed from input/gold evidence, no prediction files read by this pipeline",
+  "selection_policy": "Retain original split ownership; quarantine all sides of cross-split connected components; never reallocate",
+  "source_files_sha256": {
+    "dataset_info.json": "9b911a2a3aa0407d748ae2f57f6dac260c976c4114d57c1cfcb555a68d70d87c",
+    "latex_formula_eval_clean.jsonl": "ed83c7d05390958a40b78a993c6e65ad4a599bd0fef8ff019871185a9f84c02d",
+    "latex_formula_test.jsonl": "143860b7e38fc3c0478e9d80424cb132cdb7d87cebeee4e3581fc4c121aaf8fb",
+    "latex_formula_train.jsonl": "7589e92de25edd87afc591b1657b52a0ec927e5e58dc4abf6fbd00cc9a85653e"
+  },
+  "splits": {
+    "eval": {
+      "accepted": {
+        "categories": {
+          "algebra_trig": 2,
+          "matrix": 29,
+          "physics": 4,
+          "stats_ml": 21
+        },
+        "layers": {
+          "clean": 52,
+          "hard": 3,
+          "noisy": 1
+        },
+        "total": 56
+      },
+      "duplicates_merged": 0,
+      "final_actions": {
+        "keep": 46,
+        "quarantine": 8,
+        "repair": 10
+      },
+      "group_count": 4,
+      "input_records": 64
+    },
+    "test": {
+      "accepted": {
+        "categories": {
+          "algebra_trig": 30,
+          "matrix": 11,
+          "physics": 8,
+          "stats_ml": 7
+        },
+        "layers": {
+          "clean": 55,
+          "hard": 1
+        },
+        "total": 56
+      },
+      "duplicates_merged": 0,
+      "final_actions": {
+        "keep": 49,
+        "quarantine": 8,
+        "repair": 7
+      },
+      "group_count": 4,
+      "input_records": 64
+    },
+    "train": {
+      "accepted": {
+        "categories": {
+          "algebra_trig": 69,
+          "calculus": 156,
+          "matrix": 80,
+          "physics": 20,
+          "stats_ml": 151
+        },
+        "layers": {
+          "clean": 426,
+          "hard": 6,
+          "noisy": 17,
+          "targeted": 27
+        },
+        "total": 476
+      },
+      "duplicates_merged": 0,
+      "final_actions": {
+        "keep": 396,
+        "quarantine": 39,
+        "repair": 80
+      },
+      "group_count": 10,
+      "input_records": 515
+    }
+  }
+}

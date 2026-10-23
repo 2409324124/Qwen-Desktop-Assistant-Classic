@@ -94,6 +94,16 @@ class LatexEvaluationTests(unittest.TestCase):
         self.assertFalse(is_output_protocol_compliant("Here is x+y"))
         self.assertFalse(is_output_protocol_compliant(r"\[x+y\]"))
 
+    def test_output_protocol_distinguishes_literal_underscores_from_scripts(self) -> None:
+        for formula in (r"\text{rms\_norm}(\theta)", r"\mathrm{x\_actual}_{T}",
+                        r"\mathrm{x\_actual}_{T} - \mathrm{x\_predict}_{T}"):
+            with self.subTest(formula=formula):
+                self.assertTrue(is_output_protocol_compliant(formula))
+        for formula in (r"x_T", r"\mathrm{x\_actual}_T", r"\text{rms_norm}(x)",
+                        r"x\\_T", r"x^2"):
+            with self.subTest(formula=formula):
+                self.assertFalse(is_output_protocol_compliant(formula))
+
     def test_output_protocol_requires_braced_scripts_and_preserves_determinants(self) -> None:
         self.assertFalse(is_output_protocol_compliant('x_i'))
         self.assertTrue(is_output_protocol_compliant('x_{i}'))

@@ -29,7 +29,7 @@ def is_output_protocol_compliant(prediction: str) -> bool:
     value = prediction.strip()
     if not value or '$' in value or '```' in value:
         return False
-    if re.search(r"\\[\[\]()]|[_^](?!\{)|\\(?:over|dfrac|tfrac)\b", value) or '/' in value:
+    if re.search(r"\\[\[\]()]|(?<!\\)(?:\\\\)*[_^](?!\{)|\\(?:over|dfrac|tfrac)\b", value) or '/' in value:
         return False
     if re.search(r"\\(?:text|operatorname|mathrm)\{[^{}]*[\s:：][^{}]*\}", value):
         return False
