@@ -27,6 +27,15 @@ CLI 使用与 Python 研究代码同源的公式修复提示词；没有复制 P
 
 ## 模型版本
 
-用户必须指定 Ollama 中实际存在的模型。v5.2 checkpoint-30 目前以 HF LoRA 保存，不能把其仓库名直接当作已安装的 Ollama 模型名。旧 v3 GGUF 是不同模型，其历史评分不能代表 v5.2。新 GGUF 转换/发布和我们的托管服务均留待后续。
+用户必须指定 Ollama 中实际存在的模型。v5.2 checkpoint-30 已生成完整 BF16 与 Q4_K_M GGUF，HF 上传正在进行；原始 LoRA adapter 本身不能直接当作 Ollama 模型。
 
-Ollama 接口说明：https://docs.ollama.com/api/openai-compatibility
+从 [GGUF 发布仓库](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m/tree/main) 下载 `qwen3-4b-latex-correction-v5.2-q4_k_m.gguf` 和 `Modelfile` 到同一目录，然后：
+
+```bash
+ollama create qwen-latex-v5.2 -f Modelfile
+qwen-latex correct "x平方加y平方" --model qwen-latex-v5.2
+```
+
+HF 仓库名含历史 `v3`，`main` 的替换目标为 v5.2，下载前核对模型卡和文件名；旧版需指定 `v3-archive-20261023` 标签。GGUF 已通过 llama.cpp CPU 加载与分词检查；本轮没有运行 Ollama 端到端推理，也没有测量量化准确率，不能将 adapter 的分数视为 GGUF 分数。托管服务仍为 Future。
+
+参考：[Ollama GGUF 导入](https://docs.ollama.com/import) · [OpenAI 兼容接口](https://docs.ollama.com/api/openai-compatibility)

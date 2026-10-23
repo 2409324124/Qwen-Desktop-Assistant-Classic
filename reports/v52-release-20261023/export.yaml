@@ -1,0 +1,9 @@
+model_name_or_path: /home/miku/.cache/huggingface/hub/models--Qwen--Qwen3-4B-Instruct-2507/snapshots/cdbee75f17c01a7cc42f958dc650907174af0554
+adapter_name_or_path: /mnt/RC10/qwen-latex/model-archives/v52-checkpoint30/runs/v52-20261023T073851Z-d239b61a/sft/checkpoint-30
+template: qwen3_nothink
+finetuning_type: lora
+infer_dtype: bfloat16
+export_dir: /mnt/RC10/qwen-latex/releases/v52-20261023/bf16
+export_size: 5
+export_device: cpu
+export_legacy_format: false

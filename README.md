@@ -38,7 +38,12 @@ qwen-latex correct "x平方加y平方" --model <已安装模型名>
 
 CLI 不需要 Python、PyTorch 或模型权重，不会自动下载模型或启动服务。详细参数与 stdin/文件用法见 [CLI 文档](docs/cli.md)。模型输出不是数学正确性的自动证明。
 
-**v5.2 是 HF LoRA adapter，不是现成的 Ollama 模型。** 已有 v3 GGUF 属于历史发布，不能用来声称复现上表 v5.2 的结果。v5.2 权重与报告保存在 [HF 私有归档](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v5-2/tree/3721b25f40f3e9383d99b2991ba9dd0e4749dc86)，需要相应账号访问。Ollama 用户显式选择自己的模型；本轮没有转换新 GGUF。
+**v5.2 checkpoint-30 的完整 BF16 和 Q4_K_M GGUF 已生成并通过文件验证**，正在上传至原有 HF 发布仓库以替换 `main`（上传确认见发布报告）：
+
+- [BF16 完整模型](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-bf16)
+- [Q4_K_M GGUF 与 Ollama Modelfile](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v3-gguf-q4-k-m)
+
+仓库名保留历史 `v3`，本次发布目标为 v5.2；旧模型在 `v3-archive-20261023` 标签中。原始 [LoRA 私有归档](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v5-2/tree/3721b25f40f3e9383d99b2991ba9dd0e4749dc86) 保留。上表来自 adapter 评测，**量化后的准确率尚未测量**；转换与校验记录见[发布报告](reports/v52-release-20261023/README.md)。
 
 ### 研究与复现
 
@@ -57,6 +62,6 @@ CPU 数据检查与保存预测评分无需训练/GPU 依赖。正式训练继�
 
 - [架构与历史协议迁移](docs/architecture.md)
 - [v5 分组隔离与审查协议](training/DATA_V5.md)
-- [Future](docs/future.md)：npm 正式发布、v5.2 Ollama 发布物与可选托管服务。
+- [Future](docs/future.md)：npm 正式发布、量化效果评测与可选托管服务。
 
 当前没有托管服务，不提供通用数学能力提升保证；历史 v3 的高分存在标签、泄漏和评分协议问题，保留用于审计。

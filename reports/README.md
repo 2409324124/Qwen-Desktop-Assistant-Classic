@@ -2,6 +2,7 @@
 
 | 实验 | 协议 / 结论 | 原始证据 |
 |---|---|---|
+| [v5.2 模型发布](v52-release-20261023/README.md) | BF16 / Q4_K_M 转换验证完成，HF 上传中 | 转换配置、命令与校验方法 |
 | [v5.2 SFT](v5.2-colab-sft-20261023/README.md) | 476 train；56 dev；cp30/cp60 均 48/56，选择 cp30；56 test 未推理 | development 中逐题预测、指标、配置与 HF 归档收据 |
 | [通用数学 4K](v52-math-20261023/README.md) | GSM8K 200、MATH-500 200、AIME25 30，同基座/SFT 对比 | results、tasks、comparison.json、原执行命令 |
 | [AIME25 32K](v52-math-long-20261023/README.md) | 基座 12/30、SFT 11/30；SFT 重复更多 | results、comparison.json、budget-comparison.json、输出摘录 |

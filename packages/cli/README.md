@@ -27,7 +27,7 @@ Flags take precedence over environment values. `models` uses `/v1/models`; `corr
 
 Normal stdout contains only the model text (or one installed model ID per line); diagnostics go to stderr. `correct --json` emits `{ "text", "model", "finish_reason", "usage" }`, with `usage` only when returned by the endpoint. `models --json` emits the model-list response. Exit codes: 0 success, 1 input/network/response error, 2 truncated or otherwise incomplete completion, 130 interrupted request. A truncated response is retained in stdout, with `finish_reason: "length"` in JSON and a warning on stderr.
 
-The v5.2 Hugging Face checkpoint is a LoRA adapter, not an automatically installable Ollama model. Historical v3 Ollama/GGUF releases are a different model. Select a model already available on your server; this client does not convert or merge weights.
+The v5.2 checkpoint-30 has validated merged BF16 and Q4_K_M GGUF artifacts being uploaded in the historical Hugging Face repositories whose names contain v3. The release targets their main branch; confirm the model card and v5.2 filename after upload; tag v3-archive-20261023 retains v3. Import the GGUF with its supplied Modelfile before selecting it on your server. Quantized task accuracy has not been measured. This client does not download, convert, or merge weights.
 
 ## Development
 
