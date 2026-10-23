@@ -1,6 +1,6 @@
 # v5：按结构与近亲关系隔离
 
-当前全量清洗版本为 **v5.2-reviewed-all-splits**：训练476条、开发56条、测试56条。原v5与v5.1作为历史版本保留，详见文末的开发／测试盲审记录。
+当前全量清洗版本为 **v5.2-reviewed-all-splits**：训练476条、开发56条、测试56条。训练与开发评测入口已通过显式 `--data-version v5.2` 接入；默认仍为历史v5。新Colab训练尚未启动，没有v5.2成绩。原v5与v5.1作为历史版本保留，详见文末的开发／测试盲审记录。
 
 v4 的“零重叠”只适用于当时登记的名称、文本和来源键，不能证明相似公式没有跨集合。v5 保留 v4 数据和历史预测，改用来源、完整结构、参数模板和显式近亲关系的连通组。基础数学符号仍可共享；同组公式整体进入一个集合。
 
@@ -82,7 +82,7 @@ python3 -B -m training.evaluate_latex --predictions predictions-v5.jsonl --repor
 
 ## v5 实验入口与模型选择
 
-统一入口 `training.run_v5_experiment` 默认只校验本地数据/代码/导出哈希并打印计划，不联网或下载模型，只有加 `--execute` 才调用训练或模型推理。没有单独的 `plan` 子命令：
+统一入口 `training.run_v5_experiment` 默认使用历史v5，只校验本地数据/代码/导出哈希并打印计划，不联网或下载模型，只有加 `--execute` 才调用训练或模型推理。没有单独的 `plan` 子命令；以下保留历史v5命令，v5.2命令见文末：
 
 ```bash
 python3 -B -m training.run_v5_experiment train --profile smoke
@@ -108,7 +108,7 @@ smoke 和首轮正式训练已完成；本次清洗和复评仅在本地运行�
 - [完整515条审查清单](reviews/v5_train_review.jsonl)：每条来源、原文证据、判断、具体理由、输入/标签绑定；修复项附完整目标。
 - [训练导出](data/v5.1/latex_formula_train.jsonl)、[隔离集](data/v5.1/latex_formula_quarantine.jsonl)、[最终审查与解析诊断](data/v5.1/review_manifest.jsonl)、[汇总](data/v5.1/dataset_summary.json)。
 - 修订版本为 `v5.1-reviewed-training`；原 v5、v4 和历史预测不改。保留原集合分配和全部历史连接，并补入修订目标结构；来源、输入、目标、结构、参数模板、家族、近亲与组的交叉重叠检查全部为0。零重叠只证明已登记规则下的隔离，不是任意语义关系无泄漏的证明。
-- 此版本**只清洗训练集**。目录内开发/测试文件是原 v5 的逐字节快照，仍含已知标签问题，未宣称清洗完毕。原 v5 实验入口按版本锁定，不能直接把该目录当作已完成接入的新训练配置；下一次训练前需完善开发标签审查并接入新版本。本次不训练。
+- 此版本**只清洗训练集**。目录内开发/测试文件是原 v5 的逐字节快照，仍含已知标签问题，未宣称清洗完毕。v5.1目录没有接入训练入口，不能直接用于新训练；这一阶段没有训练。后续开发／测试审查和显式v5.2接入已完成，见下文。
 
 修复包括 `range(N)` 的零起始边界、未给边界的求和不擅补起止、自由索引/变量保真、不擅添等式左侧、普通乘法不改逐元乘法。信息不足输入继续隔离，没有引入拒答协议。人工式逐条审核和解析检查仍不是自然语言语义正确性的形式证明。
 
@@ -157,4 +157,41 @@ python3 -B -m training.clean_v5_holdouts --out-dir /tmp/v5-all-reviewed-reproduc
 python3 -B -m unittest discover -s tests -q
 ```
 
-导出可逐字节复现。原v5/v5.1、源快照和历史预测保持不变。本轮没有读取模型预测来制定标签，没有新推理、重新评分、checkpoint选择或Colab训练。开发和测试仍各只有4组且缺少微积分，清洗不等于扩充覆盖。原实验入口继续锁定历史v5；v5.2接入训练与独立评测留待后续单独处理。
+导出可逐字节复现。原v5/v5.1、源快照和历史预测保持不变。清洗阶段没有读取模型预测来制定标签，没有新推理、重新评分、checkpoint选择或Colab训练。开发和测试仍各只有4组且缺少微积分，清洗不等于扩充覆盖。随后完成的v5.2入口接入如下；新Colab训练尚未启动，没有v5.2成绩。
+
+
+## v5.2 训练与开发评测入口
+
+`training.run_v5_experiment` 的 `train` 和 `evaluate` 均支持显式 `--data-version v5.2`；省略时保持历史v5。两者核验同一 `training/data/v5.2`，不会把清洗后的训练集与旧开发标签混用。校验覆盖冻结输入 `training/reviews/v5_source`、审查文件 `training/reviews`、清洗代码 `training` 和最终导出的SHA256；逐条核对全部可用记录的原集合、来源、指令、输入与审定标签，并检查跨集合分组键。训练投影、运行manifest、checkpoint发现与评测命令均绑定实际数据路径。
+
+正式配置 [qwen3_4b_lora_sft_v5_2.yaml](qwen3_4b_lora_sft_v5_2.yaml) 从原始公开基座 `Qwen/Qwen3-4B-Instruct-2507` 训练 **2 epochs**，每轮保存并保留两轮checkpoint。[smoke配置](qwen3_4b_lora_smoke_v5_2.yaml) 为最多64个源样本、**5 optimizer steps**。LoRA rank64／alpha128／dropout0.05、target `all`、学习率 `1.5e-5`、SDPA与BF16沿用v5；禁止加载旧adapter、resume或tokenized源替代原始基座。
+
+只打印计划，不启动训练或推理：
+
+```bash
+python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile smoke
+python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile sft
+python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 --baseline-only
+```
+
+在GPU环境准备好固定revision的原始基座缓存后，执行对应计划：
+
+```bash
+python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile smoke --execute
+# smoke确认GPU和依赖兼容后执行正式训练。
+python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile sft --execute
+python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 --baseline-only --execute
+```
+
+正式SFT完成且manifest/checkpoint齐全后，才可生成并执行比较计划：
+
+```bash
+python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 \
+  --run-dir saves/qwen3-4b-latex-correction/lora/sft-v5.2
+python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 \
+  --run-dir saves/qwen3-4b-latex-correction/lora/sft-v5.2 --execute
+```
+
+默认训练根为 `saves/qwen3-4b-latex-correction/lora/smoke-v5.2`／`sft-v5.2`，独立基座与checkpoint比较结果分别写入 `reports/v5.2/base-development`／`checkpoint-development`；重复运行需用新的 `--run-dir`／`--output`。比较仍只在开发集按postprocessed macro、再micro排序，同分优先base、再较早checkpoint；测试只核验成员和隔离，不推理或计分。
+
+当前已完成入口接入与本地验证，全部154项本地测试通过；v5.2最终导出与冻结审查来源已纳入Git跟踪。**新Colab未启动，无v5.2训练成绩或checkpoint选择**。历史v5训练、历史预测复评与本轮清洗后的新实验分别记录。

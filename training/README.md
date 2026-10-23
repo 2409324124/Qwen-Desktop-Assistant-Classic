@@ -1,8 +1,10 @@
 # Qwen3 4B LaTeX Correction Training
 
-This workflow trains and evaluates a LoRA adapter for LaTeX formula correction. The source data is frozen under `data/frozen/phase1/`; versioned LLaMA-Factory datasets are written to `training/data/v5/` and ignored by Git. See [the v5 grouping protocol](DATA_V5.md) and [historical v4 audit](DATA_V4.md); v5 has separate training configurations and a version-bound experiment entry point. Existing v3 configs and `training/data/*.jsonl` remain historical.
+This workflow trains and evaluates a LoRA adapter for LaTeX formula correction. The source data is frozen under `data/frozen/phase1/`; historical generated dataset directories are generally ignored by Git. The reviewed `training/data/v5.2/` exports and their frozen review sources are tracked for reproducibility. See [the v5 grouping protocol](DATA_V5.md) and [historical v4 audit](DATA_V4.md); v5 has separate training configurations and a version-bound experiment entry point. Existing v3 configs and `training/data/*.jsonl` remain historical.
 
 ## Release Artifacts
+
+The historical v5 run is archived in the private Hugging Face repository [xu2409324124/qwen3-4b-latex-correction-v5](https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v5/tree/4dabecb3990e7dedd718afaa8696249fb82c0fa7). All three LoRA checkpoints (33, 66, 99) were uploaded and their remote weight contents verified. These are adapters trained on the original v5 data, not reviewed v5.2 models; load them with the original Qwen base. The archive includes adapter configuration and trainer state but excludes optimizer/scheduler state, so it is not an exact training-resume archive. See [the upload receipt](../reports/v5-hf-archive-20261023.json).
 
 The v3 release is published as separate Hugging Face repositories by runtime format:
 
@@ -56,7 +58,7 @@ python -m training.reevaluate_offline --dataset-dir training/data/v4 --output-di
 
 ## 3. v5 Training and Development Evaluation
 
-Use `training.run_v5_experiment` from the repository root. It verifies the v5 source, rule, export and split identities before constructing a plan. **Without `--execute`, commands only validate local artifacts and print a plan; they do not contact Hugging Face or launch training/inference.** Prepare the data first so provenance hashes match the checked-out code:
+Use `training.run_v5_experiment` from the repository root. The default remains historical v5; select the reviewed dataset explicitly with `--data-version v5.2` on both training and evaluation commands. It verifies the selected source, rule, export and split identities before constructing a plan. The commands in this section without a version flag reproduce the historical v5 interface. **Without `--execute`, commands only validate local artifacts and print a plan; they do not contact Hugging Face or launch training/inference.** Prepare the data first so provenance hashes match the checked-out code:
 
 ```bash
 python3 -B -m training.prepare_dataset --out-dir training/data/v5 --seed 42
@@ -111,6 +113,42 @@ python3 -B -m training.run_v5_experiment evaluate \
 
 This evaluates the unchanged base model plus every saved `checkpoints/checkpoint-N`, sorted by optimizer step, on the same v5 development file. It rejects smoke runs, failed or partial SFT runs, missing adapter files and changed training configuration, data or evaluation protocol. A checkpoint comparison plan therefore requires real completed-run artifacts, even when `--execute` is omitted. The default comparison results root is `reports/v5/checkpoint-development`; `--output` selects a fresh alternative.
 
+### Reviewed v5.2 training and evaluation
+
+The [v5.2 SFT configuration](qwen3_4b_lora_sft_v5_2.yaml) uses the original public base `Qwen/Qwen3-4B-Instruct-2507`, **2 epochs**, epoch evaluation/saving and retention of both epoch checkpoints. The [v5.2 smoke configuration](qwen3_4b_lora_smoke_v5_2.yaml) uses **5 optimizer steps**, at most 64 source samples, and its own output root. Both retain the v5 LoRA settings, `1.5e-5` learning rate, SDPA and BF16. Adapter, resume and tokenized-source overrides are forbidden: each run starts from the original base.
+
+Validate and print plans from the repository root:
+
+```bash
+python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile smoke
+python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile sft
+python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 --baseline-only
+```
+
+After preparing the immutable base-model cache in the GPU environment, execute the selected plans:
+
+```bash
+python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile smoke --execute
+# Run after the smoke run confirms GPU and dependency compatibility.
+python3 -B -m training.run_v5_experiment train --data-version v5.2 --profile sft --execute
+python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 --baseline-only --execute
+```
+
+Only after the v5.2 SFT run completes, print and execute the base/checkpoint development comparison:
+
+```bash
+python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 \
+  --run-dir saves/qwen3-4b-latex-correction/lora/sft-v5.2
+python3 -B -m training.run_v5_experiment evaluate --data-version v5.2 \
+  --run-dir saves/qwen3-4b-latex-correction/lora/sft-v5.2 --execute
+```
+
+The default roots are `saves/qwen3-4b-latex-correction/lora/smoke-v5.2`, `saves/qwen3-4b-latex-correction/lora/sft-v5.2`, `reports/v5.2/base-development` and `reports/v5.2/checkpoint-development`. Use fresh `--run-dir` or `--output` paths for repeat executions. Historical v5 defaults remain unchanged.
+
+The v5.2 verifier checks frozen source hashes under `training/reviews/v5_source`, review hashes under `training/reviews`, cleaning-code hashes under `training`, and export hashes under `training/data/v5.2`. It checks every accepted row against its original split, source and reviewed label, and checks all cross-split group keys. Training projections, manifests, checkpoint discovery and evaluation commands bind the same absolute data directory; development inference uses the repaired v5.2 labels. Test membership is verified, while test inference remains a separate final evaluation.
+
+The v5.2 entry point and local validation are complete; all 154 local tests passed. **The new Colab run has not started, and no v5.2 model scores or checkpoint selection exist.** The commands above describe the upcoming execution.
+
 ## 4. v5 Metrics, Provenance and Current Validation
 
 At execution, the entry point resolves an immutable Hugging Face base-model revision, then checks the local cache for all safetensors shards at that revision. Missing or incomplete model weights stop execution and print the exact `hf download MODEL --revision SHA` command for the user; the entry point does not automatically download the base model. Training records it in the effective configuration and manifest; checkpoint comparison reuses that training revision for both the base model and all adapters. An independent baseline-only execution records its own resolved revision, so a later checkpoint comparison runs the base again under the training revision rather than silently combining potentially different baselines.
@@ -123,7 +161,7 @@ This workflow uses **development only** for selection. It verifies test membersh
 
 **The [2026-10-23 Colab smoke](../reports/v5-colab-smoke-20261023/README.md) passed on an A100 40GB:** five optimizer steps completed in 21.985 seconds, and the saved checkpoint reloaded for two development predictions. The runtime was terminated after result collection. All 127 local tests passed. The subsequent 3-epoch / 99-step formal run completed: frozen development scores were 25/64 for Base and 41/64 for cp66/cp99. Extra diagnostics and final test remain incomplete. The GPU was released. See [the complete training-data review and scorer-only reassessment](DATA_V5.md#v51-全量训练审查与已有预测复评2026-10-23): 476 reviewed training rows remain; no new training was run after cleanup.
 
-The subsequent **v5.2 input/gold-only review** is complete: 476 training, 56 development and 56 test records remain, with 55 records quarantined across the three original splits. Both holdouts received two independent reviews without model predictions or scores. Original split ownership and historical grouping connections are preserved; all registered cross-split overlap checks are zero. See [DATA_V5.md](DATA_V5.md) and [the exported summary](data/v5.2/dataset_summary.json). This cleanup did not run inference, select a checkpoint or start Colab. The original experiment entry point remains bound to historical v5; adopting v5.2 is a separate next step.
+The subsequent **v5.2 input/gold-only review** is complete: 476 training, 56 development and 56 test records remain, with 55 records quarantined across the three original splits. Both holdouts received two independent reviews without model predictions or scores. Original split ownership and historical grouping connections are preserved; all registered cross-split overlap checks are zero. See [DATA_V5.md](DATA_V5.md) and [the exported summary](data/v5.2/dataset_summary.json). During the cleanup stage, no inference, checkpoint selection or Colab training was run. The entry point now supports explicit `--data-version v5.2` for both training and evaluation; the default remains historical v5. The new Colab run has not started, and no v5.2 scores are available.
 
 ### Manual remote model prefetch
 

@@ -1,0 +1,23 @@
+{
+  "repo_id": "xu2409324124/qwen3-4b-latex-correction-v5",
+  "private": true,
+  "commit": "4dabecb3990e7dedd718afaa8696249fb82c0fa7",
+  "verified_weights": [
+    {
+      "path": "checkpoint-33/adapter_model.safetensors",
+      "bytes": 528550256,
+      "sha256": "8bb8790e7fa73b7b0147eb8c399edd13a9bacbae1da750e9a35e965f2d7f0397"
+    },
+    {
+      "path": "checkpoint-66/adapter_model.safetensors",
+      "bytes": 528550256,
+      "sha256": "1223aba972eced9512edc5e4cbf34f42e99cd4a4e78a6fd681ba87ddb6b00a09"
+    },
+    {
+      "path": "checkpoint-99/adapter_model.safetensors",
+      "bytes": 528550256,
+      "sha256": "3b541299f4f05577c4418f3123f7593b5df3ea05c87601607d57746b3e3e4fbc"
+    }
+  ],
+  "url": "https://huggingface.co/xu2409324124/qwen3-4b-latex-correction-v5/tree/4dabecb3990e7dedd718afaa8696249fb82c0fa7"
+}
